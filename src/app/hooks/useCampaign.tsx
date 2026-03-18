@@ -1,0 +1,493 @@
+/**
+ * useCampaign — shared campaign state & handlers (context).
+ * Wraps the entire authenticated game so that DesktopLeftColumn
+ * and HomeScreen can share the same mission/combat state.
+ */
+import {
+  createContext, useContext,
+  useState, useCallback, useEffect, useRef,
+  ReactNode,
+} from "react";
+import { useSound }               from "./useSound";
+import { audioManager }           from "./audioManager";
+import { useInteractionFeedback } from "./useInteractionFeedback";
+import { getCombatPower }         from "../data/combatPower";
+import {
+  getMissions, getActiveCampaignMission, unlockNext, isCampaignComplete,
+  addTaskToHistory, removeTaskFromHistory, loadPlayerName,
+  updateMission, createMission, initialMissions,
+  Mission, Task,
+} from "../data/missions";
+import { getEconomy, addBonusXP, recordOnePunchBoss, selectClass, buyClass } from "../data/economy";
+import {
+  calcTaskDamage, calcBatchDamage, calcMonsterXP,
+  calcTotalXP, getLevelInfo, getRank,
+  getMonsterHpInfo, isMonsterDefeated, getAttackBanner,
+  AttackBanner,
+} from "../data/gameEngine";
+import type { TemporalStrike } from "../components/ChallengePanel";
+import type { FocusStrike }    from "../components/FocusPanel";
+import type { DamageNumber }   from "../components/ui/FloatingDamage";
+
+const FOCUS_BONUS_PER_TASK = 0.01;
+
+// ── Context shape ──────────────────────────────────────────────────────────
+export interface CampaignContextValue {
+  // state
+  mission:          Mission | null;
+  allMissions:      Mission[];
+  monsterShake:     boolean;
+  taskCompleted:    boolean;
+  showVictory:      boolean;
+  victoryXP:        number;
+  nextMission:      Mission | null;
+  campaignDone:     boolean;
+  levelUpInfo:      { level: number; rank: string; rankColor: string } | null;
+  attackBanner:     AttackBanner | null;
+  screenShake:      boolean;
+  screenFlash:      boolean;
+  xpPenaltyBanner:  { amount: number } | null;
+  hpInfo:           { current: number; max: number; percent: number; label: string };
+  hpColor:          string;
+  defeated:         boolean;
+  doneCampaign:     number;
+  totalCampaign:    number;
+  selectedClass:    string | null;
+  needsClassPick:   boolean;
+  damageNumbers:    DamageNumber[];
+  // arena attack bridge
+  selectedTaskCount:   number;
+  setSelectedTaskCount:(n: number) => void;
+  attackCallbackRef:   React.MutableRefObject<(() => void) | null>;
+  // temporal attack bridge
+  temporalSelectedCount:   number;
+  setTemporalSelectedCount:(n: number) => void;
+  temporalAttackCallbackRef: React.MutableRefObject<(() => void) | null>;
+  // focus attack bridge
+  focusSelectedCount:   number;
+  setFocusSelectedCount:(n: number) => void;
+  focusAttackCallbackRef: React.MutableRefObject<(() => void) | null>;
+  // player
+  lvInfo:    { level: number; currentXP: number; neededXP: number };
+  xpPct:     number;
+  rank:      { label: string; color: string };
+  cpData:    ReturnType<typeof getCombatPower>;
+  playerName: string;
+  // actions
+  handleAttackStart:      () => void;
+  handleComplete:         (count: number, completedIds: string[]) => void;
+  handleTasksChange:      (newTasks: Mission["tasks"]) => void;
+  handleUncompleteTask:   (taskId: string) => void;
+  handleDeleteTask:       (task: Task) => void;
+  handleNextMission:      () => void;
+  handleTemporalStrike:   (strike: TemporalStrike) => void;
+  handleFocusStrike:      (strike: FocusStrike) => void;
+  handleChallengeFailed:  () => void;
+  handleEmptyStateChange: (newTasks: Task[]) => void;
+  setShowVictory:    (v: boolean) => void;
+  setNeedsClassPick: (v: boolean) => void;
+  setSelectedClass:  (cls: string) => void;
+  setLevelUpInfo:    (v: { level: number; rank: string; rankColor: string } | null) => void;
+  refresh: () => void;
+}
+
+const CampaignContext = createContext<CampaignContextValue | null>(null);
+
+export function useCampaign(): CampaignContextValue {
+  const ctx = useContext(CampaignContext);
+  if (!ctx) throw new Error("useCampaign must be inside CampaignProvider");
+  return ctx;
+}
+
+// ── Provider ──────────────────────────────────────────────────────────────────
+export function CampaignProvider({ children }: { children: ReactNode }) {
+  const feedback = useInteractionFeedback();
+
+  const [mission,          setMission]         = useState<Mission | null>(getActiveCampaignMission);
+  const [allMissions,      setAllMissions]      = useState(getMissions());
+  const [monsterShake,     setMonsterShake]     = useState(false);
+  const [prevHpPct,        setPrevHpPct]        = useState(100);
+  const [attackBanner,     setAttackBanner]     = useState<AttackBanner | null>(null);
+  const [screenShake,      setScreenShake]      = useState(false);
+  const [screenFlash,      setScreenFlash]      = useState(false);
+  const [showVictory,      setShowVictory]      = useState(false);
+  const [victoryXP,        setVictoryXP]        = useState(0);
+  const [nextMission,      setNextMission]      = useState<Mission | null>(null);
+  const [campaignDone,     setCampaignDone]     = useState(false);
+  const [playerName]                            = useState(loadPlayerName);
+  const [levelUpInfo,      setLevelUpInfo]      = useState<{ level: number; rank: string; rankColor: string } | null>(null);
+  const [taskCompleted,    setTaskCompleted]    = useState(false);
+  const [xpPenaltyBanner,  setXpPenaltyBanner] = useState<{ amount: number } | null>(null);
+  const [needsClassPick,   setNeedsClassPick]  = useState(() => getEconomy().needsClassSelection);
+  const [selectedClass,    setSelectedClassSt] = useState(() => getEconomy().selectedClass);
+
+  const prevLevelRef        = useRef<number>(0);
+  const pendingFeedbackRef  = useRef<(() => void) | null>(null);
+  const fallbackTimerRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const attackCallbackRef          = useRef<(() => void) | null>(null);
+  const temporalAttackCallbackRef  = useRef<(() => void) | null>(null);
+  const focusAttackCallbackRef     = useRef<(() => void) | null>(null);
+  const [selectedTaskCount,        setSelectedTaskCount]        = useState(0);
+  const [temporalSelectedCount,    setTemporalSelectedCount]    = useState(0);
+  const [focusSelectedCount,       setFocusSelectedCount]       = useState(0);
+  const [damageNumbers,            setDamageNumbers]            = useState<DamageNumber[]>([]);
+
+  const playHit = useSound("https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/sound_hit.mp3");
+
+  // Add a floating damage number that auto-removes after animation
+  const addDamageNumber = useCallback((amount: number) => {
+    const id = Date.now() + Math.floor(Math.random() * 1000);
+    setDamageNumbers(prev => [...prev, { id, amount }]);
+    setTimeout(() => setDamageNumbers(prev => prev.filter(d => d.id !== id)), 1400);
+  }, []);
+
+  // ── helpers ──────────────────────────────────────────────────────────────────
+  const handleAttackStart = useCallback(() => {
+    if (fallbackTimerRef.current) { clearTimeout(fallbackTimerRef.current); fallbackTimerRef.current = null; }
+    const fb = pendingFeedbackRef.current;
+    if (fb) { pendingFeedbackRef.current = null; fb(); }
+  }, []);
+
+  const scheduleFeedback = useCallback((fn: () => void) => {
+    pendingFeedbackRef.current = fn;
+    if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+    fallbackTimerRef.current = setTimeout(() => {
+      fallbackTimerRef.current = null;
+      const fb = pendingFeedbackRef.current;
+      if (fb) { pendingFeedbackRef.current = null; fb(); }
+    }, 700);
+  }, []);
+
+  const syncMissions = useCallback(() => {
+    const fresh = getMissions();
+    setAllMissions([...fresh]);
+    const xp     = calcTotalXP(fresh);
+    const lvInfo = getLevelInfo(xp);
+    if (lvInfo.level > prevLevelRef.current && prevLevelRef.current > 0) {
+      const r = getRank(lvInfo.level);
+      setLevelUpInfo({ level: lvInfo.level, rank: r.label, rankColor: r.color });
+    }
+    prevLevelRef.current = lvInfo.level;
+  }, []);
+
+  const refresh = useCallback(() => {
+    const currentMissions = getMissions();
+    const hasCampaign = currentMissions.some(m => m.mode === "campaign");
+    if (!hasCampaign) { for (const m of initialMissions) createMission(m); }
+    const active = getActiveCampaignMission();
+    setMission(active);
+    if (active) setPrevHpPct(getMonsterHpInfo(active).percent);
+    syncMissions();
+    // ← Re-sync economy state into context after cloud pull overwrites localStorage.
+    // This is critical to prevent "class selection on every login" (needsClassSelection
+    // is read from the empty economy during CampaignProvider mount, before sync finishes).
+    const freshEcon = getEconomy();
+    setNeedsClassPick(freshEcon.needsClassSelection);
+    setSelectedClassSt(freshEcon.selectedClass);
+  }, [syncMissions]);
+
+  useEffect(() => {
+    const xp0 = calcTotalXP(getMissions());
+    prevLevelRef.current = getLevelInfo(xp0).level;
+    refresh();
+    const handleVis = () => { if (document.visibilityState === "visible") refresh(); };
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", handleVis);
+    // Listen for cloud sync completion so we can re-read economy state into context.
+    // This event is dispatched by RootLayout after pullFromCloud finishes, fixing
+    // the "class selection on every login" bug without calling useCampaign() from RootLayout.
+    const handleSyncComplete = () => refresh();
+    window.addEventListener("rpg:sync-complete", handleSyncComplete);
+    const poll = setInterval(() => syncMissions(), 2000);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", handleVis);
+      window.removeEventListener("rpg:sync-complete", handleSyncComplete);
+      clearInterval(poll);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!mission) return;
+    const hp = getMonsterHpInfo(mission).percent;
+    if (hp < prevHpPct) { setMonsterShake(true); setTimeout(() => setMonsterShake(false), 600); }
+    setPrevHpPct(hp);
+  }, [mission]);
+
+  // ── derived ───────────────────────────────────────────────────────────────────
+  const totalXP       = calcTotalXP(allMissions);
+  const lvInfo        = getLevelInfo(totalXP);
+  const xpPct         = Math.round((lvInfo.currentXP / lvInfo.neededXP) * 100);
+  const rank          = getRank(lvInfo.level);
+  const cpData        = getCombatPower(lvInfo.level);
+  const hpInfo        = mission ? getMonsterHpInfo(mission) : { current: 0, max: 0, percent: 0, label: "0/0" };
+  const defeated      = mission ? isMonsterDefeated(mission) : false;
+  const hpColor       = hpInfo.percent > 50 ? "#E63946" : hpInfo.percent > 25 ? "#ed8549" : "#f0c040";
+  const totalCampaign = allMissions.filter(m => m.mode === "campaign").length;
+  const doneCampaign  = allMissions.filter(m => m.mode === "campaign" && (m.monsterCurrentHp ?? 1) <= 0).length;
+
+  // ── handlers ──────────────────────────────────────────────────────────────────
+  const handleComplete = useCallback((count: number, completedIds: string[]) => {
+    if (!mission) return;
+    const level    = getLevelInfo(calcTotalXP(getMissions())).level;
+    const justDone = mission.tasks.filter(t => completedIds.includes(t.id));
+    const damage   = calcBatchDamage(justDone, level);
+    const newHp    = Math.max(0, (mission.monsterCurrentHp ?? mission.monsterMaxHp ?? 100) - damage);
+    const now = Date.now();
+    const updatedTasks = mission.tasks.map(t =>
+      completedIds.includes(t.id)
+        ? { ...t, completed: true, completedAt: now, damageDealt: calcTaskDamage(t, level) }
+        : t
+    );
+    const updated = { ...mission, monsterCurrentHp: newHp, tasks: updatedTasks };
+
+    // ← Save correct state (tasks + HP) IMMEDIATELY — do NOT wait for the attack animation.
+    // If the page closes before scheduleFeedback fires, the mission data is already correct
+    // in localStorage. Without this, handleTasksChange (called by TaskList's onChange before
+    // handleComplete) would leave an incorrect HP in localStorage.
+    updateMission(updated);
+
+    updatedTasks.filter(t => completedIds.includes(t.id)).forEach(t => addTaskToHistory(t, mission));
+    setTaskCompleted(true);
+    setTimeout(() => setTaskCompleted(false), 0);
+    scheduleFeedback(() => {
+      playHit();
+      // updateMission already persisted above — only update React visual state here
+      setMission({ ...updated });
+      syncMissions();
+      const banner = getAttackBanner(count, damage);
+      setAttackBanner(banner);
+      setScreenShake(true);
+      setScreenFlash(true);
+      setTimeout(() => setScreenFlash(false), 180);
+      setTimeout(() => setScreenShake(false), count >= 3 ? 600 : 380);
+      setTimeout(() => setAttackBanner(null), count >= 5 ? 2000 : 1400);
+      addDamageNumber(damage);
+      if (newHp <= 0) {
+        const xpGained = calcMonsterXP({ ...updated });
+        addBonusXP(xpGained);
+        setVictoryXP(xpGained);
+        if (updated.monsterType === "boss" && completedIds.length === 1) {
+          const theTask = justDone[0];
+          if (theTask?.difficulty === "hard") recordOnePunchBoss();
+        }
+        const next = unlockNext(updated);
+        setNextMission(next);
+        setCampaignDone(!next && isCampaignComplete());
+        setTimeout(() => { feedback.victory(); audioManager.playVictory(); setShowVictory(true); }, 800);
+      }
+    });
+  }, [mission, scheduleFeedback]);
+
+  const handleTasksChange = useCallback((newTasks: Mission["tasks"]) => {
+    if (!mission) return;
+    const updated = { ...mission, tasks: newTasks };
+    updateMission(updated);
+    setMission({ ...updated });
+  }, [mission]);
+
+  const handleUncompleteTask = useCallback((taskId: string) => {
+    if (!mission) return;
+    const task = mission.tasks.find(t => t.id === taskId);
+    if (!task) return;
+    const damage = task.damageDealt ?? calcTaskDamage(task, getLevelInfo(calcTotalXP(getMissions())).level);
+    const maxHp  = mission.monsterMaxHp ?? 100;
+    const curHp  = mission.monsterCurrentHp ?? maxHp;
+    const newHp  = Math.min(maxHp, curHp + damage);
+    const updatedTasks = mission.tasks.map(t =>
+      t.id === taskId ? { ...t, completed: false, completedAt: undefined, damageDealt: undefined } : t
+    );
+    const updated = { ...mission, monsterCurrentHp: newHp, tasks: updatedTasks };
+    updateMission(updated);
+    setMission({ ...updated });
+    syncMissions();
+    setShowVictory(false);
+    removeTaskFromHistory(taskId);
+  }, [mission]);
+
+  const handleDeleteTask = useCallback((task: Task) => {
+    if (!mission) return;
+    const updatedTasks = mission.tasks.filter(t => t.id !== task.id);
+    if (task.completed) {
+      const damage = task.damageDealt ?? calcTaskDamage(task, getLevelInfo(calcTotalXP(getMissions())).level);
+      const maxHp  = mission.monsterMaxHp ?? 100;
+      const curHp  = mission.monsterCurrentHp ?? maxHp;
+      const newHp  = Math.min(maxHp, curHp + damage);
+      const updated = { ...mission, monsterCurrentHp: newHp, tasks: updatedTasks };
+      updateMission(updated);
+      setMission({ ...updated });
+      syncMissions();
+      setShowVictory(false);
+      removeTaskFromHistory(task.id);
+    } else {
+      const updated = { ...mission, tasks: updatedTasks };
+      updateMission(updated);
+      setMission({ ...updated });
+    }
+  }, [mission]);
+
+  const handleNextMission = useCallback(() => {
+    if (mission) {
+      const uncompletedTasks = mission.tasks
+        .filter(t => !t.completed)
+        .map(t => ({ ...t, id: `carry-${Date.now()}-${Math.random().toString(36).slice(2, 8)}` }));
+      if (uncompletedTasks.length > 0 && nextMission) {
+        updateMission({ ...nextMission, tasks: [...uncompletedTasks, ...nextMission.tasks] });
+      }
+    }
+    setShowVictory(false);
+    setMission(null);
+    setTimeout(() => refresh(), 200);
+  }, [mission, nextMission, refresh]);
+
+  const handleTemporalStrike = useCallback((strike: TemporalStrike) => {
+    if (!mission || isMonsterDefeated(mission)) return;
+    const maxHp  = mission.monsterMaxHp ?? 100;
+    const curHp  = mission.monsterCurrentHp ?? maxHp;
+    const newHp  = Math.max(0, curHp - strike.damage);
+    const updated = { ...mission, monsterCurrentHp: newHp };
+    setTaskCompleted(true);
+    setTimeout(() => setTaskCompleted(false), 0);
+
+    // ← Save immediately so HP is correct even if page closes before animation
+    updateMission(updated);
+
+    scheduleFeedback(() => {
+      playHit();
+      setMission({ ...updated });
+      syncMissions();
+      const banner: AttackBanner = strike.isCritical
+        ? { text: "GOLPE TEMPORAL CRITICO!", sub: `x${strike.multiplier.toFixed(2)} -${strike.damage}HP`, color: "#FF6B35", emoji: "timer", size: "28px" }
+        : { text: "GOLPE TEMPORAL!",         sub: `x${strike.multiplier.toFixed(2)} -${strike.damage}HP`, color: "#FF6B35", emoji: "timer", size: "22px" };
+      setAttackBanner(banner);
+      setScreenShake(true);
+      setScreenFlash(true);
+      setTimeout(() => setScreenFlash(false), 180);
+      setTimeout(() => setScreenShake(false), strike.isCritical ? 600 : 380);
+      setTimeout(() => setAttackBanner(null), strike.isCritical ? 2000 : 1400);
+      addDamageNumber(strike.damage);
+      if (newHp <= 0) {
+        const xpGained = calcMonsterXP({ ...updated });
+        addBonusXP(xpGained);
+        setVictoryXP(xpGained);
+        const next = unlockNext(updated);
+        setNextMission(next);
+        setCampaignDone(!next && isCampaignComplete());
+        setTimeout(() => { feedback.victory(); audioManager.playVictory(); setShowVictory(true); }, 800);
+      }
+    });
+  }, [mission, scheduleFeedback]);
+
+  const handleFocusStrike = useCallback((strike: FocusStrike) => {
+    if (!mission || isMonsterDefeated(mission)) return;
+    const maxHp  = mission.monsterMaxHp ?? 100;
+    const curHp  = mission.monsterCurrentHp ?? maxHp;
+    const newHp  = Math.max(0, curHp - strike.damage);
+    const updated = { ...mission, monsterCurrentHp: newHp };
+    setTaskCompleted(true);
+    setTimeout(() => setTaskCompleted(false), 0);
+
+    // ← Save immediately so HP is correct even if page closes before animation
+    updateMission(updated);
+
+    scheduleFeedback(() => {
+      playHit();
+      setMission({ ...updated });
+      syncMissions();
+      const banner: AttackBanner = {
+        text:  strike.count > 1 ? "GOLPE DE FOCO!" : "FOCO ATIVADO!",
+        sub:   `-${strike.damage}HP · +${(FOCUS_BONUS_PER_TASK * strike.count).toFixed(2)}x DMG permanente`,
+        color: "#c084fc", emoji: "brain", size: "22px",
+      };
+      setAttackBanner(banner);
+      setScreenShake(true);
+      setScreenFlash(true);
+      setTimeout(() => setScreenFlash(false), 180);
+      setTimeout(() => setScreenShake(false), 380);
+      setTimeout(() => setAttackBanner(null), 1600);
+      addDamageNumber(strike.damage);
+      if (newHp <= 0) {
+        const xpGained = calcMonsterXP({ ...updated });
+        addBonusXP(xpGained);
+        setVictoryXP(xpGained);
+        const next = unlockNext(updated);
+        setNextMission(next);
+        setCampaignDone(!next && isCampaignComplete());
+        setTimeout(() => { feedback.victory(); audioManager.playVictory(); setShowVictory(true); }, 800);
+      }
+    });
+  }, [mission, scheduleFeedback]);
+
+  const handleChallengeFailed = useCallback(() => {
+    const missions = getMissions();
+    const totalXp  = calcTotalXP(missions);
+    const info     = getLevelInfo(totalXp);
+    const penalty  = Math.floor(info.currentXP * 0.5);
+    if (penalty <= 0) return;
+    addBonusXP(-penalty);
+    syncMissions();
+    setXpPenaltyBanner({ amount: penalty });
+    setScreenFlash(true);
+    setTimeout(() => setScreenFlash(false), 250);
+    setTimeout(() => setXpPenaltyBanner(null), 3000);
+  }, [syncMissions]);
+
+  const handleEmptyStateChange = useCallback((newTasks: Task[]) => {
+    const currentMissions = getMissions();
+    const firstActive = currentMissions.find(
+      m => m.mode === "campaign" && m.unlocked && (m.monsterCurrentHp ?? m.monsterMaxHp ?? 1) > 0
+    );
+    if (firstActive) {
+      const updated = { ...firstActive, tasks: newTasks };
+      updateMission(updated);
+      setMission({ ...updated });
+      syncMissions();
+    } else {
+      const { id: _id, ...template } = initialMissions[0];
+      const created = createMission({ ...template, tasks: newTasks });
+      setMission(created);
+      syncMissions();
+    }
+  }, [syncMissions]);
+
+  const setSelectedClass = useCallback((cls: string) => {
+    // Persist to economy (localStorage) so it survives page refresh
+    const econ = getEconomy();
+    if (econ.unlockedClasses.includes(cls as any)) {
+      selectClass(cls as any);
+    } else {
+      buyClass(cls as any);
+    }
+    setSelectedClassSt(cls);
+  }, []);
+
+  const value: CampaignContextValue = {
+    mission, allMissions, monsterShake, taskCompleted, showVictory, victoryXP,
+    nextMission, campaignDone, levelUpInfo, attackBanner, screenShake, screenFlash,
+    xpPenaltyBanner, hpInfo, hpColor, defeated, doneCampaign, totalCampaign,
+    selectedClass, needsClassPick, damageNumbers,
+    // arena attack bridge
+    selectedTaskCount,
+    setSelectedTaskCount,
+    attackCallbackRef,
+    // temporal attack bridge
+    temporalSelectedCount,
+    setTemporalSelectedCount,
+    temporalAttackCallbackRef,
+    // focus attack bridge
+    focusSelectedCount,
+    setFocusSelectedCount,
+    focusAttackCallbackRef,
+    lvInfo, xpPct, rank, cpData, playerName,
+    handleAttackStart, handleComplete, handleTasksChange, handleUncompleteTask,
+    handleDeleteTask, handleNextMission, handleTemporalStrike, handleFocusStrike,
+    handleChallengeFailed, handleEmptyStateChange,
+    setShowVictory, setNeedsClassPick, setSelectedClass, setLevelUpInfo, refresh,
+  };
+
+  return (
+    <CampaignContext.Provider value={value}>
+      {children}
+    </CampaignContext.Provider>
+  );
+}
