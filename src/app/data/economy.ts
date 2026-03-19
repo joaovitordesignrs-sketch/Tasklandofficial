@@ -385,7 +385,12 @@ const REBIRTH_KEY = "rpg_rebirth_v1";
 function loadRebirth(): RebirthState {
   try {
     const raw = localStorage.getItem(REBIRTH_KEY);
-    if (raw) return JSON.parse(raw) as RebirthState;
+    if (raw) {
+      const parsed = JSON.parse(raw) as RebirthState;
+      // Migrate: ensure array fields always exist (older saves may lack them)
+      if (!Array.isArray(parsed.permanentAchievements)) parsed.permanentAchievements = [];
+      return parsed;
+    }
   } catch { /* noop */ }
   return {
     runNumber: 1, totalRebirths: 0,
