@@ -1,11 +1,13 @@
 // ClassPickerOverlay.tsx
 // Simple two-card class selection overlay with live Rive idle animations.
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
 import { buyClass, CLASS_INFO, type CharacterClass } from '../data/economy';
 import { audioManager } from '../hooks/audioManager';
 import { PixelIcon } from './ui/PixelIcon';
+import imgAvatarWarrior from 'figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf1e.png';
+import imgAvatarMage    from 'figma:asset/5c09b71e009581d58103f7df9949281a05a710d1.png';
 
 const RIV_URLS: Record<CharacterClass, string> = {
   guerreiro: 'https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/taskland_animations_warrior_base.riv',
@@ -19,16 +21,34 @@ const CLASS_COLORS: Record<CharacterClass, { color: string; glow: string }> = {
 
 // ── Mini Rive preview ─────────────────────────────────────────────────────────
 function ClassRivePreview({ cls }: { cls: CharacterClass }) {
+  const [riveReady, setRiveReady] = useState(false);
+  const onLoad = useCallback(() => setRiveReady(true), []);
+
   const { RiveComponent } = useRive({
     src: RIV_URLS[cls],
     autoplay: true,
     layout: new Layout({ fit: Fit.Contain, alignment: Alignment.BottomCenter }),
+    onLoad,
   });
 
+  const fallbackSrc = cls === 'mago' ? imgAvatarMage : imgAvatarWarrior;
+
   return (
-    <RiveComponent
-      style={{ width: '100%', height: '100%', imageRendering: 'pixelated' }}
-    />
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      {!riveReady && (
+        <img
+          src={fallbackSrc}
+          alt=""
+          style={{
+            position: 'absolute', inset: 0, width: '100%', height: '100%',
+            objectFit: 'contain', imageRendering: 'pixelated', opacity: 0.75,
+          }}
+        />
+      )}
+      <RiveComponent
+        style={{ width: '100%', height: '100%', imageRendering: 'pixelated', opacity: riveReady ? 1 : 0, transition: 'opacity 0.4s' }}
+      />
+    </div>
   );
 }
 

@@ -4,6 +4,8 @@
 import { useRive, Layout, Fit, Alignment, EventType } from '@rive-app/react-canvas';
 import { useEffect, useRef, useCallback, useState } from 'react';
 import type { CharacterClass } from '../data/economy';
+import imgAvatarWarrior from 'figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf1e.png';
+import imgAvatarMage    from 'figma:asset/5c09b71e009581d58103f7df9949281a05a710d1.png';
 
 const RIV_URLS: Record<CharacterClass, string> = {
   guerreiro: 'https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/taskland_animations_warrior_base.riv',
@@ -137,14 +139,30 @@ export function TaskCharacter({ taskCompleted, selectedClass, onAttackStart }: T
   }, [taskCompleted]);
 
   const scale = selectedClass ? (CLASS_SCALE[selectedClass] ?? 1.0) : 1.0;
+  const fallbackSrc = selectedClass === 'mago' ? imgAvatarMage : imgAvatarWarrior;
 
   return (
     <div style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'flex-end' }}>
+      {/* Static fallback — visible while Rive loads or on network failure */}
+      {!riveReady && (
+        <img
+          src={fallbackSrc}
+          alt=""
+          style={{
+            position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)',
+            height: '100%', width: 'auto', objectFit: 'contain', imageRendering: 'pixelated',
+            opacity: 0.75, zIndex: 1,
+          }}
+        />
+      )}
       <div style={{
         transform: `scale(${scale})`,
         transformOrigin: 'bottom center',
         display: 'flex',
         alignItems: 'flex-end',
+        opacity: riveReady ? 1 : 0,
+        transition: 'opacity 0.4s',
+        position: 'relative', zIndex: 2,
       }}>
         <RiveComponent style={{ width: 360, height: 360, imageRendering: 'pixelated' }} />
       </div>

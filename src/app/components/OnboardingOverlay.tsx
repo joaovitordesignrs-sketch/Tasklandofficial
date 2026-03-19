@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, type CSSProperties } from "react";
 import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
+import imgAvatarWarrior from 'figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf1e.png';
+import imgAvatarMage    from 'figma:asset/5c09b71e009581d58103f7df9949281a05a710d1.png';
 
 const ONBOARDING_KEY = "rpg_onboarding_v1";
 
@@ -20,12 +22,17 @@ function OnboardingChar({
   size?: number;
 }) {
   const scale = CLASS_SCALE[charClass];
+  const [riveReady, setRiveReady] = useState(false);
+  const onLoad = useCallback(() => setRiveReady(true), []);
 
   const { RiveComponent } = useRive({
     src: RIV_URLS[charClass],
     autoplay: true,
     layout: new Layout({ fit: Fit.Contain, alignment: Alignment.BottomCenter }),
+    onLoad,
   });
+
+  const fallbackSrc = charClass === 'mago' ? imgAvatarMage : imgAvatarWarrior;
 
   return (
     <div style={{
@@ -34,8 +41,19 @@ function OnboardingChar({
       flexShrink: 0,
       transform: `scale(${scale})`,
       transformOrigin: 'bottom center',
+      position: 'relative',
     }}>
-      <RiveComponent style={{ width: size, height: size, imageRendering: 'pixelated' }} />
+      {!riveReady && (
+        <img
+          src={fallbackSrc}
+          alt=""
+          style={{
+            position: 'absolute', inset: 0, width: '100%', height: '100%',
+            objectFit: 'contain', imageRendering: 'pixelated', opacity: 0.75,
+          }}
+        />
+      )}
+      <RiveComponent style={{ width: size, height: size, imageRendering: 'pixelated', opacity: riveReady ? 1 : 0, transition: 'opacity 0.4s' }} />
     </div>
   );
 }
