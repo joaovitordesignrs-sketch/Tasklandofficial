@@ -10,12 +10,7 @@ import { PageShell } from "./ui/PageShell";
 import { PixelIcon } from "./ui/PixelIcon";
 import { CardIn } from "./ui/CardIn";
 import { markAchievementsSeen } from "../hooks/useNotifications";
-import {
-  BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
-  COLOR_MAGE, COLOR_SUCCESS, COLOR_DANGER, COLOR_LEGENDARY,
-  TEXT_INACTIVE, TEXT_MUTED,
-  FONT_PIXEL, FONT_BODY, RADIUS_LG, RADIUS_XL,
-} from "../data/tokens";
+import { useTheme } from "../contexts/PreferencesContext";
 
 function gatherStats(): PlayerStats {
   const missions = getMissions();
@@ -52,6 +47,12 @@ function gatherStats(): PlayerStats {
 const CATEGORIES = ["Tarefas", "Monstros", "Bosses", "Nível", "Hábitos", "Tempo", "Hardcore"];
 
 export default function AchievementsScreen() {
+  const {
+    BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
+    COLOR_MAGE, COLOR_SUCCESS, COLOR_DANGER,
+    TEXT_INACTIVE, TEXT_MUTED,
+    FONT_PIXEL, FONT_BODY, RADIUS_LG, RADIUS_XL,
+  } = useTheme();
   const isDesktop = useIsDesktop();
   const [econ, setEcon] = useState(getEconomy());
   const [newAch, setNewAch] = useState<AchievementDef[]>([]);

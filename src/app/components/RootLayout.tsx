@@ -16,6 +16,7 @@ import { useEffect, useState, useRef } from "react";
 import { AuthProvider, useAuth }        from "../hooks/useAuth";
 import { CampaignProvider }             from "../hooks/useCampaign";
 import { audioManager }                 from "../hooks/audioManager";
+import { PreferencesProvider }          from "../contexts/PreferencesContext";
 import { GameShell }                    from "./GameLayouts";
 import AuthScreen                       from "./AuthScreen";
 import { OnboardingOverlay, useOnboarding } from "./OnboardingOverlay";
@@ -197,10 +198,12 @@ function RootLayoutInner() {
 // ── Root export ───────────────────────────────────────────────────────────────
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <CampaignProvider>
-        <RootLayoutInner />
-      </CampaignProvider>
-    </AuthProvider>
+    <PreferencesProvider>
+      <AuthProvider>
+        <CampaignProvider>
+          <RootLayoutInner />
+        </CampaignProvider>
+      </AuthProvider>
+    </PreferencesProvider>
   );
 }

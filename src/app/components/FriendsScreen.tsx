@@ -11,12 +11,7 @@ import imgAvatarWarrior from "figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf
 import imgAvatarMage from "figma:asset/5c09b71e009581d58103f7df9949281a05a710d1.png";
 import { PageShell } from "./ui/PageShell";
 import { RpgButton } from "./ui/RpgButton";
-import {
-  BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
-  COLOR_WARRIOR, COLOR_SUCCESS, COLOR_DANGER, COLOR_LEGENDARY,
-  TEXT_INACTIVE, TEXT_MUTED, TEXT_LIGHT,
-  FONT_PIXEL, FONT_BODY, RADIUS_LG, RADIUS_XL,
-} from "../data/tokens";
+import { useTheme } from "../contexts/PreferencesContext";
 
 const SERVER_URL = `https://${projectId}.supabase.co/functions/v1/make-server-8f0246f6`;
 
@@ -45,13 +40,16 @@ interface SearchResult {
   cpRank: string;
 }
 
-// CP Rank colors
-const RANK_COLORS: Record<string, string> = {
-  "S+": "#FF2D55", S: COLOR_LEGENDARY, A: "#FF6B35", B: "#c084fc",
-  C: COLOR_WARRIOR, D: COLOR_SUCCESS, E: "#8a9fba", F: TEXT_MUTED,
-};
-
 export default function FriendsScreen() {
+  const {
+    COLOR_WARRIOR, COLOR_SUCCESS, COLOR_LEGENDARY, TEXT_MUTED,
+  } = useTheme();
+
+  const RANK_COLORS: Record<string, string> = {
+    "S+": "#FF2D55", S: COLOR_LEGENDARY, A: "#FF6B35", B: "#c084fc",
+    C: COLOR_WARRIOR, D: COLOR_SUCCESS, E: "#8a9fba", F: TEXT_MUTED,
+  };
+
   const { session } = useAuth();
   const navigate = useNavigate();
   const isDesktop = useIsDesktop();

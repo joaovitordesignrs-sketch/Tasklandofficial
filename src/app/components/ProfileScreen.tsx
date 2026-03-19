@@ -34,25 +34,12 @@ import { PixelTabs, PixelTabDef } from "./ui/PixelTabs";
 import { RpgButton } from "./ui/RpgButton";
 import imgAvatarGuerreiro from "figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf1e.png";
 import imgAvatarMago from "figma:asset/5c09b71e009581d58103f7df9949281a05a710d1.png";
-import {
-  BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
-  ACCENT_GOLD, ACCENT_SHADOW, COLOR_MAGE, COLOR_WARRIOR, COLOR_ORANGE,
-  COLOR_SUCCESS, COLOR_DANGER, COLOR_LEGENDARY, COLOR_WARNING,
-  TEXT_INACTIVE, TEXT_MUTED, TEXT_BODY, TEXT_LIGHT,
-  FONT_PIXEL, FONT_BODY, RADIUS_LG, RADIUS_XL,
-  RANK_NOVATO,
-} from "../data/tokens";
+import { useTheme } from "../contexts/PreferencesContext";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
 type ProfileTab = "diario" | "evolucao" | "campanha" | "itens";
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Shared card constants — use design tokens
-// ─────────────────────────────────────────────────────────────────────────────
-const CARD     = { background: BG_CARD, border: `1px solid ${BORDER_ELEVATED}88`, borderRadius: RADIUS_XL, overflow: "hidden" } as const;
-const TOOLBAR  = { background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`, padding: "8px 14px", display: "flex" as const, alignItems: "center" as const, gap: 8 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DIÁRIO helpers
@@ -96,6 +83,7 @@ function DiffIcon({ difficulty }: { difficulty: string }) {
 }
 
 function TaskCard({ entry, index }: { entry: TaskHistoryEntry; index: number }) {
+  const { COLOR_DANGER, TEXT_INACTIVE, TEXT_LIGHT, FONT_BODY } = useTheme();
   const diff   = DIFFICULTY_INFO[entry.difficulty ?? "medium"] ?? DIFFICULTY_INFO.medium;
   const source = entry.source ?? "campaign";
   const mode   = MODE_INFO[source] ?? MODE_INFO.campaign;
@@ -126,6 +114,11 @@ function TaskCard({ entry, index }: { entry: TaskHistoryEntry; index: number }) 
 // TAB: DIÁRIO
 // ─────────────────────────────────────────────────────────────────────────────
 function DiarioTab() {
+  const {
+    BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
+    ACCENT_GOLD, COLOR_MAGE, COLOR_ORANGE, COLOR_SUCCESS,
+    TEXT_INACTIVE, TEXT_MUTED, FONT_PIXEL, FONT_BODY, RADIUS_XL,
+  } = useTheme();
   const history = useMemo(() => getTaskHistory(), []);
   const [collapsedDays, setCollapsedDays] = useState<Set<string>>(new Set());
   const [filter, setFilter] = useState<"all" | "campaign" | "time-attack" | "focus">("all");
@@ -239,6 +232,15 @@ const CLASS_COLORS: Record<CharacterClass, { color: string; glow: string }> = {
 // TAB: EVOLUÇÃO
 // ─────────────────────────────────────────────────────────────────────────────
 function EvolucaoTab() {
+  const {
+    BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
+    ACCENT_GOLD, COLOR_MAGE, COLOR_ORANGE,
+    COLOR_SUCCESS, COLOR_DANGER, COLOR_LEGENDARY, COLOR_WARNING,
+    TEXT_INACTIVE, TEXT_MUTED, FONT_PIXEL, FONT_BODY,
+    RADIUS_LG, RADIUS_XL, RANK_NOVATO,
+  } = useTheme();
+  const CARD    = { background: BG_CARD, border: `1px solid ${BORDER_ELEVATED}88`, borderRadius: RADIUS_XL, overflow: "hidden" } as const;
+  const TOOLBAR = { background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`, padding: "8px 14px", display: "flex" as const, alignItems: "center" as const, gap: 8 } as const;
   const navigate = useNavigate();
   const { nick } = useAuth();
   const { selectedClass } = useCampaign();
@@ -468,6 +470,12 @@ function EvolucaoTab() {
 // TAB: CAMPANHA
 // ─────────────────────────────────────────────────────────────────────────────
 function CampanhaTab() {
+  const {
+    BG_CARD, BORDER_ELEVATED, ACCENT_GOLD, TEXT_INACTIVE, TEXT_MUTED,
+    FONT_PIXEL, FONT_BODY, RADIUS_XL, BG_DEEPEST, BORDER_SUBTLE,
+  } = useTheme();
+  const CARD    = { background: BG_CARD, border: `1px solid ${BORDER_ELEVATED}88`, borderRadius: RADIUS_XL, overflow: "hidden" } as const;
+  const TOOLBAR = { background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`, padding: "8px 14px", display: "flex" as const, alignItems: "center" as const, gap: 8 } as const;
   const missions = getMissions();
   const campaignMissions = missions
     .filter(m => m.mode === "campaign")

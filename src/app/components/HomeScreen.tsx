@@ -21,19 +21,8 @@ import { audioManager }      from "../hooks/audioManager";
 import { Skull, Zap, Settings, Swords, Trophy } from "lucide-react";
 import { PixelIcon } from "./ui/PixelIcon";
 import { FloatingDamage } from "./ui/FloatingDamage";
-import {
-  BG_DEEPEST, BG_CARD, BG_PAGE,
-  BORDER_SUBTLE, BORDER_ELEVATED,
-  ACCENT_GOLD,
-  COLOR_DANGER, COLOR_SUCCESS, COLOR_WARNING, COLOR_MAGE, COLOR_LEGENDARY, COLOR_ORANGE,
-  TEXT_INACTIVE,
-  FONT_PIXEL, FONT_BODY,
-  PX_MD, PX_SM, PX_XS, PX_2XS,
-  VT_LG, VT_MD, VT_SM,
-  RADIUS_SM, RADIUS_LG, RADIUS_XL,
-  SP_SM,
-  alpha,
-} from "../data/tokens";
+import { useTheme } from "../contexts/PreferencesContext";
+import type { ThemeTokens } from "../data/tokens";
 
 import imgArenaBackground from "figma:asset/6037587fea6349ebacca46bf46244c717b2e23e6.png";
 import imgAvatar  from "figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf1e.png";
@@ -80,8 +69,9 @@ function getMonsterBottom(monsterType?: string): string {
   }
 }
 
-// ── Attack button helpers ─────────────────────────────────────────────────────
-function getAttackBg(monsterType: string | undefined, count: number): string {
+// ── Attack button helpers (accept tokens as parameter) ────────────────────────
+function getAttackBg(monsterType: string | undefined, count: number, tk: ThemeTokens): string {
+  const { COLOR_ORANGE, COLOR_LEGENDARY, COLOR_SUCCESS, COLOR_DANGER, COLOR_MAGE } = tk;
   if (count >= 5) return `linear-gradient(135deg, ${COLOR_ORANGE}, ${COLOR_LEGENDARY})`;
   if (count >= 3) {
     switch (monsterType) {
@@ -110,7 +100,8 @@ function getAttackBg(monsterType: string | undefined, count: number): string {
   }
 }
 
-function getAttackShadow(monsterType: string | undefined, count: number): string {
+function getAttackShadow(monsterType: string | undefined, count: number, tk: ThemeTokens): string {
+  const { COLOR_ORANGE, COLOR_SUCCESS, COLOR_LEGENDARY, COLOR_DANGER, alpha } = tk;
   if (count >= 5) return `0 0 20px ${alpha(COLOR_ORANGE, "99")}`;
   switch (monsterType) {
     case "weak":     return `0 0 14px ${alpha(COLOR_SUCCESS, "66")}`;
@@ -121,8 +112,8 @@ function getAttackShadow(monsterType: string | undefined, count: number): string
   }
 }
 
-function getAttackTextColor(monsterType: string | undefined): string {
-  return monsterType === "boss" ? "#e8d5ff" : BG_CARD;
+function getAttackTextColor(monsterType: string | undefined, tk: ThemeTokens): string {
+  return monsterType === "boss" ? "#e8d5ff" : tk.BG_CARD;
 }
 
 function getAttackLabel(monsterType: string | undefined, count: number): string {
@@ -138,6 +129,7 @@ function getAttackLabel(monsterType: string | undefined, count: number): string 
 
 // ── Level-Up Banner ───────────────────────────────────────────────────────────
 function LevelUpBanner({ level, rankColor, onDone }: { level: number; rankColor: string; onDone: () => void }) {
+  const { FONT_PIXEL, PX_SM } = useTheme();
   useEffect(() => {
     audioManager.playLevelUp();
     const t = setTimeout(onDone, 3200);
@@ -173,6 +165,15 @@ function MobilePlayerStrip() {
   const { lvInfo, xpPct, rank, cpData, playerName, levelUpInfo, selectedClass } = useCampaign();
   const { nick } = useAuth();
   const navigate = useNavigate();
+  const {
+    BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
+    ACCENT_GOLD, COLOR_LEGENDARY,
+    FONT_PIXEL, FONT_BODY,
+    PX_SM, PX_XS, VT_MD,
+    RADIUS_SM, RADIUS_LG,
+  } = useTheme();
+
+  void cpData;
 
   const avatarSrc = selectedClass === "mago" ? imgAvatarMago : imgAvatar;
 
@@ -221,6 +222,18 @@ function MobileArenaSection() {
     campaignDone, handleAttackStart, handleNextMission, setShowVictory,
     levelUpInfo, setLevelUpInfo, cpData, damageNumbers,
   } = useCampaign();
+  const {
+    BG_DEEPEST, BORDER_SUBTLE, BORDER_ELEVATED,
+    ACCENT_GOLD, COLOR_WARNING, COLOR_LEGENDARY, COLOR_MAGE,
+    COLOR_DANGER, TEXT_INACTIVE,
+    FONT_PIXEL, FONT_BODY,
+    PX_SM, PX_XS, PX_2XS, PX_MD,
+    VT_SM, VT_LG,
+    RADIUS_SM, RADIUS_LG,
+    SP_SM,
+  } = useTheme();
+
+  void ACCENT_GOLD;
 
   if (!mission || campaignDone) return null;
 
@@ -348,6 +361,8 @@ function MobileAttackModal() {
     temporalSelectedCount, temporalAttackCallbackRef,
     focusSelectedCount, focusAttackCallbackRef,
   } = useCampaign();
+  const tk = useTheme();
+  const { BG_DEEPEST, COLOR_DANGER, COLOR_ORANGE, COLOR_MAGE, FONT_PIXEL, PX_MD, SP_SM, alpha } = tk;
 
   const totalSelected = selectedTaskCount + temporalSelectedCount + focusSelectedCount;
   const hasAttack = !defeated && !showVictory && mission && totalSelected > 0;
@@ -362,12 +377,12 @@ function MobileAttackModal() {
   const bg = mixed
     ? `linear-gradient(135deg, ${COLOR_DANGER}, ${COLOR_MAGE})`
     : hasCampaign
-    ? getAttackBg(mission.monsterType, selectedTaskCount)
+    ? getAttackBg(mission.monsterType, selectedTaskCount, tk)
     : hasTemporal
     ? (temporalSelectedCount >= 3 ? `linear-gradient(135deg, ${COLOR_DANGER}, ${COLOR_ORANGE})` : COLOR_ORANGE)
     : `linear-gradient(135deg, ${COLOR_MAGE}, #7c3aed)`;
 
-  const textColor = hasFocus && !mixed ? "#fff" : getAttackTextColor(mission.monsterType);
+  const textColor = hasFocus && !mixed ? "#fff" : getAttackTextColor(mission.monsterType, tk);
 
   const label = mixed
     ? `ATACAR! (${totalSelected})`
@@ -380,7 +395,7 @@ function MobileAttackModal() {
   const shadow = mixed
     ? `0 0 18px ${alpha(COLOR_MAGE, "66")}, 0 8px 32px rgba(0,0,0,0.6)`
     : hasCampaign
-    ? `${getAttackShadow(mission.monsterType, selectedTaskCount)}, 0 8px 32px rgba(0,0,0,0.6)`
+    ? `${getAttackShadow(mission.monsterType, selectedTaskCount, tk)}, 0 8px 32px rgba(0,0,0,0.6)`
     : hasTemporal
     ? `0 0 14px ${alpha(COLOR_ORANGE, "66")}, 0 8px 32px rgba(0,0,0,0.6)`
     : `0 0 14px ${alpha(COLOR_MAGE, "73")}, 0 8px 32px rgba(0,0,0,0.6)`;
@@ -438,8 +453,23 @@ export default function HomeScreen() {
     setTemporalSelectedCount, temporalAttackCallbackRef,
     setFocusSelectedCount, focusAttackCallbackRef,
   } = useCampaign();
+  const {
+    BG_PAGE, BG_CARD,
+    BORDER_ELEVATED,
+    ACCENT_GOLD,
+    COLOR_DANGER, COLOR_SUCCESS, COLOR_LEGENDARY,
+    TEXT_INACTIVE,
+    FONT_PIXEL, FONT_BODY,
+    PX_XS,
+    VT_SM, VT_LG,
+    RADIUS_XL,
+    SP_SM,
+    alpha,
+  } = useTheme();
   const addTriggerRef = useRef<(() => void) | null>(null);
   const [addFormOpen, setAddFormOpen] = useState(false);
+
+  void nick; void rank; void selectedClass; void playerName;
 
   // ── DESKTOP ────────────────────────────────────────────────────────────────
   if (isDesktop) {

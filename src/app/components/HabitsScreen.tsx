@@ -10,16 +10,17 @@ import { PageShell } from "./ui/PageShell";
 import { HabitIcon, HABIT_ICON_CATEGORIES, PixelIcon } from "./ui/PixelIcon";
 import { CardIn } from "./ui/CardIn";
 import { RpgButton } from "./ui/RpgButton";
-import {
-  BG_DEEPEST, BG_PAGE, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
-  COLOR_ORANGE, COLOR_SUCCESS, COLOR_DANGER, COLOR_LEGENDARY,
-  TEXT_INACTIVE, TEXT_MUTED, TEXT_LIGHT, TEXT_BODY,
-  FONT_PIXEL, FONT_BODY, RADIUS_LG, RADIUS_XL,
-} from "../data/tokens";
+import { useTheme } from "../contexts/PreferencesContext";
 
 const DEFAULT_ICON = HABIT_ICON_CATEGORIES[0].icons[0]; // "heart"
 
 export default function HabitsScreen() {
+  const {
+    BG_DEEPEST, BG_PAGE, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
+    COLOR_ORANGE, COLOR_SUCCESS, COLOR_DANGER, COLOR_LEGENDARY,
+    TEXT_INACTIVE, TEXT_MUTED, TEXT_BODY,
+    FONT_PIXEL, FONT_BODY, RADIUS_LG, RADIUS_XL,
+  } = useTheme();
   const isDesktop = useIsDesktop();
   const [habits, setHabits]           = useState<Habit[]>([]);
   const [showCreate, setShowCreate]   = useState(false);

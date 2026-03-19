@@ -14,18 +14,17 @@ import {
   type ItemSlot, type UserItem,
 } from "../data/items";
 import { getEconomy, spendEssences } from "../data/economy";
-import {
-  BG_CARD, BG_DEEPEST, BORDER_SUBTLE, BORDER_ELEVATED,
-  COLOR_SUCCESS, COLOR_MAGE, COLOR_DANGER,
-  TEXT_BODY, TEXT_MUTED, TEXT_LIGHT, TEXT_INACTIVE,
-  FONT_PIXEL, FONT_BODY,
-  RADIUS_LG, RADIUS_PILL,
-  alpha,
-} from "../data/tokens";
+import { useTheme } from "../contexts/PreferencesContext";
 
 const SLOTS: ItemSlot[] = ["weapon", "armor", "accessory", "relic"];
 
 export function ItemsTab() {
+  const {
+    BG_CARD, BG_DEEPEST, BORDER_SUBTLE, BORDER_ELEVATED,
+    COLOR_SUCCESS, COLOR_MAGE, COLOR_DANGER,
+    TEXT_MUTED, TEXT_LIGHT, TEXT_INACTIVE,
+    FONT_PIXEL, FONT_BODY, RADIUS_LG, RADIUS_PILL, alpha,
+  } = useTheme();
   const [tick,         setTick]         = useState(0);
   const [openSlot,     setOpenSlot]     = useState<ItemSlot | null>(null);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);

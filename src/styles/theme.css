@@ -1,6 +1,24 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --rpg-bg-deepest:  #0b0d1e;
+  --rpg-bg-card:     #0d1024;
+  --rpg-border:      #1f254f;
+  --rpg-border-el:   #2a2e50;
+  --rpg-accent-gold: #e39f64;
+  --rpg-accent-dim:  #e39f6488;
+}
+
+[data-theme="light"] {
+  --rpg-bg-deepest:  #dde3f5;
+  --rpg-bg-card:     #edf1fb;
+  --rpg-border:      #b8c2e0;
+  --rpg-border-el:   #c8d0e8;
+  --rpg-accent-gold: #e39f64;
+  --rpg-accent-dim:  #e39f6488;
+}
+
+:root {
   --font-size: 16px;
   --background: #ffffff;
   --foreground: oklch(0.145 0 0);
@@ -199,7 +217,7 @@
   /* Firefox */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #e39f64 #0b0d1e;
+    scrollbar-color: var(--rpg-accent-gold) var(--rpg-bg-deepest);
   }
 
   /* Webkit (Chrome, Safari, Edge) */
@@ -209,19 +227,19 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #0b0d1e;
-    border-left: 1px solid #1f254f;
+    background: var(--rpg-bg-deepest);
+    border-left: 1px solid var(--rpg-border);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #2a2e50;
-    border: 2px solid #1f254f;
+    background: var(--rpg-border-el);
+    border: 2px solid var(--rpg-border);
     box-shadow: inset 0 0 0 1px #3a3e60;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #e39f64;
-    border-color: #e39f6488;
+    background: var(--rpg-accent-gold);
+    border-color: var(--rpg-accent-dim);
     box-shadow:
       inset 0 0 0 1px #ffd70066,
       0 0 6px rgba(227, 159, 100, 0.5);
@@ -236,7 +254,7 @@
   }
 
   ::-webkit-scrollbar-corner {
-    background: #0b0d1e;
+    background: var(--rpg-bg-deepest);
   }
 
   /* ── Card entrance animation ─────────────────────────────────────────────── */

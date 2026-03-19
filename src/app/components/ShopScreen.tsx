@@ -10,33 +10,34 @@ import {
 } from "../data/items";
 import { getEconomy } from "../data/economy";
 import { PixelTabs, type PixelTabDef } from "./ui/PixelTabs";
-import {
-  ACCENT_GOLD, BG_CARD, BG_DEEPEST, BORDER_SUBTLE, BORDER_ELEVATED,
-  COLOR_SUCCESS, COLOR_MAGE, COLOR_WARRIOR, COLOR_WARNING,
-  TEXT_BODY, TEXT_MUTED, TEXT_INACTIVE,
-  FONT_PIXEL, FONT_BODY,
-  SP_XS, SP_SM, SP_MD, SP_LG, SP_XL,
-  RADIUS_LG, RADIUS_PILL,
-  alpha,
-} from "../data/tokens";
+import { useTheme } from "../contexts/PreferencesContext";
 
 type ShopTab = ItemSlot;
 
-const SHOP_TABS: PixelTabDef<ShopTab>[] = [
-  { key: "weapon",    label: "ARMA",      Icon: () => <PixelIcon name="sword"    size={13} />, color: ACCENT_GOLD   },
-  { key: "armor",     label: "ARMADURA",  Icon: () => <PixelIcon name="shield"   size={13} />, color: COLOR_WARRIOR },
-  { key: "accessory", label: "ACESSÓRIO", Icon: () => <PixelIcon name="gem"      size={13} />, color: COLOR_MAGE    },
-  { key: "relic",     label: "RELÍQUIA",  Icon: () => <PixelIcon name="sparkles" size={13} />, color: COLOR_WARNING },
-];
-
-const SLOT_ACCENT: Record<ShopTab, string> = {
-  weapon:    ACCENT_GOLD,
-  armor:     COLOR_WARRIOR,
-  accessory: COLOR_MAGE,
-  relic:     COLOR_WARNING,
-};
-
 export default function ShopScreen() {
+  const {
+    ACCENT_GOLD, BG_CARD, BORDER_SUBTLE,
+    COLOR_SUCCESS, COLOR_MAGE, COLOR_WARRIOR, COLOR_WARNING,
+    TEXT_MUTED, TEXT_INACTIVE, TEXT_BODY,
+    FONT_PIXEL, FONT_BODY,
+    SP_XS, SP_SM, SP_MD, SP_LG, SP_XL,
+    RADIUS_LG, RADIUS_PILL, alpha,
+  } = useTheme();
+
+  const SHOP_TABS: PixelTabDef<ShopTab>[] = [
+    { key: "weapon",    label: "ARMA",      Icon: () => <PixelIcon name="sword"    size={13} />, color: ACCENT_GOLD   },
+    { key: "armor",     label: "ARMADURA",  Icon: () => <PixelIcon name="shield"   size={13} />, color: COLOR_WARRIOR },
+    { key: "accessory", label: "ACESSÓRIO", Icon: () => <PixelIcon name="gem"      size={13} />, color: COLOR_MAGE    },
+    { key: "relic",     label: "RELÍQUIA",  Icon: () => <PixelIcon name="sparkles" size={13} />, color: COLOR_WARNING },
+  ];
+
+  const SLOT_ACCENT: Record<ShopTab, string> = {
+    weapon:    ACCENT_GOLD,
+    armor:     COLOR_WARRIOR,
+    accessory: COLOR_MAGE,
+    relic:     COLOR_WARNING,
+  };
+
   const [tab,    setTab]    = useState<ShopTab>("weapon");
   const [tick,   setTick]   = useState(0);
   const [buying, setBuying] = useState<string | null>(null);

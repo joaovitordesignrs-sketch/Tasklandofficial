@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Music, Volume2, VolumeX, SkipForward, SkipBack, User, Save, LogOut, Shield, Settings } from "lucide-react";
+import { Music, Volume2, VolumeX, SkipForward, SkipBack, User, Save, LogOut, Shield, Settings, Globe } from "lucide-react";
 import { useAudioSettings } from "../hooks/useAudioSettings";
 import { audioManager } from "../hooks/audioManager";
 import { loadPlayerName, savePlayerName } from "../data/missions";
@@ -10,12 +10,9 @@ import { useNavigate } from "react-router";
 import { PageShell } from "./ui/PageShell";
 import { PixelTabs, PixelTabDef } from "./ui/PixelTabs";
 import { RpgButton } from "./ui/RpgButton";
-import {
-  BG_DEEPEST, BG_CARD, BG_PAGE, BORDER_SUBTLE, BORDER_ELEVATED,
-  ACCENT_GOLD, ACCENT_SHADOW, COLOR_MAGE, COLOR_WARRIOR, COLOR_ORANGE,
-  COLOR_SUCCESS, TEXT_MUTED, TEXT_INACTIVE, TEXT_LIGHT, RANK_NOVATO,
-  FONT_PIXEL, FONT_BODY, RADIUS_XL, RADIUS_LG, RADIUS_MD,
-} from "../data/tokens";
+import { setLanguage, setTheme, getPreferences } from "../data/preferences";
+import { useTheme } from "../contexts/PreferencesContext";
+import { useLanguage } from "../contexts/PreferencesContext";
 
 // ── Pixel-art Volume Slider ──────────────────────────────────────────────────
 function VolumeSlider({
@@ -27,6 +24,7 @@ function VolumeSlider({
   color: string;
   label: string;
 }) {
+  const { BG_PAGE, BORDER_ELEVATED, TEXT_MUTED, FONT_PIXEL, FONT_BODY } = useTheme();
   const pct = Math.round(value * 100);
   return (
     <div style={{
@@ -68,6 +66,8 @@ function VolumeSlider({
 
 // ── Sound Settings Tab ───────────────────────────────────────────────────────
 function SoundSettings() {
+  const t = useLanguage();
+  const { BG_CARD, BG_PAGE, BORDER_ELEVATED, COLOR_MAGE, COLOR_ORANGE, COLOR_SUCCESS, TEXT_MUTED, FONT_PIXEL, FONT_BODY, RADIUS_XL } = useTheme();
   const sfxPreviewTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const {
     musicOn, musicVolume,
@@ -101,7 +101,7 @@ function SoundSettings() {
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <Music size={18} color={musicOn ? COLOR_MAGE : TEXT_MUTED} />
             <span style={{ fontFamily: FONT_PIXEL, color: COLOR_MAGE, fontSize: 10, textShadow: "1px 1px 0 #000" }}>
-              MÚSICA
+              {t("settings.music")}
             </span>
           </div>
           <RpgButton
@@ -110,7 +110,7 @@ function SoundSettings() {
             isOn={musicOn}
             onClick={() => setMusicOn(!musicOn)}
           >
-            {musicOn ? "ON" : "OFF"}
+            {musicOn ? t("common.on") : t("common.off")}
           </RpgButton>
         </div>
 
@@ -128,7 +128,7 @@ function SoundSettings() {
               ♫ {trackName}
             </div>
             <div style={{ fontFamily: FONT_BODY, fontSize: 16, color: TEXT_MUTED }}>
-              Faixa {currentTrack + 1} de {trackCount}
+              {t("settings.track")} {currentTrack + 1} {t("settings.track.of")} {trackCount}
             </div>
           </div>
           <RpgButton variant="icon" color={COLOR_MAGE} disabled={!musicOn} onClick={nextTrack}>
@@ -136,7 +136,7 @@ function SoundSettings() {
           </RpgButton>
         </div>
 
-        <VolumeSlider value={musicVolume} onChange={setMusicVolume} disabled={!musicOn} color={COLOR_MAGE} label="Vol" />
+        <VolumeSlider value={musicVolume} onChange={setMusicVolume} disabled={!musicOn} color={COLOR_MAGE} label={t("settings.vol")} />
       </div>
 
       {/* ── SFX ── */}
@@ -148,7 +148,7 @@ function SoundSettings() {
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             {sfxOn ? <Volume2 size={18} color={COLOR_ORANGE} /> : <VolumeX size={18} color={TEXT_MUTED} />}
             <span style={{ fontFamily: FONT_PIXEL, color: COLOR_ORANGE, fontSize: 10, textShadow: "1px 1px 0 #000" }}>
-              EFEITOS SONOROS
+              {t("settings.sfx")}
             </span>
           </div>
           <RpgButton
@@ -157,11 +157,11 @@ function SoundSettings() {
             isOn={sfxOn}
             onClick={() => setSfxOn(!sfxOn)}
           >
-            {sfxOn ? "ON" : "OFF"}
+            {sfxOn ? t("common.on") : t("common.off")}
           </RpgButton>
         </div>
 
-        <VolumeSlider value={sfxVolume} onChange={handleSfxVolumeChange} disabled={!sfxOn} color={COLOR_ORANGE} label="Vol" />
+        <VolumeSlider value={sfxVolume} onChange={handleSfxVolumeChange} disabled={!sfxOn} color={COLOR_ORANGE} label={t("settings.vol")} />
       </div>
     </div>
   );
@@ -169,6 +169,12 @@ function SoundSettings() {
 
 // ── Profile Settings Tab ─────────────────────────────────────────────────────
 function ProfileSettings() {
+  const t = useLanguage();
+  const {
+    BG_CARD, BG_PAGE, BORDER_ELEVATED, ACCENT_GOLD, ACCENT_SHADOW,
+    COLOR_SUCCESS, TEXT_MUTED, RANK_NOVATO,
+    FONT_PIXEL, FONT_BODY, RADIUS_XL,
+  } = useTheme();
   const [name, setName] = useState(loadPlayerName);
   const [saved, setSaved] = useState(false);
 
@@ -189,21 +195,21 @@ function ProfileSettings() {
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
         <User size={18} color={ACCENT_GOLD} />
         <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: 10, textShadow: "1px 1px 0 #000" }}>
-          PERFIL
+          {t("settings.tab.profile")}
         </span>
       </div>
 
       {/* Name */}
       <div style={{ marginBottom: 20 }}>
         <label style={{ fontFamily: FONT_BODY, color: RANK_NOVATO, fontSize: 18, display: "block", marginBottom: 8 }}>
-          Nome do Aventureiro
+          {t("settings.player.name")}
         </label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") handleSave(); }}
           maxLength={20}
-          placeholder="Seu nome..."
+          placeholder={t("settings.player.placeholder")}
           style={{
             width: "100%", background: BG_PAGE,
             border: `2px solid ${BORDER_ELEVATED}`, color: "#fff",
@@ -216,7 +222,7 @@ function ProfileSettings() {
           onBlur={(e) => (e.target.style.borderColor = BORDER_ELEVATED)}
         />
         <div style={{ fontFamily: FONT_BODY, color: TEXT_MUTED, fontSize: 14, marginTop: 4 }}>
-          {name.length}/20 caracteres
+          {name.length}/20 {t("settings.player.chars")}
         </div>
       </div>
 
@@ -235,29 +241,138 @@ function ProfileSettings() {
         onMouseDown={(e) => ((e.currentTarget as HTMLButtonElement).style.transform = "translate(2px,2px)")}
         onMouseUp={(e) => ((e.currentTarget as HTMLButtonElement).style.transform = "")}
       >
-        <Save size={14} /> {saved ? "✓ SALVO!" : "SALVAR"}
+        <Save size={14} /> {saved ? t("settings.saved") : t("settings.save")}
       </button>
     </div>
   );
 }
 
-// ── Main Screen ──────────────────────────────────────────────────────────────
-type SettingsTab = "sound" | "profile" | "account";
+// ── Preferences Settings Tab ──────────────────────────────────────────────────
+function PreferencesSettings() {
+  const t = useLanguage();
+  const {
+    BG_CARD, ACCENT_GOLD, COLOR_SUCCESS,
+    TEXT_MUTED, TEXT_LIGHT,
+    FONT_PIXEL, FONT_BODY, RADIUS_XL, RADIUS_MD,
+    BORDER_ELEVATED,
+  } = useTheme();
+  const [prefs, setPrefs] = useState(getPreferences);
 
-const SETTINGS_TABS: PixelTabDef<SettingsTab>[] = [
-  { key: "sound",   Icon: Volume2, label: "SONS",   color: COLOR_MAGE    },
-  { key: "profile", Icon: User,    label: "PERFIL", color: ACCENT_GOLD   },
-  { key: "account", Icon: Shield,  label: "CONTA",  color: COLOR_WARRIOR },
-];
+  useEffect(() => {
+    const handler = () => setPrefs(getPreferences());
+    window.addEventListener("rpg-prefs-changed", handler);
+    return () => window.removeEventListener("rpg-prefs-changed", handler);
+  }, []);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{
+        background: BG_CARD, border: `1px solid rgba(42,46,80,0.8)`,
+        borderRadius: RADIUS_XL, padding: "24px 20px",
+        display: "flex", flexDirection: "column", gap: 20,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+          <Globe size={18} color={COLOR_SUCCESS} />
+          <span style={{ fontFamily: FONT_PIXEL, color: COLOR_SUCCESS, fontSize: 10, textShadow: "1px 1px 0 #000" }}>
+            {t("settings.tab.prefs")}
+          </span>
+        </div>
+
+        {/* Language row */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontFamily: FONT_BODY, color: TEXT_LIGHT, fontSize: 18 }}>
+            {t("settings.language")}
+          </span>
+          <div style={{ display: "flex", gap: 8 }}>
+            {(["pt-br", "en"] as const).map((lang) => {
+              const active = prefs.language === lang;
+              const label = lang === "pt-br" ? t("settings.lang.ptbr") : t("settings.lang.en");
+              return (
+                <button
+                  key={lang}
+                  onClick={() => { setLanguage(lang); audioManager.playClick("tap"); }}
+                  style={{
+                    padding: "6px 16px",
+                    background: active ? ACCENT_GOLD + "22" : "transparent",
+                    border: `1.5px solid ${active ? ACCENT_GOLD : BORDER_ELEVATED}`,
+                    color: active ? ACCENT_GOLD : TEXT_MUTED,
+                    fontFamily: FONT_PIXEL,
+                    fontSize: 8,
+                    cursor: "pointer",
+                    borderRadius: RADIUS_MD,
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Theme row */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontFamily: FONT_BODY, color: TEXT_LIGHT, fontSize: 18 }}>
+            {t("settings.theme")}
+          </span>
+          <div style={{ display: "flex", gap: 8 }}>
+            {(["dark", "light"] as const).map((theme) => {
+              const active = prefs.theme === theme;
+              const label = theme === "dark" ? t("settings.theme.dark") : t("settings.theme.light");
+              return (
+                <button
+                  key={theme}
+                  onClick={() => { setTheme(theme); audioManager.playClick("tap"); }}
+                  style={{
+                    padding: "6px 16px",
+                    background: active ? ACCENT_GOLD + "22" : "transparent",
+                    border: `1.5px solid ${active ? ACCENT_GOLD : BORDER_ELEVATED}`,
+                    color: active ? ACCENT_GOLD : TEXT_MUTED,
+                    fontFamily: FONT_PIXEL,
+                    fontSize: 8,
+                    cursor: "pointer",
+                    borderRadius: RADIUS_MD,
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Screen ──────────────────────────────────────────────────────────────
+type SettingsTab = "sound" | "profile" | "account" | "prefs";
 
 export default function SettingsScreen() {
+  const t = useLanguage();
+  const {
+    BG_DEEPEST, BG_CARD, BORDER_SUBTLE,
+    ACCENT_GOLD, COLOR_MAGE, COLOR_WARRIOR, COLOR_SUCCESS,
+    TEXT_MUTED, TEXT_LIGHT,
+    FONT_PIXEL, FONT_BODY,
+    RADIUS_XL,
+  } = useTheme();
   const isDesktop = useIsDesktop();
+  void isDesktop;
   const [tab, setTab] = useState<SettingsTab>("sound");
   const { user, nick, signOut } = useAuth();
   const navigate = useNavigate();
 
+  const SETTINGS_TABS: PixelTabDef<SettingsTab>[] = [
+    { key: "sound",   Icon: Volume2, label: t("settings.tab.sound"),   color: COLOR_MAGE    },
+    { key: "profile", Icon: User,    label: t("settings.tab.profile"), color: ACCENT_GOLD   },
+    { key: "account", Icon: Shield,  label: t("settings.tab.account"), color: COLOR_WARRIOR },
+    { key: "prefs",   Icon: Globe,   label: t("settings.tab.prefs"),   color: COLOR_SUCCESS },
+  ];
+
   return (
-    <PageShell icon={<Settings size={16} />} title="CONFIGURAÇÕES" accentColor={COLOR_WARRIOR}>
+    <PageShell icon={<Settings size={16} />} title={t("settings.title")} accentColor={COLOR_WARRIOR}>
       <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
         <PixelTabs tabs={SETTINGS_TABS} active={tab} onSelect={setTab} style={{ marginBottom: 20 }} />
 
@@ -274,7 +389,7 @@ export default function SettingsScreen() {
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
                 <Shield size={18} color={COLOR_WARRIOR} />
                 <span style={{ fontFamily: FONT_PIXEL, color: COLOR_WARRIOR, fontSize: 10, textShadow: "1px 1px 0 #000" }}>
-                  CONTA
+                  {t("settings.tab.account")}
                 </span>
               </div>
 
@@ -303,7 +418,7 @@ export default function SettingsScreen() {
                   audioManager.playClick("press");
                 }}
               >
-                <Save size={14} /> SINCRONIZAR AGORA
+                <Save size={14} /> {t("settings.sync")}
               </RpgButton>
             </div>
 
@@ -317,10 +432,11 @@ export default function SettingsScreen() {
                 navigate("/");
               }}
             >
-              <LogOut size={16} /> SAIR DA CONTA
+              <LogOut size={16} /> {t("settings.logout")}
             </RpgButton>
           </div>
         )}
+        {tab === "prefs" && <PreferencesSettings />}
       </div>
     </PageShell>
   );

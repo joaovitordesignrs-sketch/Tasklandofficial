@@ -13,9 +13,7 @@ import React from "react";
 import { DIFFICULTY_INFO } from "../../data/gameEngine";
 import { TaskDifficulty }  from "../../data/missions";
 import { audioManager }    from "../../hooks/audioManager";
-import {
-  FONT_BODY, BORDER_ELEVATED, TEXT_MUTED, RADIUS_SM, VT_MD,
-} from "../../data/tokens";
+import { useTheme } from "../../contexts/PreferencesContext";
 
 interface DifficultyPickerProps {
   value:    TaskDifficulty;
@@ -23,6 +21,7 @@ interface DifficultyPickerProps {
 }
 
 export function DifficultyPicker({ value, onChange }: DifficultyPickerProps) {
+  const { FONT_BODY, BORDER_ELEVATED, TEXT_MUTED, RADIUS_SM, VT_MD } = useTheme();
   return (
     <div style={{ display: "flex", gap: 4 }}>
       {(["easy", "medium", "hard"] as TaskDifficulty[]).map((d) => {

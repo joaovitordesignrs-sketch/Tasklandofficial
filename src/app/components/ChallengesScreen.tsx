@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Brain, Timer, Trash2 } from "lucide-react";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { audioManager } from "../hooks/audioManager";
@@ -6,12 +7,7 @@ import { getFocusDamageBonus } from "../data/economy";
 import { PageShell } from "./ui/PageShell";
 import { CardIn } from "./ui/CardIn";
 import { RpgButton } from "./ui/RpgButton";
-import {
-  BG_CARD, BORDER_ELEVATED,
-  COLOR_MAGE, COLOR_SUCCESS, COLOR_DANGER, COLOR_ORANGE,
-  TEXT_INACTIVE, TEXT_MUTED,
-  FONT_PIXEL, FONT_BODY, RADIUS_XL, RADIUS_LG,
-} from "../data/tokens";
+import { useTheme } from "../contexts/PreferencesContext";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function formatMs(ms: number): string {
@@ -25,6 +21,10 @@ function formatMs(ms: number): string {
 // MAIN SCREEN — shows focus session history + permanent bonus counter
 // ═══════════════════════════════════════════════════════════════════════════
 export default function ChallengesScreen() {
+  const {
+    BG_CARD, COLOR_MAGE, COLOR_SUCCESS, COLOR_DANGER,
+    TEXT_INACTIVE, TEXT_MUTED, FONT_PIXEL, FONT_BODY, RADIUS_XL, RADIUS_LG,
+  } = useTheme();
   const isDesktop = useIsDesktop();
   const [challenges, setChallenges] = useState(getChallenges());
   const focusBonus = getFocusDamageBonus();

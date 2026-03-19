@@ -3,14 +3,8 @@ import { Swords, Flame, Award, User, Users } from "lucide-react";
 import { useInteractionFeedback } from "../hooks/useInteractionFeedback";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { useNotifications } from "../hooks/useNotifications";
-
-const tabs = [
-  { path: "/",           label: "CAMPANHA",   Icon: Swords, notif: null as null | keyof ReturnType<typeof useNotifications> },
-  { path: "/habitos",    label: "HÁBITOS",    Icon: Flame,  notif: "habitsUnchecked" as const },
-  { path: "/conquistas", label: "CONQUISTAS", Icon: Award,  notif: "newAchievements" as const },
-  { path: "/perfil",     label: "PERFIL",     Icon: User,   notif: null },
-  { path: "/amigos",     label: "AMIGOS",     Icon: Users,  notif: null },
-];
+import { useTheme } from "../contexts/PreferencesContext";
+import { useLanguage } from "../contexts/PreferencesContext";
 
 export function BottomNav() {
   const navigate = useNavigate();
@@ -18,6 +12,16 @@ export function BottomNav() {
   const feedback = useInteractionFeedback();
   const isDesktop = useIsDesktop();
   const notifs = useNotifications();
+  const { ACCENT_GOLD, ACCENT_GOLD_DIM, TEXT_INACTIVE, COLOR_DANGER } = useTheme();
+  const t = useLanguage();
+
+  const tabs = [
+    { path: "/",           label: t("nav.campaign"),     Icon: Swords, notif: null as null | keyof ReturnType<typeof useNotifications> },
+    { path: "/habitos",    label: t("nav.habits"),       Icon: Flame,  notif: "habitsUnchecked" as const },
+    { path: "/conquistas", label: t("nav.achievements"), Icon: Award,  notif: "newAchievements" as const },
+    { path: "/perfil",     label: t("nav.profile"),      Icon: User,   notif: null },
+    { path: "/amigos",     label: t("nav.friends"),      Icon: Users,  notif: null },
+  ];
 
   if (isDesktop) return null;
 
@@ -79,9 +83,9 @@ export function BottomNav() {
                   padding:       "7px 14px",
                   borderRadius:  32,
                   border:        "none",
-                  background:    active ? "rgba(227,159,100,0.18)" : "transparent",
-                  outline:       active ? "1.5px solid #e39f64" : "1.5px solid transparent",
-                  color:         active ? "#e39f64" : "#3a4060",
+                  background:    active ? ACCENT_GOLD_DIM : "transparent",
+                  outline:       active ? `1.5px solid ${ACCENT_GOLD}` : "1.5px solid transparent",
+                  color:         active ? ACCENT_GOLD : TEXT_INACTIVE,
                   cursor:        "pointer",
                   fontFamily:    "'Press Start 2P', monospace",
                   fontSize:      6,
@@ -98,7 +102,7 @@ export function BottomNav() {
                     right:     8,
                     minWidth:  14,
                     height:    14,
-                    background: "#E63946",
+                    background: COLOR_DANGER,
                     border:    "1.5px solid #0a0c1a",
                     borderRadius: 8,
                     display:   "flex",

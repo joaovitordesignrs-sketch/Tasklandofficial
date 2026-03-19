@@ -91,3 +91,77 @@ export const RADIUS_PILL  = 20;
 export function alpha(color: string, hex2: string): string {
   return color + hex2;
 }
+
+// ── Theme token set ───────────────────────────────────────────────────────────
+
+export interface ThemeTokens {
+  BG_DEEPEST: string; BG_CARD: string; BG_PAGE: string;
+  BORDER_SUBTLE: string; BORDER_ELEVATED: string;
+  ACCENT_GOLD: string; ACCENT_SHADOW: string; ACCENT_GOLD_DIM: string;
+  COLOR_DANGER: string; COLOR_SUCCESS: string; COLOR_WARNING: string;
+  COLOR_ORANGE: string; COLOR_MAGE: string; COLOR_WARRIOR: string;
+  COLOR_LEGENDARY: string;
+  TEXT_INACTIVE: string; TEXT_MUTED: string; TEXT_BODY: string; TEXT_LIGHT: string;
+  RANK_NOVATO: string; RANK_VETERANO: string; RANK_GUERREIRO: string;
+  RANK_RARO: string; RANK_MESTRE: string; RANK_EPICO: string; RANK_LENDARIO: string;
+  FONT_PIXEL: string; FONT_BODY: string;
+  PX_XL: number; PX_MD: number; PX_SM: number; PX_XS: number;
+  PX_2XS: number; PX_3XS: number; PX_4XS: number;
+  VT_2XL: number; VT_XL: number; VT_LG: number; VT_MD: number;
+  VT_SM: number; VT_XS: number;
+  SP_XS: number; SP_SM: number; SP_MD: number; SP_LG: number;
+  SP_XL: number; SP_2XL: number;
+  RADIUS_SM: number; RADIUS_MD: number; RADIUS_LG: number;
+  RADIUS_XL: number; RADIUS_PILL: number;
+  alpha: (color: string, hex2: string) => string;
+}
+
+export const DARK_THEME: ThemeTokens = {
+  BG_DEEPEST: "#0b0d1e", BG_CARD: "#0d1024", BG_PAGE: "#15182d",
+  BORDER_SUBTLE: "#1f254f", BORDER_ELEVATED: "#2a2e50",
+  ACCENT_GOLD: "#e39f64", ACCENT_SHADOW: "#b07830",
+  ACCENT_GOLD_DIM: "rgba(227,159,100,0.18)",
+  COLOR_DANGER: "#E63946", COLOR_SUCCESS: "#06FFA5",
+  COLOR_WARNING: "#f0c040", COLOR_ORANGE: "#FF6B35",
+  COLOR_MAGE: "#c084fc", COLOR_WARRIOR: "#60a5fa",
+  COLOR_LEGENDARY: "#FFD700",
+  TEXT_INACTIVE: "#3a4060", TEXT_MUTED: "#5a6080",
+  TEXT_BODY: "#94a3b8", TEXT_LIGHT: "#c8d0f0",
+  RANK_NOVATO: "#8a7a6a", RANK_VETERANO: "#8a9fba",
+  RANK_GUERREIRO: "#e39f64", RANK_RARO: "#06FFA5",
+  RANK_MESTRE: "#60a5fa", RANK_EPICO: "#c084fc",
+  RANK_LENDARIO: "#FF6B35",
+  FONT_PIXEL: "'Press Start 2P', monospace",
+  FONT_BODY: "'VT323', monospace",
+  PX_XL: 13, PX_MD: 10, PX_SM: 9, PX_XS: 8,
+  PX_2XS: 7, PX_3XS: 6, PX_4XS: 5,
+  VT_2XL: 24, VT_XL: 20, VT_LG: 18, VT_MD: 16, VT_SM: 14, VT_XS: 13,
+  SP_XS: 4, SP_SM: 8, SP_MD: 12, SP_LG: 16, SP_XL: 20, SP_2XL: 24,
+  RADIUS_SM: 4, RADIUS_MD: 6, RADIUS_LG: 8, RADIUS_XL: 10, RADIUS_PILL: 20,
+  alpha: (c, h) => c + h,
+};
+
+export const LIGHT_THEME: ThemeTokens = {
+  BG_DEEPEST: "#dde3f5", BG_CARD: "#edf1fb", BG_PAGE: "#f4f6ff",
+  BORDER_SUBTLE: "#b8c2e0", BORDER_ELEVATED: "#c8d0e8",
+  ACCENT_GOLD: "#e39f64", ACCENT_SHADOW: "#b07830",
+  ACCENT_GOLD_DIM: "rgba(227,159,100,0.18)",
+  COLOR_DANGER: "#E63946", COLOR_SUCCESS: "#06C97F",
+  COLOR_WARNING: "#d4a017", COLOR_ORANGE: "#FF6B35",
+  COLOR_MAGE: "#9b59f0", COLOR_WARRIOR: "#3b82f6",
+  COLOR_LEGENDARY: "#b8860b",
+  TEXT_INACTIVE: "#9aa5c8", TEXT_MUTED: "#6070a0",
+  TEXT_BODY: "#3a4068", TEXT_LIGHT: "#1a1d3a",
+  RANK_NOVATO: "#8a7a6a", RANK_VETERANO: "#6a80aa",
+  RANK_GUERREIRO: "#b07830", RANK_RARO: "#00a066",
+  RANK_MESTRE: "#2563eb", RANK_EPICO: "#7c3aed",
+  RANK_LENDARIO: "#c2440d",
+  FONT_PIXEL: "'Press Start 2P', monospace",
+  FONT_BODY: "'VT323', monospace",
+  PX_XL: 13, PX_MD: 10, PX_SM: 9, PX_XS: 8,
+  PX_2XS: 7, PX_3XS: 6, PX_4XS: 5,
+  VT_2XL: 24, VT_XL: 20, VT_LG: 18, VT_MD: 16, VT_SM: 14, VT_XS: 13,
+  SP_XS: 4, SP_SM: 8, SP_MD: 12, SP_LG: 16, SP_XL: 20, SP_2XL: 24,
+  RADIUS_SM: 4, RADIUS_MD: 6, RADIUS_LG: 8, RADIUS_XL: 10, RADIUS_PILL: 20,
+  alpha: (c, h) => c + h,
+};

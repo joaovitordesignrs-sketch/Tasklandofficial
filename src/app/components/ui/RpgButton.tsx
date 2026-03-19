@@ -12,10 +12,7 @@
  *   icon     — no bg, no border, just the icon (delete, close, etc.)
  */
 import React from "react";
-import {
-  FONT_PIXEL, FONT_BODY, ACCENT_GOLD,
-  BG_DEEPEST, TEXT_INACTIVE, BORDER_ELEVATED,
-} from "../../data/tokens";
+import { useTheme } from "../../contexts/PreferencesContext";
 
 export type RpgButtonVariant = "primary" | "ghost" | "dashed" | "toggle" | "icon";
 
@@ -45,7 +42,7 @@ export function RpgButton({
   children,
   onClick,
   variant = "primary",
-  color = ACCENT_GOLD,
+  color,
   fullWidth = false,
   disabled = false,
   isOn,
@@ -55,6 +52,8 @@ export function RpgButton({
   title,
   bodyFont = false,
 }: RpgButtonProps) {
+  const { FONT_PIXEL, FONT_BODY, ACCENT_GOLD, BG_DEEPEST, TEXT_INACTIVE, BORDER_ELEVATED } = useTheme();
+  const resolvedColor = color ?? ACCENT_GOLD;
   const font = bodyFont ? FONT_BODY : FONT_PIXEL;
 
   const base: React.CSSProperties = {
@@ -77,13 +76,13 @@ export function RpgButton({
     case "primary":
       variantStyle = {
         padding:      small ? "5px 12px" : "8px 16px",
-        background:   disabled ? BORDER_ELEVATED + "44" : color + "22",
-        border:       `1.5px solid ${disabled ? TEXT_INACTIVE : color}`,
+        background:   disabled ? BORDER_ELEVATED + "44" : resolvedColor + "22",
+        border:       `1.5px solid ${disabled ? TEXT_INACTIVE : resolvedColor}`,
         borderRadius: 6,
-        color:        disabled ? TEXT_INACTIVE : color,
+        color:        disabled ? TEXT_INACTIVE : resolvedColor,
         fontSize:     bodyFont ? 16 : 7,
-        textShadow:   disabled ? "none" : `0 0 6px ${color}66`,
-        boxShadow:    disabled ? "none" : `inset 0 1px 0 ${color}18`,
+        textShadow:   disabled ? "none" : `0 0 6px ${resolvedColor}66`,
+        boxShadow:    disabled ? "none" : `inset 0 1px 0 ${resolvedColor}18`,
       };
       break;
 
@@ -91,9 +90,9 @@ export function RpgButton({
       variantStyle = {
         padding:      small ? "7px 14px" : "10px 16px",
         background:   "transparent",
-        border:       `1.5px solid ${color}`,
+        border:       `1.5px solid ${resolvedColor}`,
         borderRadius: 6,
-        color:        color,
+        color:        resolvedColor,
         fontSize:     bodyFont ? 16 : 8,
       };
       break;
@@ -101,10 +100,10 @@ export function RpgButton({
     case "dashed":
       variantStyle = {
         padding:      small ? "10px 0" : "14px 0",
-        background:   color + "12",
-        border:       `2px dashed ${color}`,
+        background:   resolvedColor + "12",
+        border:       `2px dashed ${resolvedColor}`,
         borderRadius: 8,
-        color:        color,
+        color:        resolvedColor,
         fontSize:     bodyFont ? 18 : 9,
         fontWeight:   400,
       };
@@ -114,8 +113,8 @@ export function RpgButton({
       // isOn controls the filled state
       variantStyle = {
         padding:      "5px 14px",
-        background:   isOn ? color : BORDER_ELEVATED,
-        border:       `2px solid ${isOn ? color : TEXT_INACTIVE}`,
+        background:   isOn ? resolvedColor : BORDER_ELEVATED,
+        border:       `2px solid ${isOn ? resolvedColor : TEXT_INACTIVE}`,
         borderRadius: 4,
         color:        isOn ? BG_DEEPEST : TEXT_INACTIVE,
         fontSize:     bodyFont ? 16 : 8,
@@ -129,7 +128,7 @@ export function RpgButton({
         background: "none",
         border:     "none",
         borderRadius: 4,
-        color:      color,
+        color:      resolvedColor,
         fontSize:   bodyFont ? 16 : 7,
       };
       break;

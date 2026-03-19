@@ -11,12 +11,7 @@ import { useIsDesktop } from "../hooks/useIsDesktop";
 import { MobileAddTaskModal } from "./ui/MobileAddTaskModal";
 import { getPower } from "../data/combatPower";
 import { DifficultyPicker } from "./ui/DifficultyPicker";
-import {
-  BG_DEEPEST, BG_CARD, BG_PAGE, BORDER_SUBTLE, BORDER_ELEVATED,
-  ACCENT_GOLD, COLOR_DANGER, COLOR_SUCCESS, COLOR_WARNING, COLOR_ORANGE, COLOR_MAGE,
-  TEXT_INACTIVE, TEXT_MUTED, TEXT_BODY, TEXT_LIGHT,
-  FONT_PIXEL, FONT_BODY, RADIUS_LG, RADIUS_XL,
-} from "../data/tokens";
+import { useTheme } from "../contexts/PreferencesContext";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 type TaskDifficulty = "easy" | "medium" | "hard";
@@ -63,12 +58,6 @@ interface ChallengePanelProps {
   attackCallbackRef?: { current: (() => void) | null };
 }
 
-// ── Accent colours ──────────────────────────────────────────────────────────
-const ACCENT       = COLOR_ORANGE;
-const ACCENT_DARK  = "#b04010";
-const ACCENT_BG    = "rgba(255,107,53,0.10)";
-const ACCENT_BORDER = COLOR_ORANGE + "55";
-
 // ── Difficulty picker ─────────────────────────────────────────────────────────
 function DiffPicker({ value, onChange }: { value: TaskDifficulty; onChange: (d: TaskDifficulty) => void }) {
   return <DifficultyPicker value={value} onChange={onChange} />;
@@ -94,6 +83,11 @@ function useTimerTick(isRunning: boolean) {
 // CHALLENGE PANEL
 // ══════════════════════════════════════════════════════════════════════════════
 export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, onChallengeFailed, onSelectedCountChange, attackCallbackRef }: ChallengePanelProps) {
+  const { COLOR_ORANGE } = useTheme();
+  const ACCENT        = COLOR_ORANGE;
+  const ACCENT_BG     = "rgba(255,107,53,0.10)";
+  const ACCENT_BORDER = COLOR_ORANGE + "55";
+
   const [challenges, setChallenges] = useState(getChallenges());
   const [creating, setCreating] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());

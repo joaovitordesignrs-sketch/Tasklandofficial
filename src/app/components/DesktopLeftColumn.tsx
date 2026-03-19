@@ -5,8 +5,8 @@
  */
 import { useNavigate, useLocation } from "react-router";
 import {
-  Swords, Flame, Scroll, Award, BarChart3,
-  RotateCcw, Users, Settings, LogOut, Skull, Trophy, Zap, Timer,
+  Swords, Flame, Award,
+  Users, Settings, LogOut, Skull, Trophy, Zap,
   User, ShoppingBag, Coins, Sparkles,
 } from "lucide-react";
 import { audioManager }        from "../hooks/audioManager";
@@ -22,22 +22,8 @@ import { getEconomy } from "../data/economy";
 import { FloatingDamage }      from "./ui/FloatingDamage";
 import { useNotifications }    from "../hooks/useNotifications";
 import { RpgButton }           from "./ui/RpgButton";
-import {
-  BG_DEEPEST, BG_CARD,
-  BORDER_SUBTLE, BORDER_ELEVATED,
-  ACCENT_GOLD,
-  COLOR_DANGER, COLOR_SUCCESS, COLOR_WARNING, COLOR_MAGE, COLOR_LEGENDARY, COLOR_ORANGE,
-  COLOR_WARRIOR,
-  TEXT_INACTIVE, TEXT_MUTED,
-  FONT_PIXEL, FONT_BODY,
-  PX_MD, PX_SM, PX_XS, PX_2XS,
-  VT_LG, VT_SM, VT_XS,
-  RADIUS_SM, RADIUS_MD, RADIUS_LG, RADIUS_XL,
-  SP_SM,
-  alpha,
-} from "../data/tokens";
+import { useTheme } from "../contexts/PreferencesContext";
 
-import imgMonster from "figma:asset/147b3ea044d17ccabc73d88e4f920ffa7c656903.png";
 import imgAvatar  from "figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf1e.png";
 import imgAvatarMago from "figma:asset/5c09b71e009581d58103f7df9949281a05a710d1.png";
 import imgArenaBackground from "../../assets/arena_background_1.png";
@@ -87,6 +73,8 @@ function getMonsterBottom(monsterType?: string): string {
 
 // ── Level-Up Banner (arena overlay) ──────────────────────────────────────────
 function LevelUpBanner({ level, rankColor, onDone }: { level: number; rankColor: string; onDone: () => void }) {
+  const { FONT_PIXEL, PX_SM } = useTheme();
+
   useEffect(() => {
     audioManager.playLevelUp();
     const t = setTimeout(onDone, 3200);
@@ -128,6 +116,14 @@ function cleanMonsterName(name: string): string {
 
 // ── Arena battle card ─────────────────────────────────────────────────────────
 function ArenaCard() {
+  const {
+    BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED, ACCENT_GOLD,
+    COLOR_DANGER, COLOR_SUCCESS, COLOR_WARNING, COLOR_MAGE, COLOR_LEGENDARY,
+    COLOR_ORANGE, TEXT_INACTIVE, FONT_PIXEL, FONT_BODY,
+    PX_MD, PX_SM, PX_XS, PX_2XS, VT_LG, VT_SM, VT_XS,
+    RADIUS_SM, RADIUS_LG, RADIUS_XL, SP_SM, alpha,
+  } = useTheme();
+
   const {
     mission, hpInfo, hpColor, defeated, monsterShake, taskCompleted,
     selectedClass, showVictory, victoryXP, nextMission,
@@ -343,6 +339,14 @@ function ArenaCard() {
 
 // ── Character card ─────────────────────────────────────────────────────────────
 function CharacterCard() {
+  const {
+    BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED, ACCENT_GOLD,
+    COLOR_DANGER, COLOR_MAGE, COLOR_LEGENDARY, COLOR_WARRIOR,
+    FONT_PIXEL, FONT_BODY, PX_MD, PX_SM,
+    VT_LG, VT_XS, RADIUS_SM, RADIUS_MD, RADIUS_XL,
+    SP_SM, alpha,
+  } = useTheme();
+
   const { lvInfo, xpPct, rank, cpData, selectedClass, levelUpInfo, playerName } = useCampaign();
   const { nick } = useAuth();
 
@@ -394,7 +398,7 @@ function CharacterCard() {
           <Zap size={14} color={cpData.rank.color} />
           <span style={{ fontFamily: FONT_PIXEL, fontSize: 11, color: cpData.rank.color, textShadow: "1px 1px 0 #000", letterSpacing: 1 }}>POWER {cpData.combatPower}</span>
         </div>
-        <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_XS, color: cpData.rank.color, opacity: 0.85 }}>{cpData.rank.tier}</span>
+        <span style={{ fontFamily: FONT_PIXEL, fontSize: VT_XS, color: cpData.rank.color, opacity: 0.85 }}>{cpData.rank.tier}</span>
       </div>
 
       {/* Gold + Essence */}
@@ -442,6 +446,13 @@ const HOME_NAV_ITEMS = [
 ];
 
 function NavMenu() {
+  const {
+    BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED, ACCENT_GOLD,
+    COLOR_DANGER, COLOR_WARRIOR, TEXT_MUTED, TEXT_INACTIVE,
+    FONT_PIXEL, FONT_BODY, PX_2XS, VT_SM,
+    RADIUS_LG, RADIUS_XL, SP_SM, alpha,
+  } = useTheme();
+
   const navigate     = useNavigate();
   const { pathname } = useLocation();
   const { signOut, nick } = useAuth();

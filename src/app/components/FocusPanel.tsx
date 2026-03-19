@@ -26,17 +26,8 @@ import { useIsDesktop } from "../hooks/useIsDesktop";
 import { MobileAddTaskModal } from "./ui/MobileAddTaskModal";
 import { getPower } from "../data/combatPower";
 import { DifficultyPicker } from "./ui/DifficultyPicker";
-import {
-  BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
-  COLOR_MAGE, COLOR_SUCCESS, TEXT_MUTED, TEXT_INACTIVE,
-  FONT_PIXEL, FONT_BODY,
-} from "../data/tokens";
+import { useTheme } from "../contexts/PreferencesContext";
 
-// ── Accent colours ────────────────────────────────────────────────
-const ACCENT      = COLOR_MAGE;
-const ACCENT_DARK = "#7030a0";
-const ACCENT_BG   = "rgba(192,132,252,0.10)";
-const ACCENT_BORD = COLOR_MAGE + "55";
 const FOCUS_BONUS = 0.01; // permanent dmg per task
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -96,6 +87,11 @@ const SESSION_PRESETS = [15, 25, 30, 45, 60];
 // MAIN PANEL
 // ══════════════════════════════════════════════════════════════════════════════
 export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelectedCountChange, attackCallbackRef }: FocusPanelProps) {
+  const { COLOR_MAGE } = useTheme();
+  const ACCENT      = COLOR_MAGE;
+  const ACCENT_BG   = "rgba(192,132,252,0.10)";
+  const ACCENT_BORD = COLOR_MAGE + "55";
+
   const [challenges, setChallenges] = useState(getChallenges());
   const [creating, setCreating]     = useState(false);
   const [sessionMin, setSessionMin] = useState(25);
