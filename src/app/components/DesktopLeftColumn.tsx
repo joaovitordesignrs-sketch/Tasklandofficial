@@ -7,7 +7,7 @@ import { useNavigate, useLocation } from "react-router";
 import {
   Swords, Flame, Scroll, Award, BarChart3,
   RotateCcw, Users, Settings, LogOut, Skull, Trophy, Zap, Timer,
-  User,
+  User, ShoppingBag, Coins, Sparkles,
 } from "lucide-react";
 import { audioManager }        from "../hooks/audioManager";
 import { useCampaign }         from "../hooks/useCampaign";
@@ -18,7 +18,7 @@ import { ClassPickerOverlay }  from "./ClassPickerOverlay";
 import type { CharacterClass } from "../data/economy";
 import { TYPE_INFO }           from "../data/missions";
 import { forcePush }           from "../data/syncService";
-import { getRebirthState }     from "../data/economy";
+import { getRebirthState, getEconomy } from "../data/economy";
 import { FloatingDamage }      from "./ui/FloatingDamage";
 import { useNotifications }    from "../hooks/useNotifications";
 import { RpgButton }           from "./ui/RpgButton";
@@ -396,17 +396,49 @@ function CharacterCard() {
         </div>
         <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_XS, color: cpData.rank.color, opacity: 0.85 }}>{cpData.rank.tier}</span>
       </div>
+
+      {/* Gold + Essence */}
+      {(() => {
+        const econ = getEconomy();
+        return (
+          <div style={{ display: "flex", gap: 6, marginTop: 2 }}>
+            <div style={{
+              flex: 1, display: "flex", alignItems: "center", gap: 5,
+              padding: "5px 8px",
+              background: "rgba(255,215,0,0.06)", border: "1px solid rgba(255,215,0,0.18)",
+              borderRadius: RADIUS_MD,
+            }}>
+              <Coins size={12} color={ACCENT_GOLD} />
+              <span style={{ fontFamily: FONT_BODY, color: ACCENT_GOLD, fontSize: VT_LG }}>
+                {econ.coins.toLocaleString("pt-BR")}
+              </span>
+            </div>
+            <div style={{
+              flex: 1, display: "flex", alignItems: "center", gap: 5,
+              padding: "5px 8px",
+              background: "rgba(168,85,247,0.06)", border: "1px solid rgba(168,85,247,0.18)",
+              borderRadius: RADIUS_MD,
+            }}>
+              <Sparkles size={12} color={COLOR_MAGE} />
+              <span style={{ fontFamily: FONT_BODY, color: COLOR_MAGE, fontSize: VT_LG }}>
+                {(econ.monsterEssences ?? 0).toLocaleString("pt-BR")}
+              </span>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
 
 // ── Navigation menu ────────────────────────────────────────────────────────────
 const HOME_NAV_ITEMS = [
-  { path: "/",           label: "CAMPANHA",   Icon: Swords,  notif: null as null | "habitsUnchecked" | "newAchievements" },
-  { path: "/habitos",    label: "HÁBITOS",    Icon: Flame,   notif: "habitsUnchecked" as const },
-  { path: "/conquistas", label: "CONQUISTAS", Icon: Award,   notif: "newAchievements" as const },
-  { path: "/perfil",     label: "PERFIL",     Icon: User,    notif: null },
-  { path: "/amigos",     label: "AMIGOS",     Icon: Users,   notif: null },
+  { path: "/",           label: "CAMPANHA",   Icon: Swords,       notif: null as null | "habitsUnchecked" | "newAchievements" },
+  { path: "/habitos",    label: "HÁBITOS",    Icon: Flame,        notif: "habitsUnchecked" as const },
+  { path: "/conquistas", label: "CONQUISTAS", Icon: Award,        notif: "newAchievements" as const },
+  { path: "/perfil",     label: "PERFIL",     Icon: User,         notif: null },
+  { path: "/loja",       label: "LOJA",       Icon: ShoppingBag,  notif: null },
+  { path: "/amigos",     label: "AMIGOS",     Icon: Users,        notif: null },
 ];
 
 function NavMenu() {

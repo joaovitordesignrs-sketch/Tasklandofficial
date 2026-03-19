@@ -73,6 +73,9 @@ create table public.game_data (
     "onePunchBosses": 0
   }'::jsonb,
 
+  -- Itens (inventário do jogador — weapon/armor/accessory/relic)
+  items              jsonb default '[]'::jsonb,            -- UserItem[]
+
   -- Renascimento (Rebirth / Rogue-like)
   rebirth            jsonb default '{
     "runNumber": 1,

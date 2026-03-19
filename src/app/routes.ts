@@ -12,6 +12,7 @@ import RootLayout           from "./components/RootLayout";
 import RedirectToProfile    from "./components/RedirectToProfile";
 import AdminWipeScreen      from "./components/AdminWipeScreen";
 import DesignSystemScreen   from "./components/DesignSystemScreen";
+import ShopScreen           from "./components/ShopScreen";
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +34,7 @@ export const router = createBrowserRouter([
       { path: "amigos/:friendId", Component: FriendProfileScreen },
       { path: "classe",           Component: ClassSelectionScreen },
       { path: "design_system",    Component: DesignSystemScreen  },
+      { path: "loja",             Component: ShopScreen          },
       // Legacy route redirects → /perfil
       { path: "progresso",        Component: RedirectToProfile  },
       { path: "historico",        Component: RedirectToProfile  },

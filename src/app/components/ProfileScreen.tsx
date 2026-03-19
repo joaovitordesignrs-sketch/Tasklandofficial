@@ -9,7 +9,7 @@ import { useNavigate } from "react-router";
 import {
   Scroll, BarChart3, RotateCcw, User,
   Calendar, ChevronDown, ChevronUp, Timer, Brain, Shield, Swords, Flame,
-  Star, Zap, Award, TrendingUp, Castle, Trophy,
+  Star, Zap, Award, TrendingUp, Castle, Trophy, Backpack,
   CheckSquare, Map as MapIcon, Gem, Coins, FileText, CheckCircle2,
 } from "lucide-react";
 
@@ -32,6 +32,7 @@ import { useIsDesktop } from "../hooks/useIsDesktop";
 import { audioManager } from "../hooks/audioManager";
 import { PageShell } from "./ui/PageShell";
 import { CardIn } from "./ui/CardIn";
+import { ItemsTab } from "./ItemsTab";
 import { PixelIcon } from "./ui/PixelIcon";
 import { PixelTabs, PixelTabDef } from "./ui/PixelTabs";
 import { RpgButton } from "./ui/RpgButton";
@@ -49,7 +50,7 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
-type ProfileTab = "diario" | "evolucao" | "campanha" | "renascer";
+type ProfileTab = "diario" | "evolucao" | "campanha" | "renascer" | "itens";
 type RebirthStage = "preview" | "confirm" | "animating" | "complete";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -884,9 +885,10 @@ function RebirthComplete({ result, prevBonus, gain }: { result: RebirthState; pr
 // ─────────────────────────────────────────────────────────────────────────────
 const TABS: PixelTabDef<ProfileTab>[] = [
   { key: "evolucao", label: "EVOLUÇÃO", Icon: BarChart3,  color: "#06FFA5" },
-  { key: "diario",   label: "DIÁRIO",   Icon: Scroll,    color: "#e39f64" },
-  { key: "campanha", label: "CAMPANHA", Icon: Castle,     color: "#e39f64" },
-  { key: "renascer", label: "RENASCER", Icon: RotateCcw,  color: "#c084fc" },
+  { key: "diario",   label: "DIÁRIO",   Icon: Scroll,     color: "#e39f64" },
+  { key: "campanha", label: "CAMPANHA", Icon: Castle,      color: "#e39f64" },
+  { key: "renascer", label: "RENASCER", Icon: RotateCcw,   color: "#c084fc" },
+  { key: "itens",    label: "ITENS",    Icon: Backpack,    color: "#e39f64" },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -943,6 +945,7 @@ export default function ProfileScreen() {
         {activeTab === "renascer" && (
           <RenascerTab onStartAnimation={handleStartAnimation} />
         )}
+        {activeTab === "itens" && <ItemsTab />}
       </PageShell>
     </>
   );

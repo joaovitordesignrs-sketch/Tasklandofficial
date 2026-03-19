@@ -26,6 +26,7 @@ import { reloadEconomy, reloadRebirth } from "./economy";
 import { reloadHabits } from "./habits";
 import { reloadChallenges } from "./challenges";
 import { reloadTaskHistory } from "./missions";
+import { reloadItems, getItems, type UserItem } from "./items";
 
 // In-memory store accessors (used by gatherLocalData to avoid reading stale/empty localStorage)
 import { getMissions } from "./missions";
@@ -63,6 +64,7 @@ const LS_KEYS = {
   habits:       "rpg_habits_v1",
   economy:      "rpg_economy_v1",
   rebirth:      "rpg_rebirth_v1",
+  items:        "rpg_items_v1",
 } as const;
 
 // ── Key to track the last wipe applied locally ────────────────────────────────
@@ -82,6 +84,7 @@ export interface GameDataRow {
   habits:                  Habit[];
   economy:                 EconomyState;
   rebirth:                 RebirthState;
+  items:                   UserItem[];
   combat_power:            number;
   cp_rank_tier:            string;
   audio_settings:          any;
@@ -278,6 +281,7 @@ export function gatherLocalData(): Omit<GameDataRow, "uid" | "updated_at"> {
     habits,
     economy,
     rebirth,
+    items:                   getItems(),
     combat_power:            cpData.combatPower,   // integer CP (ex: 212), not raw multiplier
     cp_rank_tier:            cpData.rank.tier,
     audio_settings:          {},
@@ -306,6 +310,7 @@ export function applyCloudData(data: Partial<GameDataRow>, forceWipe = false): v
     localStorage.setItem(LS_KEYS.habits, JSON.stringify(data.habits ?? []));
     localStorage.setItem(LS_KEYS.economy, JSON.stringify(data.economy ?? {}));
     localStorage.setItem(LS_KEYS.rebirth, JSON.stringify(data.rebirth ?? {}));
+    localStorage.setItem(LS_KEYS.items,   JSON.stringify(data.items   ?? []));
     if (data.player_name) localStorage.setItem(LS_KEYS.playerName, data.player_name);
   } else {
     if (data.missions && data.missions.length > 0) {
@@ -347,6 +352,15 @@ export function applyCloudData(data: Partial<GameDataRow>, forceWipe = false): v
     if (data.habits)        localStorage.setItem(LS_KEYS.habits, JSON.stringify(data.habits));
     if (data.economy)       localStorage.setItem(LS_KEYS.economy, JSON.stringify(data.economy));
     if (data.rebirth)       localStorage.setItem(LS_KEYS.rebirth, JSON.stringify(data.rebirth));
+    if (data.items && data.items.length > 0) {
+      localStorage.setItem(LS_KEYS.items, JSON.stringify(data.items));
+    } else if (data.items !== undefined) {
+      // Cloud has items: [] — only overwrite local if local is also empty (fresh account)
+      const localItems = readLS<UserItem[]>(LS_KEYS.items, []);
+      if (localItems.length === 0) {
+        localStorage.setItem(LS_KEYS.items, JSON.stringify([]));
+      }
+    }
     if (data.player_name)   localStorage.setItem(LS_KEYS.playerName, data.player_name);
   }
 
@@ -357,6 +371,7 @@ export function applyCloudData(data: Partial<GameDataRow>, forceWipe = false): v
   reloadRebirth();
   reloadHabits();
   reloadChallenges();
+  reloadItems();
 
   // Notify React components that data has been refreshed from cloud
   try { window.dispatchEvent(new Event("rpg:data-updated")); } catch { /* noop */ }

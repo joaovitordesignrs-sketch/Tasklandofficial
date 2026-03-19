@@ -11,6 +11,7 @@
 
 import { getActiveHabits } from "./habits";
 import { getEconomy, getPowerMR } from "./economy";
+import { getItemBonuses } from "./items";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -155,10 +156,17 @@ export function getPower(level: number, mode: PowerMode = "none"): PowerData {
   // Guard: ensure level is a valid positive finite number
   const safeLevel = Number.isFinite(level) && level > 0 ? level : 1;
 
-  const mh = calcMH();
-  const mn = calcMN(safeLevel);
-  const mc = calcMC(mode);
-  const mr = calcMR();
+  const baseMH = calcMH();
+  const baseMN = calcMN(safeLevel);
+  const baseMC = calcMC(mode);
+  const baseMR = calcMR();
+
+  // Item bonuses from equipped items
+  const itemBonuses = getItemBonuses();
+  const mh = parseFloat((baseMH + itemBonuses.bonusMH).toFixed(4));
+  const mn = parseFloat((baseMN + itemBonuses.bonusMN).toFixed(4));
+  const mc = parseFloat((baseMC + itemBonuses.bonusMC).toFixed(4));
+  const mr = parseFloat((baseMR + itemBonuses.bonusMR).toFixed(4));
 
   // Guard each multiplier against NaN/Infinity before multiplying
   const safeMH = Number.isFinite(mh) ? mh : 1;
@@ -221,6 +229,20 @@ export function getPower(level: number, mode: PowerMode = "none"): PowerData {
       active: mr > 1,
     },
   ];
+
+  // Item bonus source (shown only when at least one item is equipped)
+  const totalItemBonus = itemBonuses.bonusMH + itemBonuses.bonusMN + itemBonuses.bonusMC + itemBonuses.bonusMR;
+  if (totalItemBonus > 0) {
+    sources.push({
+      id:     "items",
+      label:  "Itens",
+      icon:   "MI",
+      color:  "#e39f64",
+      value:  parseFloat((1 + totalItemBonus).toFixed(4)),
+      desc:   `Bônus de itens equipados (+${totalItemBonus.toFixed(3)} distribuído entre MH/MN/MC/MR)`,
+      active: true,
+    });
+  }
 
   return { total, combatPower, mh, mn, mc, mr, sources, rank };
 }

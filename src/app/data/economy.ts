@@ -126,6 +126,7 @@ export interface EconomyState {
   needsClassSelection: boolean;
   focusDamageBonus: number;  // permanent +0.01x per focus task completed
   bonusXP:         number;   // XP from monster kills (synced to cloud via economy)
+  monsterEssences: number;   // essência de monstro — usada para evoluir itens
 }
 
 const ECON_KEY = "rpg_economy_v1";
@@ -151,6 +152,9 @@ function loadEconomy(): EconomyState {
           parsed.bonusXP = 0;
         }
       }
+      if (parsed.monsterEssences === undefined) {
+        parsed.monsterEssences = 0;
+      }
       return parsed;
     }
   } catch { /* noop */ }
@@ -165,6 +169,7 @@ function loadEconomy(): EconomyState {
     unlockedClasses: [], pets: [], activePet: null,
     unlockedAchievements: [], title: null, onePunchBosses: 0,
     needsClassSelection: true, focusDamageBonus: 0, bonusXP: migratedBonusXP,
+    monsterEssences: 0,
   };
 }
 
@@ -312,6 +317,7 @@ export function resetEconomy(): void {
     unlockedClasses: [], pets: [], activePet: null,
     unlockedAchievements: [], title: null, onePunchBosses: 0,
     needsClassSelection: true, focusDamageBonus: preservedFocusBonus, bonusXP: 0,
+    monsterEssences: econ.monsterEssences ?? 0,
   };
   saveEconomy(econ);
 }
@@ -340,6 +346,25 @@ export function addBonusXP(amount: number): void {
 export function resetBonusXP(): void {
   econ = { ...econ, bonusXP: 0 };
   saveEconomy(econ);
+}
+
+// ── Monster Essences ──────────────────────────────────────────────────────────
+
+export function getMonsterEssences(): number {
+  return econ.monsterEssences ?? 0;
+}
+
+export function addEssences(amount: number): void {
+  econ = { ...econ, monsterEssences: (econ.monsterEssences ?? 0) + amount };
+  try { localStorage.setItem(ECON_KEY, JSON.stringify(econ)); } catch { /* noop */ }
+  try { import("./syncService").then(s => s.schedulePush(3000)); } catch { /* noop */ }
+}
+
+export function spendEssences(amount: number): boolean {
+  if ((econ.monsterEssences ?? 0) < amount) return false;
+  econ = { ...econ, monsterEssences: (econ.monsterEssences ?? 0) - amount };
+  saveEconomy(econ);
+  return true;
 }
 
 // ── Rebirth / Rogue-like System ──────────────────────────────────────────────

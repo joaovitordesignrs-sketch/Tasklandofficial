@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router";
 import {
-  Swords, Brain, Flame, Award, Settings, Zap, Users, LogOut, User, RotateCcw, Palette,
+  Swords, Brain, Flame, Award, Settings, Zap, Users, LogOut, User, RotateCcw, Palette, ShoppingBag, Coins, Sparkles,
 } from "lucide-react";
 import { audioManager } from "../hooks/audioManager";
 import { getRebirthState } from "../data/economy";
@@ -24,14 +24,15 @@ interface Props {
 }
 
 const MENU_ITEMS = [
-  { path: "/",              label: "CAMPANHA",   Icon: Swords  },
-  { path: "/desafios",      label: "FOCO",       Icon: Brain   },
-  { path: "/habitos",       label: "HÁBITOS",    Icon: Flame   },
-  { path: "/conquistas",    label: "CONQUISTAS", Icon: Award   },
-  { path: "/perfil",        label: "PERFIL",     Icon: User    },
-  { path: "/amigos",        label: "AMIGOS",     Icon: Users   },
-  { path: "/configuracoes", label: "CONFIG",     Icon: Settings },
-  { path: "/design_system", label: "DESIGN KIT", Icon: Palette },
+  { path: "/",              label: "CAMPANHA",   Icon: Swords       },
+  { path: "/desafios",      label: "FOCO",       Icon: Brain        },
+  { path: "/habitos",       label: "HÁBITOS",    Icon: Flame        },
+  { path: "/conquistas",    label: "CONQUISTAS", Icon: Award        },
+  { path: "/perfil",        label: "PERFIL",     Icon: User         },
+  { path: "/loja",          label: "LOJA",       Icon: ShoppingBag  },
+  { path: "/amigos",        label: "AMIGOS",     Icon: Users        },
+  { path: "/configuracoes", label: "CONFIG",     Icon: Settings     },
+  { path: "/design_system", label: "DESIGN KIT", Icon: Palette      },
 ];
 
 export function DesktopSidebar({ playerName, level, rankLabel, rankColor, xpPct, currentXP, neededXP }: Props) {
@@ -120,6 +121,37 @@ export function DesktopSidebar({ playerName, level, rankLabel, rankColor, xpPct,
                 <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 6, color: "#5a6080", letterSpacing: 1 }}>POWER</span>
               </div>
               <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: cp.rank.color, opacity: 0.85 }}>{cp.rank.tier}</span>
+            </div>
+          );
+        })()}
+
+        {/* Gold + Essence */}
+        {(() => {
+          const econ = getEconomy();
+          return (
+            <div style={{ display: "flex", gap: 5, marginTop: 6 }}>
+              <div style={{
+                flex: 1, display: "flex", alignItems: "center", gap: 5,
+                padding: "4px 7px",
+                background: "rgba(255,215,0,0.06)", border: "1px solid rgba(255,215,0,0.18)",
+                borderRadius: 5,
+              }}>
+                <Coins size={11} color="#FFD700" />
+                <span style={{ fontFamily: "'VT323', monospace", color: "#FFD700", fontSize: 14 }}>
+                  {econ.coins.toLocaleString("pt-BR")}
+                </span>
+              </div>
+              <div style={{
+                flex: 1, display: "flex", alignItems: "center", gap: 5,
+                padding: "4px 7px",
+                background: "rgba(168,85,247,0.06)", border: "1px solid rgba(168,85,247,0.18)",
+                borderRadius: 5,
+              }}>
+                <Sparkles size={11} color="#a855f7" />
+                <span style={{ fontFamily: "'VT323', monospace", color: "#a855f7", fontSize: 14 }}>
+                  {(econ.monsterEssences ?? 0).toLocaleString("pt-BR")}
+                </span>
+              </div>
             </div>
           );
         })()}

@@ -18,7 +18,8 @@ import {
   updateMission, createMission, initialMissions,
   Mission, Task,
 } from "../data/missions";
-import { getEconomy, addBonusXP, recordOnePunchBoss, selectClass, buyClass } from "../data/economy";
+import { getEconomy, addBonusXP, addCoins, addEssences, recordOnePunchBoss, selectClass, buyClass, getMonsterCoinReward } from "../data/economy";
+import { getEssenceDrop } from "../data/items";
 import {
   calcTaskDamage, calcBatchDamage, calcMonsterXP,
   calcTotalXP, getLevelInfo, getRank,
@@ -40,6 +41,8 @@ export interface CampaignContextValue {
   taskCompleted:    boolean;
   showVictory:      boolean;
   victoryXP:        number;
+  victoryGold:      number;
+  victoryEssence:   number;
   nextMission:      Mission | null;
   campaignDone:     boolean;
   levelUpInfo:      { level: number; rank: string; rankColor: string } | null;
@@ -112,6 +115,8 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
   const [screenFlash,      setScreenFlash]      = useState(false);
   const [showVictory,      setShowVictory]      = useState(false);
   const [victoryXP,        setVictoryXP]        = useState(0);
+  const [victoryGold,      setVictoryGold]      = useState(0);
+  const [victoryEssence,   setVictoryEssence]   = useState(0);
   const [nextMission,      setNextMission]      = useState<Mission | null>(null);
   const [campaignDone,     setCampaignDone]     = useState(false);
   const [playerName]                            = useState(loadPlayerName);
@@ -264,9 +269,16 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
       setTimeout(() => setAttackBanner(null), count >= 5 ? 2000 : 1400);
       addDamageNumber(damage);
       if (newHp <= 0) {
-        const xpGained = calcMonsterXP({ ...updated });
+        const xpGained  = calcMonsterXP({ ...updated });
+        const monType   = updated.monsterType ?? "normal";
+        const goldEarned    = getMonsterCoinReward(monType);
+        const essenceEarned = getEssenceDrop(monType);
         addBonusXP(xpGained);
+        addCoins(goldEarned);
+        addEssences(essenceEarned);
         setVictoryXP(xpGained);
+        setVictoryGold(goldEarned);
+        setVictoryEssence(essenceEarned);
         if (updated.monsterType === "boss" && completedIds.length === 1) {
           const theTask = justDone[0];
           if (theTask?.difficulty === "hard") recordOnePunchBoss();
@@ -367,9 +379,16 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
       setTimeout(() => setAttackBanner(null), strike.isCritical ? 2000 : 1400);
       addDamageNumber(strike.damage);
       if (newHp <= 0) {
-        const xpGained = calcMonsterXP({ ...updated });
+        const xpGained      = calcMonsterXP({ ...updated });
+        const monType       = updated.monsterType ?? "normal";
+        const goldEarned    = getMonsterCoinReward(monType);
+        const essenceEarned = getEssenceDrop(monType);
         addBonusXP(xpGained);
+        addCoins(goldEarned);
+        addEssences(essenceEarned);
         setVictoryXP(xpGained);
+        setVictoryGold(goldEarned);
+        setVictoryEssence(essenceEarned);
         const next = unlockNext(updated);
         setNextMission(next);
         setCampaignDone(!next && isCampaignComplete());
@@ -407,9 +426,16 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
       setTimeout(() => setAttackBanner(null), 1600);
       addDamageNumber(strike.damage);
       if (newHp <= 0) {
-        const xpGained = calcMonsterXP({ ...updated });
+        const xpGained      = calcMonsterXP({ ...updated });
+        const monType       = updated.monsterType ?? "normal";
+        const goldEarned    = getMonsterCoinReward(monType);
+        const essenceEarned = getEssenceDrop(monType);
         addBonusXP(xpGained);
+        addCoins(goldEarned);
+        addEssences(essenceEarned);
         setVictoryXP(xpGained);
+        setVictoryGold(goldEarned);
+        setVictoryEssence(essenceEarned);
         const next = unlockNext(updated);
         setNextMission(next);
         setCampaignDone(!next && isCampaignComplete());
@@ -462,7 +488,7 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value: CampaignContextValue = {
-    mission, allMissions, monsterShake, taskCompleted, showVictory, victoryXP,
+    mission, allMissions, monsterShake, taskCompleted, showVictory, victoryXP, victoryGold, victoryEssence,
     nextMission, campaignDone, levelUpInfo, attackBanner, screenShake, screenFlash,
     xpPenaltyBanner, hpInfo, hpColor, defeated, doneCampaign, totalCampaign,
     selectedClass, needsClassPick, damageNumbers,
