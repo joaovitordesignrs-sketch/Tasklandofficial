@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
-import { Trophy, Lock, Swords, RotateCcw, Hourglass } from "lucide-react";
+import { Trophy, Lock, Swords } from "lucide-react";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { getMissions } from "../data/missions";
 import { getHabits } from "../data/habits";
 import { getChallenges } from "../data/challenges";
-import { getEconomy, ACHIEVEMENTS, TIER_COLORS, checkAchievements, AchievementDef, PlayerStats, getAchievementDamageBonus, getRebirthState, getPendingRebirthBonus, getRebirthGain } from "../data/economy";
+import { getEconomy, ACHIEVEMENTS, TIER_COLORS, checkAchievements, AchievementDef, PlayerStats } from "../data/economy";
 import { getLevelInfo, calcTotalXP } from "../data/gameEngine";
 import { PageShell } from "./ui/PageShell";
 import { PixelIcon } from "./ui/PixelIcon";
@@ -71,10 +71,6 @@ export default function AchievementsScreen() {
   const unlocked = new Set(econ.unlockedAchievements);
   const total = ACHIEVEMENTS.length;
   const unlockedCount = econ.unlockedAchievements.length;
-  const totalDmgBonus = getAchievementDamageBonus();
-  const rebirth = getRebirthState();
-  const pendingBonus = getPendingRebirthBonus();
-  const gain = getRebirthGain();
 
   return (
     <>
@@ -96,31 +92,6 @@ export default function AchievementsScreen() {
             <div style={{ height: 10, background: BG_DEEPEST, border: `1px solid ${BORDER_ELEVATED}`, borderRadius: 5, position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", inset: 0, width: `${(unlockedCount / total) * 100}%`, background: COLOR_MAGE, transition: "width 0.8s ease" }} />
             </div>
-            <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
-              {totalDmgBonus > 0 && (
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <RotateCcw size={16} color={COLOR_SUCCESS} />
-                  <span style={{ fontFamily: FONT_BODY, color: COLOR_SUCCESS, fontSize: 18 }}>MR atual (descongelado): +{totalDmgBonus.toFixed(2)} → ×{(1 + totalDmgBonus).toFixed(2)}</span>
-                </div>
-              )}
-              {gain > 0 && (
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <Hourglass size={16} color={COLOR_LEGENDARY} />
-                  <span style={{ fontFamily: FONT_BODY, color: COLOR_LEGENDARY, fontSize: 18 }}>❄️ Congelado (ativa ao renascer): +{gain.toFixed(2)}</span>
-                </div>
-              )}
-              {pendingBonus > 0 && (
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <Swords size={16} color={COLOR_DANGER} />
-                  <span style={{ fontFamily: FONT_BODY, color: COLOR_DANGER, fontSize: 18 }}>MR após rebirth: ×{(1 + pendingBonus).toFixed(2)}</span>
-                </div>
-              )}
-            </div>
-            {rebirth.runNumber > 1 && (
-              <div style={{ marginTop: 6, color: TEXT_MUTED, fontSize: 14, fontFamily: FONT_BODY }}>
-                Run #{rebirth.runNumber} · {rebirth.totalRebirths} renascimento{rebirth.totalRebirths !== 1 ? "s" : ""}
-              </div>
-            )}
           </div>
 
           {/* Categories */}

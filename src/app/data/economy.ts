@@ -45,7 +45,6 @@ export const PET_INFO: Record<PetType, {
 // ── Achievements ─────────────────────────────────────────────────────────────
 export type AchievementTier = "bronze" | "prata" | "ouro" | "diamante" | "lendario";
 
-/** Valor de multiplicador MR por tier de conquista (somado ao MR após rebirth) */
 export const TIER_MR_VALUE: Record<AchievementTier, number> = {
   bronze:   0.10,
   prata:    0.15,
@@ -124,7 +123,6 @@ export interface EconomyState {
   title:           string | null;
   onePunchBosses:  number;
   needsClassSelection: boolean;
-  focusDamageBonus: number;  // permanent +0.01x per focus task completed
   bonusXP:         number;   // XP from monster kills (synced to cloud via economy)
   monsterEssences: number;   // essência de monstro — usada para evoluir itens
 }
@@ -138,9 +136,6 @@ function loadEconomy(): EconomyState {
       const parsed = JSON.parse(raw) as EconomyState;
       if (parsed.needsClassSelection === undefined) {
         parsed.needsClassSelection = parsed.selectedClass === null;
-      }
-      if (parsed.focusDamageBonus === undefined) {
-        parsed.focusDamageBonus = 0;
       }
       if (parsed.bonusXP === undefined) {
         // Migrate from legacy rpg_bonus_xp_v3 key
@@ -168,7 +163,7 @@ function loadEconomy(): EconomyState {
     coins: 0, totalCoinsEarned: 0, selectedClass: null,
     unlockedClasses: [], pets: [], activePet: null,
     unlockedAchievements: [], title: null, onePunchBosses: 0,
-    needsClassSelection: true, focusDamageBonus: 0, bonusXP: migratedBonusXP,
+    needsClassSelection: true, bonusXP: migratedBonusXP,
     monsterEssences: 0,
   };
 }
@@ -244,15 +239,12 @@ export function recordOnePunchBoss(): void {
   saveEconomy(econ);
 }
 
-/** Get the accumulated focus task permanent damage bonus */
-export function getFocusDamageBonus(): number {
-  return econ.focusDamageBonus ?? 0;
-}
+/** @deprecated focusDamageBonus removed — always returns 0 */
+export function getFocusDamageBonus(): number { return 0; }
 
-/** Add +0.01x (or custom amount) permanent damage from completing a focus task */
-export function addFocusDamageBonus(amount = 0.01): void {
-  econ = { ...econ, focusDamageBonus: parseFloat(((econ.focusDamageBonus ?? 0) + amount).toFixed(4)) };
-  saveEconomy(econ);
+/** @deprecated focusDamageBonus removed — no-op kept for call-site compatibility */
+export function addFocusDamageBonus(_amount = 0.01): void {
+  // focusDamageBonus removed — this is intentionally a no-op
 }
 
 /** Check and unlock new achievements, returns newly unlocked ones */
@@ -271,11 +263,15 @@ export function checkAchievements(stats: PlayerStats): AchievementDef[] {
   return newlyUnlocked;
 }
 
-/** Total damage bonus from all unlocked achievements
- *  In the rebirth system, only the CRYSTALLISED bonus from past rebirths applies.
- *  Current-run achievements are "pending" until the next rebirth. */
+/** Total damage bonus from all unlocked achievements */
 export function getAchievementDamageBonus(): number {
-  return loadRebirth().permanentDamageBonus;
+  let total = 0;
+  for (const ach of ACHIEVEMENTS) {
+    if (econ.unlockedAchievements.includes(ach.id)) {
+      total += ach.reward.damageBonus;
+    }
+  }
+  return total;
 }
 
 /** Coins earned per task completion (+10, +5 if dragon pet) */
@@ -310,13 +306,11 @@ export function getClassXPBonus(difficulty: string): number {
 }
 
 export function resetEconomy(): void {
-  // focusDamageBonus is permanent — survives rebirth
-  const preservedFocusBonus = econ.focusDamageBonus ?? 0;
   econ = {
     coins: 0, totalCoinsEarned: 0, selectedClass: null,
     unlockedClasses: [], pets: [], activePet: null,
     unlockedAchievements: [], title: null, onePunchBosses: 0,
-    needsClassSelection: true, focusDamageBonus: preservedFocusBonus, bonusXP: 0,
+    needsClassSelection: true, bonusXP: 0,
     monsterEssences: econ.monsterEssences ?? 0,
   };
   saveEconomy(econ);
@@ -367,118 +361,3 @@ export function spendEssences(amount: number): boolean {
   return true;
 }
 
-// ── Rebirth / Rogue-like System ──────────────────────────────────────────────
-
-export interface RebirthState {
-  runNumber:              number;   // current run (starts at 1)
-  totalRebirths:          number;   // how many times reborn
-  permanentDamageBonus:   number;   // crystallised achievement damage bonus
-  permanentAchievements:  string[]; // achievement IDs locked from past runs
-  lastRebirthAt?:         number;   // timestamp
-  highestLevelEver:       number;   // max level across all runs
-  totalMonstersEver:      number;   // total monsters killed across all runs
-  totalTasksEver:         number;   // total tasks done across all runs
-}
-
-const REBIRTH_KEY = "rpg_rebirth_v1";
-
-function loadRebirth(): RebirthState {
-  try {
-    const raw = localStorage.getItem(REBIRTH_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as RebirthState;
-      // Migrate: ensure array fields always exist (older saves may lack them)
-      if (!Array.isArray(parsed.permanentAchievements)) parsed.permanentAchievements = [];
-      return parsed;
-    }
-  } catch { /* noop */ }
-  return {
-    runNumber: 1, totalRebirths: 0,
-    permanentDamageBonus: 0, permanentAchievements: [],
-    highestLevelEver: 0, totalMonstersEver: 0, totalTasksEver: 0,
-  };
-}
-
-function saveRebirth(r: RebirthState): void {
-  try { localStorage.setItem(REBIRTH_KEY, JSON.stringify(r)); } catch { /* noop */ }
-  try { import("./syncService").then(s => s.schedulePush(3000)); } catch { /* noop */ }
-}
-
-let rebirthState: RebirthState = loadRebirth();
-
-export function getRebirthState(): RebirthState { return rebirthState; }
-
-export function reloadRebirth(): void { rebirthState = loadRebirth(); }
-
-/** Get the permanent damage bonus from past rebirths */
-export function getRebirthDamageBonus(): number {
-  return rebirthState.permanentDamageBonus;
-}
-
-/** Calculate the "pending" bonus — what achievements would give after rebirth */
-export function getPendingRebirthBonus(): number {
-  let total = 0;
-  for (const ach of ACHIEVEMENTS) {
-    if (econ.unlockedAchievements.includes(ach.id)) {
-      total += ach.reward.damageBonus;
-    }
-  }
-  return total;
-}
-
-/** Calculate gain from rebirthing now (pending minus already crystallised) */
-export function getRebirthGain(): number {
-  return Math.max(0, getPendingRebirthBonus() - loadRebirth().permanentDamageBonus);
-}
-
-/** Power Multiplicador de Rebirth (MR):
- *  MR = 1.0 + permanentDamageBonus (crystallised from past rebirths)
- *  Current-run pending achievements are NOT included — they crystallise at next rebirth. */
-export function getPowerMR(): number {
-  const permanentBonus = loadRebirth().permanentDamageBonus;
-  const base = 1.0 + (Number.isFinite(permanentBonus) ? permanentBonus : 0);
-  // focusDamageBonus accumulates permanently and contributes to MR
-  const rawFocus = econ.focusDamageBonus;
-  const focusContrib = Number.isFinite(rawFocus) ? rawFocus : 0;
-  return parseFloat((base + focusContrib).toFixed(4));
-}
-
-/**
- * Perform a rebirth:
- * - Crystallises all unlocked achievement bonuses as permanent damage
- * - Resets: level, missions, challenges, bonus XP, campaign progress
- * - Keeps: achievements, habits, coins, classes, pets, player name
- */
-export function performRebirth(currentLevel: number, totalMonsters: number, totalTasks: number): RebirthState {
-  // Crystallise achievement damage
-  const newPermBonus = getPendingRebirthBonus();
-  
-  // Merge achievement IDs
-  const allAchIds = new Set([
-    ...rebirthState.permanentAchievements,
-    ...econ.unlockedAchievements,
-  ]);
-
-  rebirthState = {
-    runNumber:             rebirthState.runNumber + 1,
-    totalRebirths:         rebirthState.totalRebirths + 1,
-    permanentDamageBonus:  newPermBonus,
-    permanentAchievements: Array.from(allAchIds),
-    lastRebirthAt:         Date.now(),
-    highestLevelEver:      Math.max(rebirthState.highestLevelEver, currentLevel),
-    totalMonstersEver:     rebirthState.totalMonstersEver + totalMonsters,
-    totalTasksEver:        rebirthState.totalTasksEver + totalTasks,
-  };
-  saveRebirth(rebirthState);
-
-  // Reset class selection so user picks again for the new run
-  econ = {
-    ...econ,
-    selectedClass: null,
-    unlockedClasses: [],
-    needsClassSelection: true,
-  };
-  saveEconomy(econ);
-
-  return rebirthState;
-}

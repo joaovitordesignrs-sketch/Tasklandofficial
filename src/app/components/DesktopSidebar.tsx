@@ -1,9 +1,8 @@
 import { useNavigate, useLocation } from "react-router";
 import {
-  Swords, Brain, Flame, Award, Settings, Zap, Users, LogOut, User, RotateCcw, Palette, ShoppingBag, Coins, Sparkles,
+  Swords, Brain, Flame, Award, Settings, Zap, Users, LogOut, User, Palette, ShoppingBag, Coins, Sparkles,
 } from "lucide-react";
 import { audioManager } from "../hooks/audioManager";
-import { getRebirthState } from "../data/economy";
 import { getPower, formatPower } from "../data/combatPower";
 import imgAvatar from "figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf1e.png";
 import imgAvatarMago from "figma:asset/5c09b71e009581d58103f7df9949281a05a710d1.png";
@@ -38,7 +37,6 @@ const MENU_ITEMS = [
 export function DesktopSidebar({ playerName, level, rankLabel, rankColor, xpPct, currentXP, neededXP }: Props) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const rebirth = getRebirthState();
   const { signOut, nick } = useAuth();
   const { selectedClass } = useCampaign();
   const avatarSrc = selectedClass === "mago" ? imgAvatarMago : imgAvatar;
@@ -156,16 +154,6 @@ export function DesktopSidebar({ playerName, level, rankLabel, rankColor, xpPct,
           );
         })()}
 
-        {/* Rebirth */}
-        {rebirth.totalRebirths > 0 && (
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, padding: "4px 8px", background: "rgba(255,215,0,0.06)", border: "1px solid #FFD70022", borderRadius: 5 }}>
-            <RotateCcw size={13} color="#FFD700" />
-            <span style={{ color: "#FFD700", fontSize: 13 }}>Run #{rebirth.runNumber}</span>
-            {rebirth.permanentDamageBonus > 0 && (
-              <span style={{ color: "#06FFA5", fontSize: 12, marginLeft: "auto" }}>MR ×{(1 + rebirth.permanentDamageBonus).toFixed(2)}</span>
-            )}
-          </div>
-        )}
       </div>
 
       {/* ── Navigation Menu ── */}

@@ -2,30 +2,26 @@
  * ProfileScreen — Unifies Diário, Evolução, Campanha and Renascer
  * into a single page with a pixel-art RPG tab switcher.
  */
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router";
 
 // ── Icons ──────────────────────────────────────────────────────────────────────
 import {
-  Scroll, BarChart3, RotateCcw, User,
+  Scroll, BarChart3, User,
   Calendar, ChevronDown, ChevronUp, Timer, Brain, Shield, Swords, Flame,
-  Star, Zap, Award, TrendingUp, Castle, Trophy, Backpack,
-  CheckSquare, Map as MapIcon, Gem, Coins, FileText, CheckCircle2,
+  Star, Zap, Castle, Trophy, Backpack,
 } from "lucide-react";
 
 // ── Data / hooks ───────────────────────────────────────────────────────────────
-import { getTaskHistory, TaskHistoryEntry, getMissions, loadPlayerName, resetAllProgress, rebirthReset } from "../data/missions";
+import { getTaskHistory, TaskHistoryEntry, getMissions, loadPlayerName, resetAllProgress } from "../data/missions";
 import { DIFFICULTY_INFO, calcTotalXP, getLevelInfo, getRank } from "../data/gameEngine";
 import {
   getEconomy, CLASS_INFO, resetEconomy, resetBonusXP,
-  getRebirthState, performRebirth, getPendingRebirthBonus, getRebirthGain,
-  ACHIEVEMENTS, TIER_COLORS, RebirthState,
   selectClass, buyClass, type CharacterClass,
 } from "../data/economy";
 import { getActiveHabits, resetHabits } from "../data/habits";
 import { getPower, formatPower, getPowerProgress, getNextPowerRank } from "../data/combatPower";
 import { PowerSpiderChart } from "./ui/PowerSpiderChart";
-import { forcePush } from "../data/syncService";
 import { useAuth } from "../hooks/useAuth";
 import { useCampaign } from "../hooks/useCampaign";
 import { useIsDesktop } from "../hooks/useIsDesktop";
@@ -50,8 +46,7 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
-type ProfileTab = "diario" | "evolucao" | "campanha" | "renascer" | "itens";
-type RebirthStage = "preview" | "confirm" | "animating" | "complete";
+type ProfileTab = "diario" | "evolucao" | "campanha" | "itens";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Shared card constants — use design tokens
@@ -126,101 +121,6 @@ function TaskCard({ entry, index }: { entry: TaskHistoryEntry; index: number }) 
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Rebirth helpers
-// ─────────────────────────────────────────────────────────────────────────────
-interface RunSnapshot {
-  level: number; rank: { label: string; color: string };
-  totalXP: number; monstersDefeated: number; bossesDefeated: number;
-  tasksCompleted: number; runNumber: number; gain: number;
-  newAchievements: string[]; pendingBonus: number; currentPerm: number;
-}
-
-function StatBox({ label, value, color }: { label: string; value: string; color: string }) {
-  return (
-    <div style={{ background: "#0a0c1a", border: `1px solid ${color}33`, padding: "10px 12px", borderRadius: 6, textAlign: "center" }}>
-      <div style={{ color: TEXT_MUTED, fontSize: 13, fontFamily: FONT_BODY, marginBottom: 3 }}>{label}</div>
-      <div style={{ fontFamily: FONT_PIXEL, color, fontSize: 12, textShadow: `1px 1px 0 #000, 0 0 8px ${color}66` }}>{value}</div>
-    </div>
-  );
-}
-
-function RunReportAnimation({ snapshot, onDone }: { snapshot: RunSnapshot; onDone: () => void }) {
-  const [step, setStep] = useState(0);
-  const timeouts = useRef<ReturnType<typeof setTimeout>[]>([]);
-  useEffect(() => {
-    const delays = [200, 700, 1200, 1700, 2200, 2900];
-    delays.forEach((d, i) => { const t = setTimeout(() => setStep(i + 1), d); timeouts.current.push(t); });
-    const done = setTimeout(onDone, 3400);
-    timeouts.current.push(done);
-    return () => timeouts.current.forEach(clearTimeout);
-  }, []); // eslint-disable-line
-  const rows = [
-    { icon: <TrendingUp size={14} />, label: "NÍVEL ALCANÇADO",   value: `${snapshot.level}`,                        color: "#FFD700" },
-    { icon: <Star size={14} />,       label: "RANK",              value: snapshot.rank.label,                        color: snapshot.rank.color },
-    { icon: <Zap size={14} />,        label: "XP TOTAL",          value: snapshot.totalXP.toLocaleString("pt-BR"),   color: "#f0c040" },
-    { icon: <Swords size={14} />,     label: "MONSTROS ABATIDOS", value: `${snapshot.monstersDefeated}`,             color: "#E63946" },
-    { icon: <Trophy size={14} />,     label: "BOSSES DERROTADOS", value: `${snapshot.bossesDefeated}`,               color: "#FF6B35" },
-    { icon: <CheckSquare size={14} />,label: "TAREFAS CONCLUÍDAS",value: `${snapshot.tasksCompleted}`,               color: "#06FFA5" },
-  ];
-  return (
-    <>
-      <style>{`
-        @keyframes scanIn   { from { opacity:0; transform:translateX(-16px); } to { opacity:1; transform:translateX(0); } }
-        @keyframes blink    { 0%,100%{opacity:1} 50%{opacity:0} }
-        @keyframes scanline { 0%{top:-10%} 100%{top:110%} }
-        @keyframes flashInR  { 0%{opacity:0} 60%{opacity:1} 100%{opacity:0.85} }
-      `}</style>
-      <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "#060810", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'VT323', monospace", padding: "20px 16px", overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", backgroundImage: "repeating-linear-gradient(0deg,rgba(255,255,255,0.025) 0px,transparent 1px,transparent 32px),repeating-linear-gradient(90deg,rgba(255,255,255,0.025) 0px,transparent 1px,transparent 32px)" }} />
-        <div style={{ position: "absolute", left: 0, right: 0, height: "4px", background: "linear-gradient(transparent,rgba(255,215,0,0.08),transparent)", animation: "scanline 3s linear infinite", pointerEvents: "none" }} />
-        <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 500 }}>
-          {step >= 1 && (
-            <div style={{ textAlign: "center", marginBottom: 28, animation: "scanIn 0.4s ease-out" }}>
-              <div style={{ fontFamily: FONT_PIXEL, fontSize: 11, color: TEXT_MUTED, marginBottom: 8, letterSpacing: 3 }}>── RELATÓRIO DE MISSÃO ──</div>
-              <div style={{ fontFamily: FONT_PIXEL, fontSize: 16, color: COLOR_LEGENDARY, textShadow: "0 0 20px rgba(255,215,0,0.6)", letterSpacing: 2 }}>RUN #{snapshot.runNumber}</div>
-              <div style={{ color: TEXT_INACTIVE, fontSize: 14, marginTop: 4, animation: "blink 1s step-end infinite" }}>▌COMPILANDO DADOS...</div>
-            </div>
-          )}
-          <div style={{ background: "#0a0c1a", border: `2px solid ${BORDER_SUBTLE}`, padding: "16px 20px", marginBottom: 16 }}>
-            <div style={{ fontFamily: FONT_PIXEL, fontSize: 8, color: "#2a3050", marginBottom: 14, letterSpacing: 2 }}>ESTATÍSTICAS FINAIS</div>
-            {rows.map((row, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 0", borderBottom: i < rows.length - 1 ? "1px solid #0f1222" : "none", opacity: step >= 2 + Math.floor(i / 2) ? 1 : 0.1, transition: "opacity 0.3s ease", animation: step >= 2 + Math.floor(i / 2) ? "scanIn 0.35s ease-out" : "none" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, color: TEXT_INACTIVE }}>
-                  {row.icon}
-                  <span style={{ fontSize: 15, color: TEXT_MUTED }}>{row.label}</span>
-                </div>
-                <span style={{ fontFamily: FONT_PIXEL, fontSize: 10, color: row.color, textShadow: `0 0 10px ${row.color}66` }}>{row.value}</span>
-              </div>
-            ))}
-          </div>
-          {step >= 5 && (
-            <div style={{ background: snapshot.gain > 0 ? "rgba(6,255,165,0.06)" : "rgba(255,215,0,0.04)", border: `2px solid ${snapshot.gain > 0 ? "#06FFA533" : "#FFD70022"}`, padding: "14px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", animation: "scanIn 0.4s ease-out", marginBottom: 16 }}>
-              <div>
-                <div style={{ fontFamily: FONT_PIXEL, fontSize: 8, color: TEXT_INACTIVE, marginBottom: 6 }}>MR CRISTALIZADO</div>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-                  <span style={{ color: TEXT_MUTED, fontSize: 18, textDecoration: "line-through" }}>×{(1 + snapshot.currentPerm).toFixed(2)}</span>
-                  <span style={{ fontSize: 22, color: TEXT_INACTIVE }}>→</span>
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", color: snapshot.gain > 0 ? "#06FFA5" : "#FFD700", fontSize: 14, textShadow: `0 0 16px ${snapshot.gain > 0 ? "rgba(6,255,165,0.5)" : "rgba(255,215,0,0.4)"}` }}>×{(1 + snapshot.pendingBonus).toFixed(2)}</span>
-                </div>
-              </div>
-              {snapshot.gain > 0 && (
-                <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, color: "#06FFA5", background: "rgba(6,255,165,0.1)", border: "1px solid #06FFA544", padding: "6px 10px", textAlign: "center" }}>
-                  +{snapshot.gain.toFixed(2)}<br /><span style={{ fontSize: 7, color: "#06FFA566" }}>GANHO</span>
-                </div>
-              )}
-            </div>
-          )}
-          {step >= 6 && (
-            <div style={{ textAlign: "center", animation: "flashInR 0.5s ease-out", fontFamily: "'Press Start 2P', monospace", fontSize: 9, color: "#FFD700", letterSpacing: 2 }}>
-              ▶ INICIANDO RENASCIMENTO...
-            </div>
-          )}
-        </div>
-      </div>
-    </>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TAB: DIÁRIO
@@ -461,7 +361,7 @@ function EvolucaoTab() {
         <div style={{ padding: "16px 18px", position: "relative", zIndex: 1 }}>
           <div style={{ textAlign: "center", marginBottom: 16 }}>
             <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 36, color: cpData.rank.color, textShadow: `3px 3px 0 #000, 0 0 20px ${cpData.rank.glow}`, letterSpacing: 3, lineHeight: 1 }}>{formatPower(cpData.total)}</div>
-            <div style={{ fontFamily: FONT_BODY, fontSize: 16, color: TEXT_MUTED, marginTop: 4 }}>MH × MN × MC × MR</div>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 16, color: TEXT_MUTED, marginTop: 4 }}>MH × MN × MC</div>
           </div>
           {cpProgress && nextRank && (
             <div style={{ marginBottom: 16 }}>
@@ -656,281 +556,28 @@ function CampanhaTab() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// TAB: RENASCER
-// ─────────────────────────────────────────────────────────────────────────────
-function RenascerTab({ onStartAnimation }: { onStartAnimation: (snap: RunSnapshot) => void }) {
-  const missions = getMissions();
-  const totalXP  = calcTotalXP(missions);
-  const lvInfo   = getLevelInfo(totalXP);
-  const rank     = getRank(lvInfo.level);
-  const rebirth  = getRebirthState();
-  const econ     = getEconomy();
-
-  let monstersDefeated = 0, bossesDefeated = 0, tasksCompleted = 0;
-  for (const m of missions) {
-    if ((m.monsterCurrentHp ?? 1) <= 0) { monstersDefeated++; if (m.monsterType === "boss") bossesDefeated++; }
-    for (const t of m.tasks) { if (t.completed) tasksCompleted++; }
-  }
-
-  const pendingBonus  = getPendingRebirthBonus();
-  const gain          = getRebirthGain();
-  const currentPerm   = rebirth.permanentDamageBonus;
-  const unlockedAchs  = econ.unlockedAchievements.length;
-  const totalAchs     = ACHIEVEMENTS.length;
-  const newAchsThisRun = econ.unlockedAchievements.filter(id => !rebirth.permanentAchievements.includes(id));
-
-  function handleRebirth() {
-    const snap: RunSnapshot = { level: lvInfo.level, rank, totalXP, monstersDefeated, bossesDefeated, tasksCompleted, runNumber: rebirth.runNumber, gain, newAchievements: newAchsThisRun, pendingBonus, currentPerm };
-    audioManager.playClick("press");
-    onStartAnimation(snap);
-  }
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      {/* Run identity */}
-      <div style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, padding: "20px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-          <div>
-            <div style={{ color: "#3a4060", fontSize: 14, fontFamily: "'VT323', monospace", marginBottom: 2 }}>Ciclo atual</div>
-            <div style={{ fontFamily: "'Press Start 2P', monospace", color: "#c084fc", fontSize: 14, textShadow: "1px 1px 0 #000" }}>RUN #{rebirth.runNumber}</div>
-          </div>
-          {rebirth.totalRebirths > 0 && (
-            <div style={{ textAlign: "right" }}>
-              <div style={{ color: "#3a4060", fontSize: 14, fontFamily: "'VT323', monospace", marginBottom: 2 }}>Renascimentos</div>
-              <div style={{ fontFamily: "'Press Start 2P', monospace", color: "#FFD700", fontSize: 14, textShadow: "1px 1px 0 #000" }}>×{rebirth.totalRebirths}</div>
-            </div>
-          )}
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#0a0c1a", border: "1px solid #1f254f", padding: "10px 14px", borderRadius: 6 }}>
-          <div style={{ fontFamily: "'Press Start 2P', monospace", color: "#FFD700", fontSize: 13, textShadow: "1px 1px 0 #000" }}>LVL {lvInfo.level}</div>
-          <div style={{ width: 1, height: 20, background: "#1f254f" }} />
-          <Star size={12} color={rank.color} />
-          <span style={{ color: rank.color, fontSize: 20, fontFamily: "'VT323', monospace" }}>{rank.label}</span>
-        </div>
-      </div>
-
-      {/* Current run stats */}
-      <div style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, padding: "18px 20px" }}>
-        <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, color: "#5a6080", marginBottom: 14 }}>ESTATÍSTICAS DESTA RUN</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-          <StatBox label="NÍVEL"      value={String(lvInfo.level)}                    color="#FFD700" />
-          <StatBox label="XP"         value={totalXP.toLocaleString("pt-BR")}         color="#f0c040" />
-          <StatBox label="TAREFAS"    value={String(tasksCompleted)}                  color="#06FFA5" />
-          <StatBox label="MONSTROS"   value={String(monstersDefeated)}                color="#E63946" />
-          <StatBox label="BOSSES"     value={String(bossesDefeated)}                  color="#FF6B35" />
-          <StatBox label="CONQUISTAS" value={`${unlockedAchs}/${totalAchs}`}          color="#c084fc" />
-        </div>
-      </div>
-
-      {/* What resets */}
-      <div style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, padding: "18px 20px" }}>
-        <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, color: "#E63946", marginBottom: 14 }}>O QUE SERÁ RESETADO</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {[
-            { icon: <Swords size={18} color="#E63946" />, text: "Nível volta para 1" },
-            { icon: <MapIcon size={18} color="#E63946" />, text: "Campanha reinicia do primeiro monstro" },
-            { icon: <Gem    size={18} color="#E63946" />, text: "Progresso de XP é zerado" },
-            { icon: <Timer  size={18} color="#E63946" />, text: "Desafios temporais são limpos" },
-          ].map((item, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ width: 24, display: "flex", alignItems: "center", justifyContent: "center" }}>{item.icon}</span>
-              <span style={{ color: "#E63946", fontSize: 18, fontFamily: "'VT323', monospace" }}>{item.text}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* What persists */}
-      <div style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, padding: "18px 20px" }}>
-        <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, color: "#06FFA5", marginBottom: 14 }}>O QUE SERÁ MANTIDO</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {[
-            { icon: <Trophy size={18} color="#06FFA5" />, text: "Todas as conquistas desbloqueadas" },
-            { icon: <Flame  size={18} color="#06FFA5" />, text: "Hábitos e streaks" },
-            { icon: <Coins  size={18} color="#06FFA5" />, text: "Moedas, classes e pets" },
-            { icon: <FileText size={18} color="#06FFA5" />, text: "Nome do personagem" },
-          ].map((item, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ width: 24, display: "flex", alignItems: "center", justifyContent: "center" }}>{item.icon}</span>
-              <span style={{ color: "#06FFA5", fontSize: 18, fontFamily: "'VT323', monospace" }}>{item.text}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Bonus preview */}
-      <div style={{ background: "#0d1024", border: "1px solid #FFD70033", borderTop: "2px solid #FFD700", borderRadius: 10, padding: "20px 20px" }}>
-        <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, color: "#FFD700", marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
-          <Shield size={14} /> MULTIPLICADOR DE REBIRTH (MR)
-        </div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-          <div>
-            <div style={{ color: "#5a6080", fontSize: 14, fontFamily: "'VT323', monospace" }}>MR atual</div>
-            <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 16, color: currentPerm > 0 ? "#E63946" : "#3a4060", textShadow: "1px 1px 0 #000" }}>×{(1 + currentPerm).toFixed(2)}</div>
-          </div>
-          <div style={{ fontSize: 24, color: "#FFD700" }}>→</div>
-          <div>
-            <div style={{ color: "#5a6080", fontSize: 14, fontFamily: "'VT323', monospace" }}>MR após renascer</div>
-            <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 16, color: "#06FFA5", textShadow: "1px 1px 0 #000" }}>×{(1 + pendingBonus).toFixed(2)}</div>
-          </div>
-        </div>
-        {gain > 0 && (
-          <div style={{ background: "rgba(6,255,165,0.08)", border: "1px solid #06FFA533", padding: "8px 12px", display: "flex", alignItems: "center", gap: 8, marginBottom: 12, borderRadius: 6 }}>
-            <Zap size={16} color="#FFD700" />
-            <span style={{ color: "#06FFA5", fontSize: 18, fontFamily: "'VT323', monospace" }}>MR sobe de ×{(1+currentPerm).toFixed(2)} para ×{(1+pendingBonus).toFixed(2)} (+{gain.toFixed(2)})!</span>
-          </div>
-        )}
-        {gain === 0 && (
-          <div style={{ background: "rgba(255,215,0,0.06)", border: "1px solid #FFD70033", padding: "8px 12px", display: "flex", alignItems: "center", gap: 8, marginBottom: 12, borderRadius: 6 }}>
-            <Award size={16} color="#FFD700" />
-            <span style={{ color: "#FFD700", fontSize: 16, fontFamily: "'VT323', monospace" }}>Desbloqueie mais conquistas para ganhar bônus extra!</span>
-          </div>
-        )}
-        {newAchsThisRun.length > 0 && (
-          <div style={{ marginTop: 8 }}>
-            <div style={{ color: "#5a6080", fontSize: 14, fontFamily: "'VT323', monospace", marginBottom: 6 }}>Conquistas novas nesta run ({newAchsThisRun.length}):</div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {newAchsThisRun.map(id => {
-                const ach = ACHIEVEMENTS.find(a => a.id === id);
-                if (!ach) return null;
-                return (
-                  <div key={id} style={{ background: TIER_COLORS[ach.tier] + "15", border: `1px solid ${TIER_COLORS[ach.tier]}44`, padding: "4px 10px", borderRadius: 4 }}>
-                    <span style={{ color: TIER_COLORS[ach.tier], fontSize: 14, fontFamily: "'VT323', monospace" }}>{ach.icon} {ach.name}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Rebirth button */}
-      <button
-        onClick={handleRebirth}
-        style={{ width: "100%", padding: "18px 0", background: "linear-gradient(135deg, #6b21a8, #c084fc)", border: "none", color: "#fff", fontFamily: "'Press Start 2P', monospace", fontSize: 12, cursor: "pointer", borderRadius: 10, boxShadow: "0 0 24px rgba(192,132,252,0.4)", letterSpacing: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 8 }}
-        onMouseDown={e => (e.currentTarget.style.transform = "translate(2px,2px)")}
-        onMouseUp={e => (e.currentTarget.style.transform = "")}
-      >
-        <RotateCcw size={16} />
-        RENASCER AGORA
-      </button>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Rebirth Complete screen (full-screen overlay)
-// ─────────────────────────────────────────────────────────────────────────────
-function RebirthComplete({ result, prevBonus, gain }: { result: RebirthState; prevBonus: number; gain: number }) {
-  return (
-    <>
-      <style>{`
-        @keyframes rebirthGlow   { 0%,100%{text-shadow:2px 2px 0 #000,0 0 20px rgba(255,215,0,0.5)} 50%{text-shadow:2px 2px 0 #000,0 0 40px rgba(255,215,0,0.9)} }
-        @keyframes rebirthFadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes rebirthStars  { 0%{opacity:0} 50%{opacity:1} 100%{opacity:0} }
-      `}</style>
-      <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "#0a0c1a", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'VT323', monospace", padding: 20, overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at center, rgba(255,215,0,0.08) 0%, transparent 60%)" }} />
-        {[...Array(14)].map((_, i) => (
-          <div key={i} style={{ position: "absolute", top: `${8 + (i * 7) % 85}%`, left: `${4 + (i * 13) % 92}%`, width: 4, height: 4, background: i % 3 === 0 ? "#c084fc" : "#FFD700", animation: `rebirthStars ${2 + (i % 3)}s ease-in-out infinite`, animationDelay: `${(i * 0.3) % 2}s`, opacity: 0.6 }} />
-        ))}
-        <div style={{ textAlign: "center", position: "relative", zIndex: 10, animation: "rebirthFadeIn 0.8s ease-out", maxWidth: 420, width: "100%" }}>
-          <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 10, color: "#5a6080", marginBottom: 10, letterSpacing: 3 }}>── RENASCIMENTO COMPLETO ──</div>
-          <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 20, color: "#FFD700", marginBottom: 6, animation: "rebirthGlow 2s ease infinite" }}>CICLO #{result.runNumber}</div>
-          <div style={{ color: "#c084fc", fontSize: 20, marginBottom: 4 }}>Iniciado com sucesso</div>
-          <div style={{ color: "#3a4060", fontSize: 16, marginBottom: 30 }}>Renascimentos totais: {result.totalRebirths}</div>
-          <div style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, padding: "22px 24px", marginBottom: 16, animation: "rebirthFadeIn 0.8s ease-out 0.4s both" }}>
-            <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, color: "#5a6080", marginBottom: 14 }}>BÔNUS PERMANENTE DE DANO</div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, marginBottom: 14 }}>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ color: "#5a6080", fontSize: 14 }}>ANTES</div>
-                <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 16, color: "#E63946", textShadow: "2px 2px 0 #000" }}>+{prevBonus.toFixed(2)}x</div>
-              </div>
-              <div style={{ fontSize: 28, color: "#FFD700" }}>→</div>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ color: "#5a6080", fontSize: 14 }}>AGORA</div>
-                <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 20, color: "#06FFA5", textShadow: "2px 2px 0 #000", animation: "rebirthGlow 2s ease infinite" }}>+{result.permanentDamageBonus.toFixed(2)}x</div>
-              </div>
-            </div>
-            {gain > 0 && (
-              <div style={{ background: "rgba(6,255,165,0.08)", border: "1px solid #06FFA533", padding: "8px 12px", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                <Zap size={16} color="#FFD700" />
-                <span style={{ color: "#06FFA5", fontSize: 18 }}>+{gain.toFixed(2)}x dano cristalizado!</span>
-              </div>
-            )}
-          </div>
-          <div style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, padding: "16px 20px", marginBottom: 28, animation: "rebirthFadeIn 0.8s ease-out 0.7s both" }}>
-            <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 8, color: "#5a6080", marginBottom: 12 }}>LEGADO ACUMULADO</div>
-            <div style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap" }}>
-              <StatBox label="NÍVEL MAX" value={String(result.highestLevelEver)}  color="#FFD700" />
-              <StatBox label="MONSTROS"  value={String(result.totalMonstersEver)} color="#E63946" />
-              <StatBox label="TAREFAS"   value={String(result.totalTasksEver)}    color="#06FFA5" />
-            </div>
-          </div>
-          <button
-            onClick={() => { audioManager.playClick("press"); window.location.href = "/"; }}
-            style={{ background: "#FFD700", border: "none", color: "#0d1024", padding: "16px 40px", fontFamily: "'Press Start 2P', monospace", fontSize: 11, cursor: "pointer", borderRadius: 8, boxShadow: "0 0 24px rgba(255,215,0,0.4)", animation: "rebirthFadeIn 0.8s ease-out 1s both", width: "100%" }}
-          >
-            COMEÇAR NOVA JORNADA ▶
-          </button>
-        </div>
-      </div>
-    </>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tab definitions
 // ─────────────────────────────────────────────────────────────────────────────
 const TABS: PixelTabDef<ProfileTab>[] = [
-  { key: "evolucao", label: "EVOLUÇÃO", Icon: BarChart3,  color: "#06FFA5" },
-  { key: "diario",   label: "DIÁRIO",   Icon: Scroll,     color: "#e39f64" },
-  { key: "campanha", label: "CAMPANHA", Icon: Castle,      color: "#e39f64" },
-  { key: "renascer", label: "RENASCER", Icon: RotateCcw,   color: "#c084fc" },
-  { key: "itens",    label: "ITENS",    Icon: Backpack,    color: "#e39f64" },
+  { key: "evolucao", label: "EVOLUÇÃO", Icon: BarChart3, color: "#06FFA5" },
+  { key: "diario",   label: "DIÁRIO",   Icon: Scroll,    color: "#e39f64" },
+  { key: "campanha", label: "CAMPANHA", Icon: Castle,    color: "#e39f64" },
+  { key: "itens",    label: "ITENS",    Icon: Backpack,  color: "#e39f64" },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main ProfileScreen
 // ─────────────────────────────────────────────────────────────────────────────
 export default function ProfileScreen() {
-  const [activeTab, setActiveTab]       = useState<ProfileTab>("evolucao");
-  const [rebirthStage, setRebirthStage] = useState<RebirthStage>("preview");
-  const [runSnapshot,  setRunSnapshot]  = useState<RunSnapshot | null>(null);
-  const [rebirthResult, setRebirthResult] = useState<RebirthState | null>(null);
-  const [prevBonus, setPrevBonus]       = useState(0);
-  const [gainAmount, setGainAmount]     = useState(0);
-
-  function handleStartAnimation(snap: RunSnapshot) {
-    setPrevBonus(snap.currentPerm);
-    setGainAmount(snap.gain);
-    setRunSnapshot(snap);
-    setRebirthStage("animating");
-  }
-
-  function finishAnimation() {
-    const stats = rebirthReset();
-    resetBonusXP();
-    const result = performRebirth(runSnapshot?.level ?? 1, stats.monstersDefeated, stats.tasksCompleted);
-    setRebirthResult(result);
-    setRebirthStage("complete");
-    forcePush().catch(() => {});
-  }
+  const [activeTab, setActiveTab] = useState<ProfileTab>("evolucao");
 
   const activeColor = TABS.find(t => t.key === activeTab)?.color ?? "#e39f64";
 
   return (
     <>
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.75}}`}</style>
-
-      {/* Full-screen overlays for rebirth flow */}
-      {rebirthStage === "animating" && runSnapshot && (
-        <RunReportAnimation snapshot={runSnapshot} onDone={finishAnimation} />
-      )}
-      {rebirthStage === "complete" && rebirthResult && (
-        <RebirthComplete result={rebirthResult} prevBonus={prevBonus} gain={gainAmount} />
-      )}
 
       <PageShell
         icon={<User size={16} />}
@@ -942,10 +589,7 @@ export default function ProfileScreen() {
         {activeTab === "diario"   && <DiarioTab />}
         {activeTab === "evolucao" && <EvolucaoTab />}
         {activeTab === "campanha" && <CampanhaTab />}
-        {activeTab === "renascer" && (
-          <RenascerTab onStartAnimation={handleStartAnimation} />
-        )}
-        {activeTab === "itens" && <ItemsTab />}
+        {activeTab === "itens"    && <ItemsTab />}
       </PageShell>
     </>
   );

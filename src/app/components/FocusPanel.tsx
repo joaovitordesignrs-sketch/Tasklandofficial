@@ -4,7 +4,7 @@
  * Same task-adding UI as ChallengePanel (active inline input form).
  * Tasks completed during focus:
  *   • Deal normal damage to the monster (via onFocusStrike callback)
- *   • Grant +0.01x permanent damage bonus (stored in economy.focusDamageBonus)
+ *   • Call addFocusDamageBonus (no-op, kept for compatibility)
  *   • Are recorded in the task diary with source: "focus"
  */
 import { useState, useEffect, useRef, useCallback } from "react";

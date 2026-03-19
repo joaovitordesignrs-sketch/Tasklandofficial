@@ -4,7 +4,7 @@ import imgAvatarMago      from "figma:asset/5c09b71e009581d58103f7df9949281a05a7
 import { audioManager } from "../hooks/audioManager";
 import { getActiveHabits } from "../data/habits";
 import { resetAllProgress, getMissions, loadPlayerName } from "../data/missions";
-import { resetEconomy, resetBonusXP, getPendingRebirthBonus, getPowerMR } from "../data/economy";
+import { resetEconomy, resetBonusXP } from "../data/economy";
 import { resetHabits } from "../data/habits";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { getPower, formatCP, getCPProgress, getNextPowerRank, formatMultiplier } from "../data/combatPower";
@@ -174,27 +174,6 @@ export default function ProgressScreen() {
                 </div>
               </div>
 
-              {/* Conquistas pendentes (congeladas) */}
-              {(() => {
-                const pending = getPendingRebirthBonus();
-                const mr      = getPowerMR();
-                if (pending <= 0) return null;
-                return (
-                  <div style={{ borderTop: "1px solid #1f254f", paddingTop: 10, marginBottom: 12 }}>
-                    <div style={{ fontFamily: "'VT323', monospace", color: "#5a6080", fontSize: 16, marginBottom: 6 }}>
-                      ❄️ Conquistas congeladas (desbloqueiam no Rebirth)
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", background: "rgba(6,255,165,0.06)", border: "1px solid #06FFA533", borderRadius: 6 }}>
-                      <span style={{ fontFamily: "'VT323', monospace", fontSize: 16, color: "#06FFA5", flex: 1 }}>
-                        MR após rebirth: ×{(1.0 + pending).toFixed(2)}
-                      </span>
-                      <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: "#06FFA5" }}>
-                        +{(pending - (mr - 1)).toFixed(2)} ganho
-                      </span>
-                    </div>
-                  </div>
-                );
-              })()}
 
               {/* Damage per difficulty */}
               <div style={{ borderTop: "1px solid #1f254f", paddingTop: 12 }}>

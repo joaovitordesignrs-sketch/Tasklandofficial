@@ -17,12 +17,12 @@ import { projectId, publicAnonKey } from "/utils/supabase/info";
 import type { Mission, TaskHistoryEntry } from "./missions";
 import type { Challenge } from "./challenges";
 import type { Habit } from "./habits";
-import type { EconomyState, RebirthState } from "./economy";
+import type { EconomyState } from "./economy";
 
 // Direct imports for synchronous reload (no circular dep: these modules
 // call schedulePush via dynamic import("./syncService"), not static import)
 import { reloadMissions } from "./missions";
-import { reloadEconomy, reloadRebirth } from "./economy";
+import { reloadEconomy } from "./economy";
 import { reloadHabits } from "./habits";
 import { reloadChallenges } from "./challenges";
 import { reloadTaskHistory } from "./missions";
@@ -32,7 +32,7 @@ import { reloadItems, getItems, type UserItem } from "./items";
 import { getMissions } from "./missions";
 import { getChallenges } from "./challenges";
 import { getHabits } from "./habits";
-import { getEconomy, getRebirthState } from "./economy";
+import { getEconomy } from "./economy";
 import { getCombatPower } from "./combatPower";
 import { calcTotalXP, getLevelInfo } from "./gameEngine";
 
@@ -63,7 +63,6 @@ const LS_KEYS = {
   bonusXP:      "rpg_bonus_xp_v3",
   habits:       "rpg_habits_v1",
   economy:      "rpg_economy_v1",
-  rebirth:      "rpg_rebirth_v1",
   items:        "rpg_items_v1",
 } as const;
 
@@ -83,7 +82,6 @@ export interface GameDataRow {
   challenges:              Challenge[];
   habits:                  Habit[];
   economy:                 EconomyState;
-  rebirth:                 RebirthState;
   items:                   UserItem[];
   combat_power:            number;
   cp_rank_tier:            string;
@@ -239,7 +237,6 @@ export function clearGameLocalStorage(): void {
   // Synchronous reload → in-memory stores now reflect empty state
   reloadMissions();
   reloadEconomy();
-  reloadRebirth();
   reloadHabits();
   reloadChallenges();
 }
@@ -251,7 +248,6 @@ export function gatherLocalData(): Omit<GameDataRow, "uid" | "updated_at"> {
   const challenges = getChallenges();
   const habits = getHabits();
   const economy = getEconomy();
-  const rebirth = getRebirthState();
 
   let tasksCompleted = 0;
   let monstersDefeated = 0;
@@ -280,13 +276,12 @@ export function gatherLocalData(): Omit<GameDataRow, "uid" | "updated_at"> {
     challenges,
     habits,
     economy,
-    rebirth,
     items:                   getItems(),
     combat_power:            cpData.combatPower,   // integer CP (ex: 212), not raw multiplier
     cp_rank_tier:            cpData.rank.tier,
     audio_settings:          {},
-    total_tasks_completed:   tasksCompleted + (rebirth.totalTasksEver ?? 0),
-    total_monsters_defeated: monstersDefeated + (rebirth.totalMonstersEver ?? 0),
+    total_tasks_completed:   tasksCompleted,
+    total_monsters_defeated: monstersDefeated,
     total_bosses_defeated:   bossesDefeated,
     max_habit_streak:        habits.reduce((max, h) => Math.max(max, h.bestStreak ?? 0), 0),
     challenges_completed:    challenges.filter(c => c.status === "completed").length,
@@ -309,7 +304,6 @@ export function applyCloudData(data: Partial<GameDataRow>, forceWipe = false): v
     localStorage.setItem(LS_KEYS.challenges, JSON.stringify(data.challenges ?? []));
     localStorage.setItem(LS_KEYS.habits, JSON.stringify(data.habits ?? []));
     localStorage.setItem(LS_KEYS.economy, JSON.stringify(data.economy ?? {}));
-    localStorage.setItem(LS_KEYS.rebirth, JSON.stringify(data.rebirth ?? {}));
     localStorage.setItem(LS_KEYS.items,   JSON.stringify(data.items   ?? []));
     if (data.player_name) localStorage.setItem(LS_KEYS.playerName, data.player_name);
   } else {
@@ -351,7 +345,6 @@ export function applyCloudData(data: Partial<GameDataRow>, forceWipe = false): v
     if (data.challenges)    localStorage.setItem(LS_KEYS.challenges, JSON.stringify(data.challenges));
     if (data.habits)        localStorage.setItem(LS_KEYS.habits, JSON.stringify(data.habits));
     if (data.economy)       localStorage.setItem(LS_KEYS.economy, JSON.stringify(data.economy));
-    if (data.rebirth)       localStorage.setItem(LS_KEYS.rebirth, JSON.stringify(data.rebirth));
     if (data.items && data.items.length > 0) {
       localStorage.setItem(LS_KEYS.items, JSON.stringify(data.items));
     } else if (data.items !== undefined) {
@@ -368,7 +361,6 @@ export function applyCloudData(data: Partial<GameDataRow>, forceWipe = false): v
   reloadMissions();
   reloadTaskHistory();
   reloadEconomy();
-  reloadRebirth();
   reloadHabits();
   reloadChallenges();
   reloadItems();
@@ -501,7 +493,7 @@ export async function pushToCloud(uid: string): Promise<boolean> {
     const payload = {
       gameData: localData,
       profileUpdate: {
-        level: localData.rebirth?.highestLevelEver ?? 1,
+        level: getLevelInfo(calcTotalXP(localData.missions)).level,
         xp: totalXP,
         last_login: new Date().toISOString(),
       },
@@ -655,7 +647,7 @@ function beaconPush(): void {
     const payload = JSON.stringify({
       gameData: localData,
       profileUpdate: {
-        level: localData.rebirth?.highestLevelEver ?? 1,
+        level: getLevelInfo(calcTotalXP(localData.missions)).level,
         xp: totalXP,
         last_login: new Date().toISOString(),
       },

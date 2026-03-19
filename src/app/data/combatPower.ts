@@ -1,16 +1,15 @@
 // ── Combat Power System ────────────────────────────────────────────────────────
 // CP = 75 × PowerTotal      (integer, displayed to user)
-// PowerTotal = MH × MN × MC × MR
+// PowerTotal = MH × MN × MC
 //
 // MH = 1 + min(5, hábitosChecadosHoje) × 0.05   → max 1.25 com 5 hábitos
 // MN = 1 + (nível × 0.03)                  → linear (ex: lvl 10 → 1.30)
 // MC = 1.20 (Guerreiro em Desafio Tempo) | 1.25 (Mago em Modo Foco) | 1.00
-// MR = 1.0 + Σ(conquistas descongeladas)   — persiste entre rebirths
 //
 // Referência: combat-power-formula.md
 
 import { getActiveHabits } from "./habits";
-import { getEconomy, getPowerMR } from "./economy";
+import { getEconomy } from "./economy";
 import { getItemBonuses } from "./items";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -30,14 +29,13 @@ export interface PowerSource {
 }
 
 export interface PowerData {
-  /** Multiplicador total: MH × MN × MC × MR */
+  /** Multiplicador total: MH × MN × MC */
   total:       number;
   /** CP exibido ao usuário: Math.floor(75 × total) */
   combatPower: number;
   mh:      number;   // Multiplicador de Hábitos
   mn:      number;   // Multiplicador de Nível
   mc:      number;   // Multiplicador de Classe
-  mr:      number;   // Multiplicador de Rebirth
   sources: PowerSource[];
   rank:    PowerRank;
 }
@@ -133,15 +131,10 @@ export function calcMC(mode: PowerMode = "none"): number {
   return 1.00;
 }
 
-/** MR = 1.0 + Σ(conquistas descongeladas de runs anteriores) */
-export function calcMR(): number {
-  return getPowerMR();
-}
-
 // ── Cálculo completo do Combat Power ─────────────────────────────────────────
 
 /**
- * CP = 75 × (MH × MN × MC × MR)
+ * CP = 75 × (MH × MN × MC)
  *
  * @param level   - Nível atual do personagem
  * @param mode    - Contexto de modo: "temporal", "focus", ou "none" (display neutro)
@@ -159,22 +152,19 @@ export function getPower(level: number, mode: PowerMode = "none"): PowerData {
   const baseMH = calcMH();
   const baseMN = calcMN(safeLevel);
   const baseMC = calcMC(mode);
-  const baseMR = calcMR();
 
   // Item bonuses from equipped items
   const itemBonuses = getItemBonuses();
   const mh = parseFloat((baseMH + itemBonuses.bonusMH).toFixed(4));
   const mn = parseFloat((baseMN + itemBonuses.bonusMN).toFixed(4));
   const mc = parseFloat((baseMC + itemBonuses.bonusMC).toFixed(4));
-  const mr = parseFloat((baseMR + itemBonuses.bonusMR).toFixed(4));
 
   // Guard each multiplier against NaN/Infinity before multiplying
   const safeMH = Number.isFinite(mh) ? mh : 1;
   const safeMN = Number.isFinite(mn) ? mn : 1;
   const safeMC = Number.isFinite(mc) ? mc : 1;
-  const safeMR = Number.isFinite(mr) ? mr : 1;
 
-  const rawTotal    = safeMH * safeMN * safeMC * safeMR;
+  const rawTotal    = safeMH * safeMN * safeMC;
   const total       = parseFloat((Number.isFinite(rawTotal) ? rawTotal : 1).toFixed(4));
   const combatPower = Math.floor(75 * total);
   const rank        = getPowerRank(total);
@@ -217,21 +207,10 @@ export function getPower(level: number, mode: PowerMode = "none"): PowerData {
       desc:   mcLabel,
       active: mc > 1,
     },
-    {
-      id:     "mr",
-      label:  "Rebirth",
-      icon:   "MR",
-      color:  "#06FFA5",
-      value:  mr,
-      desc:   mr > 1
-        ? `+${(mr - 1).toFixed(2)} de conquistas descongeladas`
-        : "Sem conquistas descongeladas ainda",
-      active: mr > 1,
-    },
   ];
 
   // Item bonus source (shown only when at least one item is equipped)
-  const totalItemBonus = itemBonuses.bonusMH + itemBonuses.bonusMN + itemBonuses.bonusMC + itemBonuses.bonusMR;
+  const totalItemBonus = itemBonuses.bonusMH + itemBonuses.bonusMN + itemBonuses.bonusMC + (itemBonuses.bonusMR ?? 0);
   if (totalItemBonus > 0) {
     sources.push({
       id:     "items",
@@ -239,12 +218,12 @@ export function getPower(level: number, mode: PowerMode = "none"): PowerData {
       icon:   "MI",
       color:  "#e39f64",
       value:  parseFloat((1 + totalItemBonus).toFixed(4)),
-      desc:   `Bônus de itens equipados (+${totalItemBonus.toFixed(3)} distribuído entre MH/MN/MC/MR)`,
+      desc:   `Bônus de itens equipados (+${totalItemBonus.toFixed(3)} distribuído entre MH/MN/MC)`,
       active: true,
     });
   }
 
-  return { total, combatPower, mh, mn, mc, mr, sources, rank };
+  return { total, combatPower, mh, mn, mc, sources, rank };
 }
 
 /** @deprecated Use getPower() — alias kept for compatibility */

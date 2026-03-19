@@ -76,17 +76,6 @@ create table public.game_data (
   -- Itens (inventário do jogador — weapon/armor/accessory/relic)
   items              jsonb default '[]'::jsonb,            -- UserItem[]
 
-  -- Renascimento (Rebirth / Rogue-like)
-  rebirth            jsonb default '{
-    "runNumber": 1,
-    "totalRebirths": 0,
-    "permanentDamageBonus": 0,
-    "permanentAchievements": [],
-    "highestLevelEver": 0,
-    "totalMonstersEver": 0,
-    "totalTasksEver": 0
-  }'::jsonb,
-
   -- Combat Power (cache - recalculado no frontend)
   combat_power       int default 0,
   cp_rank_tier       text default 'F',
@@ -218,9 +207,7 @@ returns trigger as $$
 begin
   update public.profiles
   set
-    level = coalesce((
-      select (new.rebirth->>'highestLevelEver')::int
-    ), new.level),
+    level = coalesce(new.total_tasks_completed / 10, 1),
     xp = coalesce(new.total_tasks_completed, 0),
     last_login = now()
   where id = new.uid;

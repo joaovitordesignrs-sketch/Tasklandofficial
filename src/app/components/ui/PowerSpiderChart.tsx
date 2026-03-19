@@ -1,6 +1,6 @@
 /**
- * PowerSpiderChart – SVG radar chart for the 4 Power multiplicators.
- * Axes: MH (Hábitos), MN (Nível), MC (Classe), MR (Rebirth)
+ * PowerSpiderChart – SVG radar chart for the 3 Power multiplicators.
+ * Axes: MH (Hábitos), MN (Nível), MC (Classe)
  * Values are multipliers (e.g., 1.15). Normalized against their theoretical max.
  */
 import { useEffect, useRef } from "react";
@@ -14,10 +14,9 @@ interface PowerSpiderChartProps {
 
 // Max expected value per axis for normalization
 const MAX_VALUES: Record<string, number> = {
-  mh: 1.20,   // 10 hábitos → 1 + 10×0.02 = 1.20
-  mn: 1.40,   // ln(50)×0.1 ≈ 0.39 → 1.39 ≈ cap at 1.40
-  mc: 1.20,   // Mago+Foco = 1.20 (highest MC)
-  mr: 3.00,   // Teórico: muitos rebirths com conquistas lendárias
+  mh: 1.20,   // 5 hábitos → 1 + 5×0.05 = 1.25 (cap ~1.25)
+  mn: 1.40,   // nível 13+ → 1 + 13×0.03 = 1.39 ≈ cap at 1.40
+  mc: 1.25,   // Mago em Modo Foco = 1.25 (highest MC)
 };
 
 function getAxesPoints(n: number, cx: number, cy: number, r: number) {

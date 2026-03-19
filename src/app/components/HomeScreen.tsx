@@ -15,7 +15,6 @@ import { ClassPickerOverlay } from "./ClassPickerOverlay";
 import { TaskCharacter } from "./TaskCharacter";
 import { PastMonsterTasks } from "./PastMonsterTasks";
 import { RpgButton }         from "./ui/RpgButton";
-import { getRebirthState }   from "../data/economy";
 import type { CharacterClass } from "../data/economy";
 import { TYPE_INFO }         from "../data/missions";
 import { audioManager }      from "../hooks/audioManager";
@@ -439,8 +438,6 @@ export default function HomeScreen() {
     setTemporalSelectedCount, temporalAttackCallbackRef,
     setFocusSelectedCount, focusAttackCallbackRef,
   } = useCampaign();
-  const rebirthInfo = getRebirthState();
-
   const addTriggerRef = useRef<(() => void) | null>(null);
   const [addFormOpen, setAddFormOpen] = useState(false);
 
@@ -542,8 +539,6 @@ export default function HomeScreen() {
       {/* Class picker */}
       {needsClassPick && (
         <ClassPickerOverlay
-          isRebirth={rebirthInfo.totalRebirths > 0}
-          runNumber={rebirthInfo.runNumber}
           onConfirm={(cls) => { setNeedsClassPick(false); setSelectedClass(cls); }}
         />
       )}

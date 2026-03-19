@@ -113,12 +113,10 @@ function ClassCard({
 
 // ── Main Overlay ──────────────────────────────────────────────────────────────
 interface ClassPickerOverlayProps {
-  isRebirth?: boolean;
-  runNumber?: number;
   onConfirm: (cls: CharacterClass) => void;
 }
 
-export function ClassPickerOverlay({ isRebirth = false, runNumber = 1, onConfirm }: ClassPickerOverlayProps) {
+export function ClassPickerOverlay({ onConfirm }: ClassPickerOverlayProps) {
   const [selected, setSelected] = useState<CharacterClass | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -175,20 +173,6 @@ export function ClassPickerOverlay({ isRebirth = false, runNumber = 1, onConfirm
 
       <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 500 }}>
 
-        {/* ── Rebirth badge ── */}
-        {isRebirth && (
-          <div style={{ textAlign: 'center', marginBottom: 10 }}>
-            <span style={{
-              fontFamily: "'Press Start 2P', monospace", fontSize: 7,
-              color: '#FFD700', background: 'rgba(255,215,0,0.1)',
-              border: '1px solid rgba(255,215,0,0.3)',
-              padding: '3px 12px', letterSpacing: 2,
-            }}>
-              ✦ RENASCIMENTO · RUN #{runNumber} ✦
-            </span>
-          </div>
-        )}
-
         {/* ── Title ── */}
         <div style={{ textAlign: 'center', marginBottom: 22 }}>
           <h1 style={{
@@ -198,7 +182,7 @@ export function ClassPickerOverlay({ isRebirth = false, runNumber = 1, onConfirm
             textShadow: '2px 2px 0 #000, 0 0 16px rgba(240,192,64,0.25)',
             margin: 0, lineHeight: 1.6,
           }}>
-            {isRebirth ? 'ESCOLHA SUA CLASSE' : 'ESCOLHA SEU HERÓI'}
+            ESCOLHA SEU HERÓI
           </h1>
           <p style={{ color: '#3a4060', fontSize: 17, margin: '4px 0 0', fontFamily: "'VT323', monospace" }}>
             Sua classe define como você enfrenta os monstros.

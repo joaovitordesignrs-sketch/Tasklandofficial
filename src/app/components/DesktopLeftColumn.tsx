@@ -18,7 +18,7 @@ import { ClassPickerOverlay }  from "./ClassPickerOverlay";
 import type { CharacterClass } from "../data/economy";
 import { TYPE_INFO }           from "../data/missions";
 import { forcePush }           from "../data/syncService";
-import { getRebirthState, getEconomy } from "../data/economy";
+import { getEconomy } from "../data/economy";
 import { FloatingDamage }      from "./ui/FloatingDamage";
 import { useNotifications }    from "../hooks/useNotifications";
 import { RpgButton }           from "./ui/RpgButton";
@@ -524,14 +524,11 @@ function NavMenu() {
 // ── Main export ────────────────────────────────────────────────────────────────
 export function DesktopLeftColumn() {
   const { needsClassPick, setNeedsClassPick, setSelectedClass } = useCampaign();
-  const rebirthInfo = getRebirthState();
 
   return (
     <>
       {needsClassPick && (
         <ClassPickerOverlay
-          isRebirth={rebirthInfo.totalRebirths > 0}
-          runNumber={rebirthInfo.runNumber}
           onConfirm={(cls) => {
             setNeedsClassPick(false);
             setSelectedClass(cls);

@@ -452,59 +452,6 @@ export function resetAllProgress(): void {
   try { localStorage.removeItem("rpg_challenges_v1"); } catch { /* noop */ }
 }
 
-/**
- * Rebirth reset — resets campaign progress but PRESERVES the task history
- * (Diário de Missões) so the player can always see their past missions.
- * Only pending tasks from the ACTIVE mission (being fought) are carried over
- * into the first mission of the new run. Tasks from locked/future missions
- * are discarded — they would feel like "phantom tasks" the user didn't add.
- * NOTE: callers must also call resetBonusXP() from economy.ts.
- */
-export function rebirthReset(): { monstersDefeated: number; tasksCompleted: number } {
-  let monstersDefeated = 0;
-  let tasksCompleted = 0;
-
-  // Find the currently active mission (the one being fought right now)
-  const activeMission = getActiveCampaignMission();
-
-  // Only carry over pending tasks from the active mission
-  const pendingTasks: Task[] = activeMission
-    ? activeMission.tasks
-        .filter(t => !t.completed)
-        .map(t => ({
-          ...t,
-          id: `carry-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-          completed: false,
-          completedAt: undefined,
-          damageDealt: undefined,
-        }))
-    : [];
-
-  // Count stats across all missions
-  for (const m of missionsStore) {
-    if ((m.monsterCurrentHp ?? 1) <= 0) monstersDefeated++;
-    for (const t of m.tasks) {
-      if (t.completed) tasksCompleted++;
-    }
-  }
-
-  const freshMissions = initialMissions.map(m => ({ ...m }));
-  if (pendingTasks.length > 0) {
-    freshMissions[0] = { ...freshMissions[0], tasks: pendingTasks };
-  }
-
-  missionsStore = freshMissions;
-  saveMissions(missionsStore);
-
-  // ✅ HISTORY_KEY is intentionally NOT removed here — the Diário de Missões
-  //    must survive across rebirths so the player always sees their past tasks.
-  // Only reset the monster pity counter and active challenges (run-scoped).
-  try { localStorage.removeItem("rpg_pity_history_v1"); } catch { /* noop */ }
-  try { localStorage.removeItem("rpg_challenges_v1"); } catch { /* noop */ }
-
-  return { monstersDefeated, tasksCompleted };
-}
-
 // ── Tag management ────────────────────────────────────────────────────────────
 const TAGS_KEY = "rpg_tags_v1";
 const TAGS_COLORS_KEY = "rpg_tag_colors_v1";
