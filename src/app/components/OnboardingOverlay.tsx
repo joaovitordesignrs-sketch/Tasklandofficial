@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, type CSSProperties } from "react";
 import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
-import imgAvatarWarrior from 'figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf1e.png';
-import imgAvatarMage    from 'figma:asset/5c09b71e009581d58103f7df9949281a05a710d1.png';
+import imgAvatarWarrior from '../../assets/profile_pic/profile_pic_warrior.png';
+import imgAvatarMage    from '../../assets/profile_pic/profile_pic_mage.png';
 
 const ONBOARDING_KEY = "rpg_onboarding_v1";
 
@@ -196,9 +196,9 @@ function XPSlide() {
 
 function HabitsSlide() {
   const habits = [
-    { name: "Exercício", streak: 7,  bonus: "+14%" },
-    { name: "Leitura",   streak: 3,  bonus: "+6%"  },
-    { name: "Meditação", streak: 14, bonus: "+21%" },
+    { name: "Exercise",  streak: 7,  bonus: "+14%" },
+    { name: "Reading",   streak: 3,  bonus: "+6%"  },
+    { name: "Meditation",streak: 14, bonus: "+21%" },
   ];
 
   return (
@@ -223,7 +223,7 @@ function HabitsSlide() {
       </div>
 
       <div style={{ fontFamily: "'VT323', monospace", fontSize: 14, color: "#5a6080", textAlign: "center", maxWidth: 220 }}>
-        Mantenha o <span style={{ color: "#f0c040" }}>streak</span> para multiplicar seu dano!
+        Keep your <span style={{ color: "#f0c040" }}>streak</span> to multiply your damage!
       </div>
     </div>
   );
@@ -272,7 +272,7 @@ function FriendsSlide() {
   const friends = [
     { name: "ARIA", rank: "S", rankColor: "#f0c040", cp: 840, rankBg: "#2a1f00", isYou: false },
     { name: "KAEL", rank: "B", rankColor: "#60a5fa", cp: 312, rankBg: "#0f1f4a", isYou: false },
-    { name: "VOCÊ", rank: "C", rankColor: "#a78bfa", cp: 190, rankBg: "#1e1b4b", isYou: true  },
+    { name: "YOU",  rank: "C", rankColor: "#a78bfa", cp: 190, rankBg: "#1e1b4b", isYou: true  },
   ];
 
   return (
@@ -290,7 +290,7 @@ function FriendsSlide() {
         ))}
       </div>
       <div style={{ fontFamily: "'VT323', monospace", fontSize: 15, color: "#5a6080", textAlign: "center", maxWidth: 220 }}>
-        Vá em <span style={{ color: "#a78bfa" }}>Amigos</span> no menu e busque pelo nick
+        Go to <span style={{ color: "#a78bfa" }}>Friends</span> in the menu and search by nick
       </div>
     </div>
   );
@@ -312,10 +312,10 @@ function FinalSlide() {
       </div>
 
       <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "clamp(9px, 2vw, 13px)", color: "#f0c040", textShadow: glow ? "2px 2px 0 #000, 0 0 20px #f0c04088" : "2px 2px 0 #000", textAlign: "center", lineHeight: 1.8, transition: "text-shadow 0.6s ease" }}>
-        SUA AVENTURA{"\n"}COMEÇA AGORA!
+        YOUR ADVENTURE{"\n"}STARTS NOW!
       </div>
       <div style={{ fontFamily: "'VT323', monospace", fontSize: 16, color: "#8090b0", textAlign: "center", maxWidth: 240, lineHeight: 1.5 }}>
-        Crie sua primeira missão, derrote seu primeiro monstro e suba de rank, herói!
+        Create your first mission, defeat your first monster and climb the ranks, hero!
       </div>
     </div>
   );
@@ -335,40 +335,40 @@ interface Slide {
 
 const SLIDES: Slide[] = [
   {
-    title: "BEM-VINDO AO\nTASKLAND!",
-    subtitle: "O RPG da sua produtividade",
+    title: "WELCOME TO\nTASKLAND!",
+    subtitle: "The RPG of your productivity",
     Illustration: MonsterSlide,
-    body: "No TaskLand, suas tarefas do dia a dia se transformam em ataques a monstros! Complete missões para derrotar criaturas e evoluir seu personagem.",
+    body: "In TaskLand, your daily tasks turn into attacks against monsters! Complete missions to defeat creatures and level up your character.",
   },
   {
-    title: "COMPLETE\nTAREFAS",
-    subtitle: "Cada missão é um ataque",
+    title: "COMPLETE\nTASKS",
+    subtitle: "Each task is an attack",
     Illustration: XPSlide,
-    body: "Crie tarefas e marque-as como concluídas para causar dano ao monstro atual. Ganhe XP e suba de nível — quanto mais difícil a missão, mais XP você ganha!",
+    body: "Create tasks and mark them as done to deal damage to the current monster. Earn XP and level up — the harder the task, the more XP you gain!",
   },
   {
-    title: "HÁBITOS &\nSTREAKS",
-    subtitle: "Constância multiplica seu poder",
+    title: "HABITS &\nSTREAKS",
+    subtitle: "Consistency multiplies your power",
     Illustration: HabitsSlide,
-    body: "Registre hábitos diários para acumular streaks 🔥. Quanto maior seu streak, maior o bônus de dano nos seus ataques!",
+    body: "Log daily habits to build streaks 🔥. The longer your streak, the greater your damage bonus on attacks!",
   },
   {
     title: "POWER &\nRANK",
-    subtitle: "Do iniciante F ao lendário S+",
+    subtitle: "From novice F to legendary S+",
     Illustration: RankSlide,
-    body: "Seu Power é calculado com base nos monstros derrotados, nível, conquistas e renascimentos. Evolua para alcançar o topo!",
+    body: "Your Power is calculated from defeated monsters, level, and achievements. Keep evolving to reach the top!",
   },
   {
-    title: "AMIGOS &\nCOMPETIÇÃO",
-    subtitle: "Compare seu rank com outros jogadores",
+    title: "FRIENDS &\nCOMPETITION",
+    subtitle: "Compare your rank with other players",
     Illustration: FriendsSlide,
-    body: "Adicione amigos pelo nick na aba Amigos e veja quem tem o maior Power. A rivalidade saudável aumenta a motivação!",
+    body: "Add friends by nick in the Friends tab and see who has the highest Power. Healthy rivalry boosts motivation!",
   },
   {
-    title: "PRONTO,\nHERÓI!",
-    subtitle: "Sua jornada começa agora",
+    title: "READY,\nHERO!",
+    subtitle: "Your journey begins now",
     Illustration: FinalSlide,
-    body: "Escolha sua classe (Guerreiro ou Mago), crie sua primeira missão e comece a derrotar monstros. Boa sorte na sua aventura!",
+    body: "Choose your class (Warrior or Mage), create your first mission and start defeating monsters. Good luck on your adventure!",
   },
 ];
 
@@ -474,7 +474,7 @@ export function OnboardingOverlay({ onFinish }: OnboardingOverlayProps) {
               onMouseEnter={e => (e.currentTarget.style.color = "#e39f64")}
               onMouseLeave={e => (e.currentTarget.style.color = "#3a3e5a")}
             >
-              PULAR ▶▶
+              SKIP ▶▶
             </button>
           </div>
 
@@ -512,14 +512,14 @@ export function OnboardingOverlay({ onFinish }: OnboardingOverlayProps) {
                   onMouseEnter={e => (e.currentTarget.style.borderColor = "#e39f64")}
                   onMouseLeave={e => (e.currentTarget.style.borderColor = "#2a2e4a")}
                 >
-                  ◀ VOLTAR
+                  ◀ BACK
                 </button>
               )}
               <button onClick={goNext} style={{ flex: 1, padding: "12px 0", background: isLast ? "#7c4dff" : "#1a1f38", border: `2px solid ${isLast ? "#a97dff" : "#e39f64"}`, color: isLast ? "#fff" : "#f0c040", fontFamily: "'Press Start 2P', monospace", fontSize: 9, cursor: "pointer", boxShadow: isLast ? "3px 3px 0 #000, 0 0 14px #7c4dff88" : "3px 3px 0 #000", animation: isLast ? "obBtnPulse 1.8s ease-in-out infinite" : "none", letterSpacing: "0.08em" }}
                 onMouseEnter={e => { e.currentTarget.style.background = isLast ? "#9a6dff" : "#252d4a"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = isLast ? "#7c4dff" : "#1a1f38"; }}
               >
-                {isLast ? "⚔ INICIAR AVENTURA!" : "PRÓXIMO ▶"}
+                {isLast ? "⚔ START ADVENTURE!" : "NEXT ▶"}
               </button>
             </div>
           </div>

@@ -54,10 +54,10 @@ export const TIER_MULTIPLIERS: Record<ItemTier, number> = {
 };
 
 export const TIER_NAMES: Record<ItemTier, string> = {
-  1: "Aprendiz",
-  2: "Herói",
-  3: "Lenda",
-  4: "Ascendente",
+  1: "Apprentice",
+  2: "Hero",
+  3: "Legend",
+  4: "Ascendant",
 };
 
 export const TIER_COLORS: Record<ItemTier, string> = {
@@ -79,52 +79,52 @@ export const ESSENCE_COSTS: Record<1 | 2 | 3, number> = {
 export const ITEM_TEMPLATES: ItemTemplate[] = [
   {
     id:               "espada_da_disciplina",
-    name:             "Espada da Disciplina",
+    name:             "Discipline Sword",
     slot:             "weapon",
     bonus_type:       "MH",
     base_bonus_value: 0.02,
     gold_cost:        300,
     icon:             "sword",
-    description:      "+MH — bônus de hábitos",
+    description:      "+MH — habit bonus",
   },
   {
     id:               "armadura_do_foco",
-    name:             "Armadura do Foco",
+    name:             "Focus Armor",
     slot:             "armor",
     bonus_type:       "MC",
     base_bonus_value: 0.02,
     gold_cost:        350,
     icon:             "shield",
-    description:      "+MC — bônus de classe",
+    description:      "+MC — class bonus",
   },
   {
     id:               "amuleto_do_nivel",
-    name:             "Amuleto do Nível",
+    name:             "Level Amulet",
     slot:             "accessory",
     bonus_type:       "MN",
     base_bonus_value: 0.015,
     gold_cost:        400,
     icon:             "gem",
-    description:      "+MN — bônus de nível",
+    description:      "+MN — level bonus",
   },
   {
     id:               "reliquia_do_campeao",
-    name:             "Relíquia do Campeão",
+    name:             "Champion's Relic",
     slot:             "relic",
     bonus_type:       "MR",
     base_bonus_value: 0.015,
     gold_cost:        450,
     icon:             "sparkles",
-    description:      "+MR — bônus permanente",
+    description:      "+MR — permanent bonus",
   },
 ];
 
 /** Slot display info */
 export const SLOT_INFO: Record<ItemSlot, { label: string; icon: string; color: string }> = {
-  weapon:    { label: "ARMA",      icon: "sword",    color: ACCENT_GOLD },
-  armor:     { label: "ARMADURA",  icon: "shield",   color: "#60a5fa"  },
-  accessory: { label: "ACESSÓRIO", icon: "gem",      color: "#c084fc"  },
-  relic:     { label: "RELÍQUIA",  icon: "sparkles", color: "#FF6B35"  },
+  weapon:    { label: "WEAPON",    icon: "sword",    color: ACCENT_GOLD },
+  armor:     { label: "ARMOR",     icon: "shield",   color: "#60a5fa"  },
+  accessory: { label: "ACCESSORY", icon: "gem",      color: "#c084fc"  },
+  relic:     { label: "RELIC",     icon: "sparkles", color: "#FF6B35"  },
 };
 
 /** Essence drop per monster type */

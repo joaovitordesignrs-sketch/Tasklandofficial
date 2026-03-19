@@ -4,9 +4,9 @@
 export type HabitMedal = "iniciante" | "formador" | "mestre";
 
 export const HABIT_MEDALS: Record<HabitMedal, { days: number; label: string; color: string; dmgBonus: number; desc: string }> = {
-  iniciante: { days: 5,  label: "Iniciante",           color: "#8a9fba", dmgBonus: 0.05, desc: "5 dias seguidos — +5% dano por 24h" },
-  formador:  { days: 21, label: "Formador de Hábitos", color: "#FFD700", dmgBonus: 0.10, desc: "21 dias — +10% dano permanente" },
-  mestre:    { days: 66, label: "Mestre dos Hábitos",  color: "#FF6B35", dmgBonus: 0.15, desc: "66 dias — +15% dano + skin exclusiva" },
+  iniciante: { days: 5,  label: "Beginner",      color: "#8a9fba", dmgBonus: 0.05, desc: "5 days in a row — +5% damage for 24h" },
+  formador:  { days: 21, label: "Habit Builder", color: "#FFD700", dmgBonus: 0.10, desc: "21 days — +10% permanent damage" },
+  mestre:    { days: 66, label: "Habit Master",  color: "#FF6B35", dmgBonus: 0.15, desc: "66 days — +15% damage + exclusive skin" },
 };
 
 export interface Habit {

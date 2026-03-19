@@ -63,10 +63,10 @@ export const TYPE_MODIFIERS: Record<MonsterType, { hp: number; xp: number }> = {
 };
 
 export const TYPE_INFO: Record<MonsterType, { label: string; color: string; icon: string }> = {
-  weak:     { label: "FRACO",    color: "#8a9fba", icon: "▽" },
+  weak:     { label: "WEAK",     color: "#8a9fba", icon: "▽" },
   normal:   { label: "NORMAL",   color: "#ffffff", icon: "" },
-  strong:   { label: "FORTE",    color: "#E63946", icon: "▲" },
-  xp_bonus: { label: "XP BÔNUS", color: "#FFD700", icon: "★" },
+  strong:   { label: "STRONG",   color: "#E63946", icon: "▲" },
+  xp_bonus: { label: "XP BONUS", color: "#FFD700", icon: "★" },
   boss:     { label: "BOSS",     color: "#FF6B35", icon: "♛" },
 };
 
@@ -127,36 +127,36 @@ function rollMonsterType(rand: () => number): MonsterType {
 const MONSTER_NAMES: Record<MonsterType, string[]> = {
   // Sprite: Slime
   weak: [
-    "Slime Verdoso","Slime Ácido","Slime Glacial","Slime Tóxico","Slime Sombrio",
-    "Slime Carmesim","Slime Elétrico","Slime Dourado","Slime Fantasma","Slime Abissal",
+    "Green Slime","Acid Slime","Glacial Slime","Toxic Slime","Shadow Slime",
+    "Crimson Slime","Electric Slime","Golden Slime","Ghost Slime","Abyssal Slime",
   ],
   // Sprite: Goblin
   normal: [
-    "Goblin Guerreiro","Goblin Arqueiro","Goblin Xamã","Goblin Mercenário","Goblin Ladrão",
-    "Goblin Capitão","Goblin Bombardeiro","Goblin Sentinela","Goblin Berserk","Goblin Sábio",
+    "Warrior Goblin","Archer Goblin","Shaman Goblin","Mercenary Goblin","Thief Goblin",
+    "Captain Goblin","Bomber Goblin","Sentinel Goblin","Berserk Goblin","Sage Goblin",
   ],
-  // Sprite: Esqueleto
+  // Sprite: Skeleton
   strong: [
-    "Esqueleto Guerreiro","Esqueleto Arcano","Esqueleto Campeão","Esqueleto Cavaleiro",
-    "Esqueleto Sombrio","Esqueleto Ancião","Esqueleto Amaldiçoado","Esqueleto Lorde",
-    "Esqueleto Implacável","Esqueleto Invocador",
+    "Warrior Skeleton","Arcane Skeleton","Champion Skeleton","Knight Skeleton",
+    "Shadow Skeleton","Elder Skeleton","Cursed Skeleton","Lord Skeleton",
+    "Relentless Skeleton","Summoner Skeleton",
   ],
-  // Sprite: Cogu
+  // Sprite: Cogu (mushroom)
   xp_bonus: [
-    "Cogu Venenoso","Cogu Radioativo","Cogu Dourado","Cogu Sombrio","Cogu Explosivo",
-    "Cogu Arcano","Cogu Maldito","Cogu Místico","Cogu Celestial","Cogu Ancião",
+    "Poison Shroom","Radioactive Shroom","Golden Shroom","Shadow Shroom","Explosive Shroom",
+    "Arcane Shroom","Cursed Shroom","Mystic Shroom","Celestial Shroom","Ancient Shroom",
   ],
-  // Sprite: Golem de Cristal (order par) / Dark Lord Warrior (order ímpar)
+  // Sprite: Crystal Golem (even order) / Dark Lord Warrior (odd order)
   boss: [
-    "Golem de Cristal","Dark Lord Warrior","Golem Primordial","Cavaleiro das Sombras",
-    "Golem Celestial","Senhor das Trevas","Golem Eterno","Guerreiro Sombrio",
-    "Golem Abissal","Lorde Caótico",
+    "Crystal Golem","Dark Lord Warrior","Primordial Golem","Shadow Knight",
+    "Celestial Golem","Lord of Darkness","Eternal Golem","Shadow Warrior",
+    "Abyssal Golem","Chaotic Lord",
   ],
 };
 
 const CHAPTER_NAMES = [
-  "Saga das Masmorras","Ruínas do Esquecido","Abismo Eterno","O Trono Proibido",
-  "Além das Estrelas","O Caos Primordial","Eras das Trevas","O Fim dos Tempos",
+  "Dungeon Saga","Ruins of the Forgotten","Eternal Abyss","The Forbidden Throne",
+  "Beyond the Stars","Primordial Chaos","Ages of Darkness","The End of Times",
 ];
 
 function rng(seed: number): () => number {
@@ -166,9 +166,9 @@ function rng(seed: number): () => number {
 
 function typeLabel(type: MonsterType): string {
   switch (type) {
-    case "weak":     return " ▽FRACO";
-    case "strong":   return " ▲FORTE";
-    case "xp_bonus": return " ★XP BÔNUS";
+    case "weak":     return " ▽WEAK";
+    case "strong":   return " ▲STRONG";
+    case "xp_bonus": return " ★XP BONUS";
     case "boss":     return " ♛BOSS";
     default:         return "";
   }
@@ -200,7 +200,7 @@ export function generateMission(order: number): Mission {
   const chapterName = CHAPTER_NAMES[chapter % CHAPTER_NAMES.length];
   const tLabel      = typeLabel(type);
   const name        = `${romans[posInChap]} – ${monsterName}${tLabel}`;
-  const description = `${chapterName}: Nível ${order + 1}. ${monsterName} (${TYPE_INFO[type].label}) aguarda com ${hp} HP.`;
+  const description = `${chapterName}: Level ${order + 1}. ${monsterName} (${TYPE_INFO[type].label}) awaits with ${hp} HP.`;
 
   return {
     id:               `camp-gen-${order}`,
@@ -224,46 +224,46 @@ export function generateMission(order: number): Mission {
 // ── Static initial missions (Phase 1, orders 0–4) ────────────────────────────
 export const initialMissions: Mission[] = [
   {
-    id: "camp-1", name: "I – Slime Verdoso ▽FRACO",
-    description: "Um Slime Verdoso bloqueia a entrada da masmorra. Adicione suas tarefas para derrotá-lo!",
+    id: "camp-1", name: "I – Green Slime ▽WEAK",
+    description: "A Green Slime blocks the dungeon entrance. Add your tasks to defeat it!",
     deadline: new Date(Date.now()+30*24*60*60*1000).toISOString(), startedAt: new Date().toISOString(),
-    monsterName: "Slime Verdoso", mode: "campaign", monsterType: "weak", monsterPhase: 1,
+    monsterName: "Green Slime", mode: "campaign", monsterType: "weak", monsterPhase: 1,
     monsterMaxHp: 75, monsterCurrentHp: 75,
     campaignGroupId: "infinite", campaignOrder: 0, unlocked: true,
     tasks: [],
   },
   {
-    id: "camp-2", name: "II – Goblin Guerreiro",
-    description: "O Goblin Guerreiro guarda o corredor sombrio com seu machado enferrujado.",
+    id: "camp-2", name: "II – Warrior Goblin",
+    description: "The Warrior Goblin guards the dark corridor with its rusty axe.",
     deadline: new Date(Date.now()+30*24*60*60*1000).toISOString(), startedAt: new Date().toISOString(),
-    monsterName: "Goblin Guerreiro", mode: "campaign", monsterType: "normal", monsterPhase: 1,
+    monsterName: "Warrior Goblin", mode: "campaign", monsterType: "normal", monsterPhase: 1,
     monsterMaxHp: 112, monsterCurrentHp: 112,
     campaignGroupId: "infinite", campaignOrder: 1, unlocked: false,
     tasks: [],
   },
   {
-    id: "camp-3", name: "III – Cogu Dourado ★XP BÔNUS",
-    description: "O Cogu Dourado é raro e cheio de esporos mágicos — derrote-o para ganhar XP extra!",
+    id: "camp-3", name: "III – Golden Shroom ★XP BONUS",
+    description: "The Golden Shroom is rare and full of magical spores — defeat it to earn extra XP!",
     deadline: new Date(Date.now()+30*24*60*60*1000).toISOString(), startedAt: new Date().toISOString(),
-    monsterName: "Cogu Dourado", mode: "campaign", monsterType: "xp_bonus", monsterPhase: 1,
+    monsterName: "Golden Shroom", mode: "campaign", monsterType: "xp_bonus", monsterPhase: 1,
     monsterMaxHp: 112, monsterCurrentHp: 112,
     campaignGroupId: "infinite", campaignOrder: 2, unlocked: false,
     tasks: [],
   },
   {
-    id: "camp-4", name: "IV – Esqueleto Guerreiro ▲FORTE",
-    description: "O Esqueleto Guerreiro reviveu das ruínas e está sedento por batalha!",
+    id: "camp-4", name: "IV – Warrior Skeleton ▲STRONG",
+    description: "The Warrior Skeleton has risen from the ruins and is hungry for battle!",
     deadline: new Date(Date.now()+30*24*60*60*1000).toISOString(), startedAt: new Date().toISOString(),
-    monsterName: "Esqueleto Guerreiro", mode: "campaign", monsterType: "strong", monsterPhase: 1,
+    monsterName: "Warrior Skeleton", mode: "campaign", monsterType: "strong", monsterPhase: 1,
     monsterMaxHp: 150, monsterCurrentHp: 150,
     campaignGroupId: "infinite", campaignOrder: 3, unlocked: false,
     tasks: [],
   },
   {
-    id: "camp-5", name: "V – Golem de Cristal ♛BOSS",
-    description: "O Golem de Cristal guarda o portal para a Fase 2. Derrote-o para avançar!",
+    id: "camp-5", name: "V – Crystal Golem ♛BOSS",
+    description: "The Crystal Golem guards the portal to Phase 2. Defeat it to advance!",
     deadline: new Date(Date.now()+30*24*60*60*1000).toISOString(), startedAt: new Date().toISOString(),
-    monsterName: "Golem de Cristal", mode: "campaign", monsterType: "boss", monsterPhase: 1,
+    monsterName: "Crystal Golem", mode: "campaign", monsterType: "boss", monsterPhase: 1,
     monsterMaxHp: 262, monsterCurrentHp: 262,
     campaignGroupId: "infinite", campaignOrder: 4, unlocked: false,
     tasks: [],
@@ -374,7 +374,7 @@ function saveMissions(missions: Mission[]): void {
 }
 
 export function loadPlayerName(): string {
-  try { return localStorage.getItem(PLAYER_KEY) ?? "Aventureiro"; } catch { return "Aventureiro"; }
+  try { return localStorage.getItem(PLAYER_KEY) ?? "Adventurer"; } catch { return "Adventurer"; }
 }
 export function savePlayerName(name: string): void {
   try { localStorage.setItem(PLAYER_KEY, name); } catch { /* noop */ }
@@ -466,6 +466,20 @@ export function getTags(): string[] {
 
 function saveTagsList(tags: string[]): void {
   try { localStorage.setItem(TAGS_KEY, JSON.stringify(tags)); } catch { /* noop */ }
+  syncTagsToEconomy();
+}
+
+/** Mirror tags into the economy object so they are included in the cloud sync payload. */
+function syncTagsToEconomy(): void {
+  try {
+    const raw = localStorage.getItem("rpg_economy_v1");
+    if (!raw) return;
+    const econ = JSON.parse(raw);
+    econ.tags = getTags();
+    econ.tagColors = getTagColors();
+    localStorage.setItem("rpg_economy_v1", JSON.stringify(econ));
+    window.dispatchEvent(new CustomEvent("rpg:tags-changed"));
+  } catch { /* noop */ }
 }
 
 /** Adds a tag to the global registry if it doesn't already exist. */
@@ -504,12 +518,14 @@ export function setTagColor(tag: string, color: string): void {
   const colors = getTagColors();
   colors[tag] = color;
   try { localStorage.setItem(TAGS_COLORS_KEY, JSON.stringify(colors)); } catch { /* noop */ }
+  syncTagsToEconomy();
 }
 
 function removeTagColor(tag: string): void {
   const colors = getTagColors();
   delete colors[tag];
   try { localStorage.setItem(TAGS_COLORS_KEY, JSON.stringify(colors)); } catch { /* noop */ }
+  syncTagsToEconomy();
 }
 
 /** Deterministic color for a tag string — checks custom override first. */

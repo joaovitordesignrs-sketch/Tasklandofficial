@@ -7,8 +7,8 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
-import imgAvatarWarrior from "figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf1e.png";
-import imgAvatarMage from "figma:asset/5c09b71e009581d58103f7df9949281a05a710d1.png";
+import imgAvatarWarrior from "../../assets/profile_pic/profile_pic_warrior.png";
+import imgAvatarMage from "../../assets/profile_pic/profile_pic_mage.png";
 import { PageShell } from "./ui/PageShell";
 import { RpgButton } from "./ui/RpgButton";
 import { useTheme } from "../contexts/PreferencesContext";
@@ -119,10 +119,10 @@ export default function FriendsScreen() {
       if (data.player) {
         setSearchResult(data.player);
       } else {
-        setSearchError(data.error || "Jogador nao encontrado");
+        setSearchError(data.error || "Player not found");
       }
     } catch {
-      setSearchError("Erro de conexao");
+      setSearchError("Connection error");
     } finally {
       setSearching(false);
     }
@@ -143,10 +143,10 @@ export default function FriendsScreen() {
         setSearchNick("");
         fetchFriends();
       } else {
-        setSearchError(data.error || "Erro ao enviar convite");
+        setSearchError(data.error || "Error sending request");
       }
     } catch {
-      setSearchError("Erro de conexao");
+      setSearchError("Connection error");
     } finally {
       setActionLoading(null);
     }
@@ -190,7 +190,7 @@ export default function FriendsScreen() {
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       <PageShell
         icon={<Users size={16} />}
-        title="AMIGOS"
+        title="FRIENDS"
         accentColor={COLOR_WARRIOR}
         badge={
           <RpgButton
@@ -199,7 +199,7 @@ export default function FriendsScreen() {
             disabled={refreshing || loading}
             small
             onClick={handleRefresh}
-            title="Atualizar lista"
+            title="Refresh list"
           >
             <RefreshCw size={14} style={{ animation: refreshing ? "spin 1s linear infinite" : "none" }} />
           </RpgButton>
@@ -209,9 +209,9 @@ export default function FriendsScreen() {
           {/* Tabs */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {[
-              { key: "friends" as const, label: "AMIGOS", icon: Users, count: acceptedFriends.length },
-              { key: "pending" as const, label: "CONVITES", icon: UserPlus, count: pendingRequests.length },
-              { key: "search" as const, label: "BUSCAR", icon: Search, count: 0 },
+              { key: "friends" as const, label: "FRIENDS", icon: Users, count: acceptedFriends.length },
+              { key: "pending" as const, label: "INVITES", icon: UserPlus, count: pendingRequests.length },
+              { key: "search" as const, label: "SEARCH", icon: Search, count: 0 },
             ].map(t => (
               <button
                 key={t.key}
@@ -243,7 +243,7 @@ export default function FriendsScreen() {
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, padding: "16px 18px" }}>
                 <div style={{ fontFamily: "'Press Start 2P', monospace", color: "#60a5fa", fontSize: 9, marginBottom: 12 }}>
-                  BUSCAR AVENTUREIRO
+                  SEARCH ADVENTURER
                 </div>
                 <div style={{ display: "flex", gap: 8 }}>
                   <input
@@ -267,7 +267,7 @@ export default function FriendsScreen() {
               {searchResult && (
                 <div style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, overflow: "hidden" }}>
                   <div style={{ background: "#0b0d1e", borderBottom: "1px solid #1f254f", padding: "8px 14px" }}>
-                    <span style={{ fontFamily: "'Press Start 2P', monospace", color: "#60a5fa", fontSize: 8 }}>RESULTADO</span>
+                    <span style={{ fontFamily: "'Press Start 2P', monospace", color: "#60a5fa", fontSize: 8 }}>RESULT</span>
                   </div>
                   <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
                     <div style={{ width: 48, height: 48, flexShrink: 0, background: "#0b0d1e", border: "1px solid #1f254f", borderRadius: 8, overflow: "hidden", position: "relative" }}>
@@ -299,14 +299,14 @@ export default function FriendsScreen() {
               {pendingRequests.length === 0 && (
                 <div style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, padding: "32px 20px", textAlign: "center", opacity: 0.5 }}>
                   <UserPlus size={32} color="#3a4060" style={{ margin: "0 auto 10px" }} />
-                  <div style={{ fontFamily: "'Press Start 2P', monospace", color: "#3a4060", fontSize: 8 }}>NENHUM CONVITE</div>
+                  <div style={{ fontFamily: "'Press Start 2P', monospace", color: "#3a4060", fontSize: 8 }}>NO INVITES</div>
                 </div>
               )}
               {pendingRequests.map(req => (
                 <div key={req.friendshipId} style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, overflow: "hidden" }}>
                   <div style={{ background: "#0b0d1e", borderBottom: "1px solid #1f254f", padding: "7px 14px" }}>
                     <span style={{ fontFamily: "'Press Start 2P', monospace", color: req.isIncoming ? "#FFD700" : "#5a6080", fontSize: 8 }}>
-                      {req.isIncoming ? "📨 RECEBIDO" : "📤 ENVIADO"}
+                      {req.isIncoming ? "📨 RECEIVED" : "📤 SENT"}
                     </span>
                   </div>
                   <div style={{ padding: "12px 14px", display: "flex", alignItems: "center", gap: 12 }}>
@@ -323,12 +323,12 @@ export default function FriendsScreen() {
                           <Check size={12} /> OK
                         </button>
                         <button onClick={() => handleRespond(req.friendshipId, "decline")} disabled={actionLoading === req.friendshipId} style={{ background: "#E63946", border: "none", color: "#fff", padding: "7px 12px", fontFamily: "'Press Start 2P', monospace", fontSize: 8, cursor: "pointer", borderRadius: 5, display: "flex", alignItems: "center", gap: 4 }}>
-                          <X size={12} /> NÃO
+                          <X size={12} /> NO
                         </button>
                       </div>
                     )}
                     {!req.isIncoming && (
-                      <span style={{ color: "#FFD700", fontSize: 14 }}>Aguardando...</span>
+                      <span style={{ color: "#FFD700", fontSize: 14 }}>Waiting...</span>
                     )}
                   </div>
                 </div>
@@ -339,12 +339,12 @@ export default function FriendsScreen() {
           {/* ── FRIENDS tab ────────────────────────────── */}
           {tab === "friends" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {loading && <div style={{ color: "#5a6080", fontSize: 18, textAlign: "center", padding: 24 }}>Carregando...</div>}
+              {loading && <div style={{ color: "#5a6080", fontSize: 18, textAlign: "center", padding: 24 }}>Loading...</div>}
               {!loading && acceptedFriends.length === 0 && (
                 <div style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, padding: "32px 20px", textAlign: "center", opacity: 0.5 }}>
                   <Users size={32} color="#3a4060" style={{ margin: "0 auto 10px" }} />
-                  <div style={{ fontFamily: "'Press Start 2P', monospace", color: "#3a4060", fontSize: 8 }}>NENHUM AMIGO AINDA</div>
-                  <div style={{ color: "#2a3050", fontSize: 16, marginTop: 8 }}>Use a aba "Buscar" para encontrar jogadores</div>
+                  <div style={{ fontFamily: "'Press Start 2P', monospace", color: "#3a4060", fontSize: 8 }}>NO FRIENDS YET</div>
+                  <div style={{ color: "#2a3050", fontSize: 16, marginTop: 8 }}>Use the "Search" tab to find players</div>
                 </div>
               )}
               {acceptedFriends.map(f => (
@@ -383,7 +383,7 @@ export default function FriendsScreen() {
                         onClick={() => removeFriend(f.friendshipId)}
                         disabled={actionLoading === f.friendshipId}
                         style={{ background: "rgba(230,57,70,0.08)", border: "1px solid #E6394644", color: "#E63946", padding: "6px 8px", cursor: "pointer", borderRadius: 5, display: "flex", alignItems: "center" }}
-                        title="Remover amigo"
+                        title="Remove friend"
                       >
                         <Trash2 size={14} />
                       </button>

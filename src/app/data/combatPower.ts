@@ -55,14 +55,14 @@ export interface PowerRank {
 // Cenário 2 (intermediário, CP 212) → B
 // Cenário 3 (hard user, CP 562) → S+
 const POWER_RANKS: PowerRank[] = [
-  { tier: "S+", label: "TRANSCENDENTE", color: "#FF2D55", glow: "rgba(255,45,85,0.5)",   minPower: 562 / 75 }, // CP 562
-  { tier: "S",  label: "LENDÁRIO",      color: "#FFD700", glow: "rgba(255,215,0,0.5)",    minPower: 375 / 75 }, // CP 375
-  { tier: "A",  label: "MÍTICO",        color: "#FF6B35", glow: "rgba(255,107,53,0.4)",   minPower: 270 / 75 }, // CP 270
-  { tier: "B",  label: "ÉPICO",         color: "#c084fc", glow: "rgba(192,132,252,0.4)",  minPower: 200 / 75 }, // CP 200
-  { tier: "C",  label: "RARO",          color: "#60a5fa", glow: "rgba(96,165,250,0.4)",   minPower: 150 / 75 }, // CP 150
-  { tier: "D",  label: "VETERANO",      color: "#06FFA5", glow: "rgba(6,255,165,0.3)",    minPower: 120 / 75 }, // CP 120
-  { tier: "E",  label: "APRENDIZ",      color: "#8a9fba", glow: "rgba(138,159,186,0.3)",  minPower:  90 / 75 }, // CP  90
-  { tier: "F",  label: "NOVATO",        color: "#5a6080", glow: "rgba(90,96,128,0.2)",    minPower: 0 },
+  { tier: "S+", label: "TRANSCENDENT", color: "#FF2D55", glow: "rgba(255,45,85,0.5)",   minPower: 562 / 75 }, // CP 562
+  { tier: "S",  label: "LEGENDARY",    color: "#FFD700", glow: "rgba(255,215,0,0.5)",    minPower: 375 / 75 }, // CP 375
+  { tier: "A",  label: "MYTHIC",       color: "#FF6B35", glow: "rgba(255,107,53,0.4)",   minPower: 270 / 75 }, // CP 270
+  { tier: "B",  label: "EPIC",         color: "#c084fc", glow: "rgba(192,132,252,0.4)",  minPower: 200 / 75 }, // CP 200
+  { tier: "C",  label: "RARE",         color: "#60a5fa", glow: "rgba(96,165,250,0.4)",   minPower: 150 / 75 }, // CP 150
+  { tier: "D",  label: "VETERAN",      color: "#06FFA5", glow: "rgba(6,255,165,0.3)",    minPower: 120 / 75 }, // CP 120
+  { tier: "E",  label: "APPRENTICE",   color: "#8a9fba", glow: "rgba(138,159,186,0.3)",  minPower:  90 / 75 }, // CP  90
+  { tier: "F",  label: "NOVICE",       color: "#5a6080", glow: "rgba(90,96,128,0.2)",    minPower: 0 },
 ];
 
 export function getPowerRank(power: number): PowerRank {
@@ -172,35 +172,35 @@ export function getPower(level: number, mode: PowerMode = "none"): PowerData {
   const cls = economy.selectedClass;
 
   const mcLabel = cls === "guerreiro"
-    ? (mode === "temporal" ? "×1.20 (Ativo)" : "×1.20 (Desafio Tempo)")
+    ? (mode === "temporal" ? "×1.20 (Active)" : "×1.20 (Time Challenge)")
     : cls === "mago"
-    ? (mode === "focus"    ? "×1.25 (Ativo)" : "×1.25 (Modo Foco)")
-    : "×1.00 (Sem Classe)";
+    ? (mode === "focus"    ? "×1.25 (Active)" : "×1.25 (Focus Mode)")
+    : "×1.00 (No Class)";
 
   const sources: PowerSource[] = [
     {
       id:     "mh",
-      label:  "Hábitos",
+      label:  "Habits",
       icon:   "MH",
       color:  "#FF6B35",
       value:  mh,
       desc:   count > 0
-        ? `${count} hábito${count > 1 ? "s" : ""} marcado${count > 1 ? "s" : ""} hoje (${count} × 0.05)`
-        : "Nenhum hábito marcado hoje",
+        ? `${count} habit${count > 1 ? "s" : ""} checked in today (${count} × 0.05)`
+        : "No habits checked in today",
       active: mh > 1,
     },
     {
       id:     "mn",
-      label:  "Nível",
+      label:  "Level",
       icon:   "MN",
       color:  "#FFD700",
       value:  mn,
-      desc:   `Nível ${level} — 1 + ${level} × 0.03`,
+      desc:   `Level ${level} — 1 + ${level} × 0.03`,
       active: mn > 1,
     },
     {
       id:     "mc",
-      label:  "Classe",
+      label:  "Class",
       icon:   "MC",
       color:  cls === "guerreiro" ? "#E63946" : cls === "mago" ? "#60a5fa" : "#5a6080",
       value:  mc,
@@ -214,11 +214,11 @@ export function getPower(level: number, mode: PowerMode = "none"): PowerData {
   if (totalItemBonus > 0) {
     sources.push({
       id:     "items",
-      label:  "Itens",
+      label:  "Items",
       icon:   "MI",
       color:  "#e39f64",
       value:  parseFloat((1 + totalItemBonus).toFixed(4)),
-      desc:   `Bônus de itens equipados (+${totalItemBonus.toFixed(3)} distribuído entre MH/MN/MC)`,
+      desc:   `Equipped item bonuses (+${totalItemBonus.toFixed(3)} distributed across MH/MN/MC)`,
       active: true,
     });
   }

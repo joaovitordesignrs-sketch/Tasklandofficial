@@ -50,7 +50,7 @@ export function AudioControlPanel() {
       {/* Toggle button */}
       <button
         onClick={handleOpen}
-        title="Configurações de Áudio"
+        title="Audio Settings"
         style={{
           background: "none",
           border: `2px solid ${open ? "#e39f64" : "#333"}`,
@@ -101,7 +101,7 @@ export function AudioControlPanel() {
               fontFamily: "'Press Start 2P', monospace",
               color: "#e39f64", fontSize: 8, textShadow: "1px 1px 0 #000",
             }}>
-              ÁUDIO
+              AUDIO
             </span>
           </div>
 
@@ -112,7 +112,7 @@ export function AudioControlPanel() {
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <Music size={13} color={musicOn ? "#c084fc" : "#5a6080"} />
-                  <span style={{ color: "#fff", fontSize: 17 }}>Música</span>
+                  <span style={{ color: "#fff", fontSize: 17 }}>Music</span>
                 </div>
                 <button
                   onClick={() => setMusicOn(!musicOn)}
@@ -178,7 +178,7 @@ export function AudioControlPanel() {
                     ? <Volume2 size={13} color="#FF6B35" />
                     : <VolumeX size={13} color="#5a6080" />
                   }
-                  <span style={{ color: "#fff", fontSize: 17 }}>Efeitos Sonoros</span>
+                  <span style={{ color: "#fff", fontSize: 17 }}>Sound Effects</span>
                 </div>
                 <button
                   onClick={() => setSfxOn(!sfxOn)}
@@ -204,7 +204,7 @@ export function AudioControlPanel() {
           </div>
 
           <div style={{ borderTop: "1px solid #2a2e50", padding: "6px 14px", textAlign: "center" }}>
-            <span style={{ color: "#5a6080", fontSize: 13 }}>Clique fora para fechar</span>
+            <span style={{ color: "#5a6080", fontSize: 13 }}>Click outside to close</span>
           </div>
 
           {/* Keyframes for animated bars */}

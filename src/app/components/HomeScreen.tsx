@@ -15,7 +15,6 @@ import { ClassPickerOverlay } from "./ClassPickerOverlay";
 import { TaskCharacter } from "./TaskCharacter";
 import { PastMonsterTasks } from "./PastMonsterTasks";
 import { RpgButton }         from "./ui/RpgButton";
-import type { CharacterClass } from "../data/economy";
 import { TYPE_INFO }         from "../data/missions";
 import { audioManager }      from "../hooks/audioManager";
 import { Skull, Zap, Settings, Swords, Trophy } from "lucide-react";
@@ -24,15 +23,15 @@ import { FloatingDamage } from "./ui/FloatingDamage";
 import { useTheme } from "../contexts/PreferencesContext";
 import type { ThemeTokens } from "../data/tokens";
 
-import imgArenaBackground from "figma:asset/6037587fea6349ebacca46bf46244c717b2e23e6.png";
-import imgAvatar  from "figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf1e.png";
-import imgAvatarMago from "figma:asset/5c09b71e009581d58103f7df9949281a05a710d1.png";
-import imgSlime    from "figma:asset/dc6ff590dfbf25672d088cf95ba85807861b754a.png";
-import imgGoblin   from "figma:asset/6b2c7d65c99eabe04c7cf81373859cf650099675.png";
-import imgCogu     from "figma:asset/02b7cadfe976fe3622d67cb58af1c8f90572a8f2.png";
-import imgSkeleton from "figma:asset/aac85f62dfb7ce285b01089399299b9b6b091fe5.png";
+import imgArenaBackground from "../../assets/arena_background/arena_background_default.png";
+import imgAvatar  from "../../assets/profile_pic/profile_pic_warrior.png";
+import imgAvatarMago from "../../assets/profile_pic/profile_pic_mage.png";
+import imgSlime    from "../../assets/monsters/monster_slime.png";
+import imgGoblin   from "../../assets/monsters/monster_goblin.png";
+import imgCogu     from "../../assets/monsters/monster_cogu.png";
+import imgSkeleton from "../../assets/monsters/monster_skeleton.png";
 import imgGolem    from "figma:asset/843a5f024b278e6710a508a853f1ebd9c4fed362.png";
-import imgDarkLord from "figma:asset/028f146c821934274d14ce8a95fd29ab64707c54.png";
+import imgDarkLord from "../../assets/monsters/monster_darklord.png";
 
 // ── Monster sprite picker ─────────────────────────────────────────────────────
 function getMonsterSprite(monsterType?: string, campaignOrder?: number): string {
@@ -118,13 +117,13 @@ function getAttackTextColor(monsterType: string | undefined, tk: ThemeTokens): s
 
 function getAttackLabel(monsterType: string | undefined, count: number): string {
   const sprite: Record<string, string> = {
-    weak: "SLIME", normal: "GOBLIN", xp_bonus: "COGU", strong: "ESQUELETO", boss: "BOSS",
+    weak: "SLIME", normal: "GOBLIN", xp_bonus: "SHROOM", strong: "SKELETON", boss: "BOSS",
   };
-  const name = sprite[monsterType ?? ""] ?? "MONSTRO";
-  if (count >= 5) return `ATAQUE CRÍTICO!!! ×${count}`;
-  if (count >= 3) return `TRIPLO GOLPE no ${name}! (${count})`;
-  if (count >= 2) return `DUPLO GOLPE no ${name}! (${count})`;
-  return `ATACAR ${name}! (${count})`;
+  const name = sprite[monsterType ?? ""] ?? "MONSTER";
+  if (count >= 5) return `CRITICAL HIT!!! ×${count}`;
+  if (count >= 3) return `TRIPLE STRIKE at ${name}! (${count})`;
+  if (count >= 2) return `DOUBLE STRIKE at ${name}! (${count})`;
+  return `ATTACK ${name}! (${count})`;
 }
 
 // ── Level-Up Banner ───────────────────────────────────────────────────────────
@@ -156,13 +155,13 @@ function LevelUpBanner({ level, rankColor, onDone }: { level: number; rankColor:
 // ── Strip type suffixes from monster name ──────────────────────────────────────
 function cleanMonsterName(name: string): string {
   return name
-    .replace(/\s*[▽▲★♛]\s*(FRACO|FORTE|XP\s*BÔNUS|BOSS)\s*$/i, "")
+    .replace(/\s*[▽▲★♛]\s*(WEAK|STRONG|XP\s*BONUS|BOSS)\s*$/i, "")
     .trim();
 }
 
 // ── Mobile: player info strip ─────────────────────────────────────────────────
 function MobilePlayerStrip() {
-  const { lvInfo, xpPct, rank, cpData, playerName, levelUpInfo, selectedClass } = useCampaign();
+  const { lvInfo, xpPct, rank, cpData, playerName, levelUpInfo, activeSkin } = useCampaign();
   const { nick } = useAuth();
   const navigate = useNavigate();
   const {
@@ -175,7 +174,7 @@ function MobilePlayerStrip() {
 
   void cpData;
 
-  const avatarSrc = selectedClass === "mago" ? imgAvatarMago : imgAvatar;
+  const avatarSrc = activeSkin === "mage" ? imgAvatarMago : imgAvatar;
 
   return (
     <div style={{ background: `${BG_DEEPEST}f7`, padding: "9px 14px", display: "flex", alignItems: "center", gap: 10, borderBottom: `1px solid #1a1e37` }}>
@@ -218,7 +217,7 @@ function MobilePlayerStrip() {
 function MobileArenaSection() {
   const {
     mission, hpInfo, hpColor, defeated, monsterShake, taskCompleted,
-    selectedClass, showVictory, victoryXP, nextMission,
+    activeSkin, showVictory, victoryXP, nextMission,
     campaignDone, handleAttackStart, handleNextMission, setShowVictory,
     levelUpInfo, setLevelUpInfo, cpData, damageNumbers,
   } = useCampaign();
@@ -258,7 +257,7 @@ function MobileArenaSection() {
 
         {/* Character */}
         <div style={{ position: "absolute", left: "4%", bottom: "4%", height: "85%", zIndex: 4 }}>
-          <TaskCharacter key={selectedClass ?? "__none__"} taskCompleted={taskCompleted} selectedClass={selectedClass as CharacterClass | null} onAttackStart={handleAttackStart} />
+          <TaskCharacter key={activeSkin ?? "__none__"} taskCompleted={taskCompleted} activeSkin={activeSkin} onAttackStart={handleAttackStart} />
         </div>
 
         {/* Power badge */}
@@ -321,7 +320,7 @@ function MobileArenaSection() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <Trophy size={18} color={COLOR_WARNING} />
-                <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_SM, color: COLOR_WARNING }}>VITÓRIA!</span>
+                <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_SM, color: COLOR_WARNING }}>VICTORY!</span>
               </div>
               <span style={{ fontFamily: FONT_PIXEL, fontSize: 11, color: COLOR_LEGENDARY, animation: "pulse 0.8s ease-out" }}>+{victoryXP} XP</span>
             </div>
@@ -332,7 +331,7 @@ function MobileArenaSection() {
                 onClick={handleNextMission}
                 style={{ animation: "pulse 1.5s infinite", fontSize: PX_MD, padding: "10px 16px", borderRadius: RADIUS_LG - 1 }}
               >
-                <Zap size={14} /> PRÓXIMO MONSTRO ▶
+                <Zap size={14} /> NEXT MONSTER ▶
               </RpgButton>
             ) : (
               <RpgButton
@@ -343,7 +342,7 @@ function MobileArenaSection() {
                 onClick={() => setShowVictory(false)}
                 style={{ fontSize: VT_LG }}
               >
-                Fechar
+                Close
               </RpgButton>
             )}
           </div>
@@ -385,12 +384,12 @@ function MobileAttackModal() {
   const textColor = hasFocus && !mixed ? "#fff" : getAttackTextColor(mission.monsterType, tk);
 
   const label = mixed
-    ? `ATACAR! (${totalSelected})`
+    ? `ATTACK! (${totalSelected})`
     : hasCampaign
     ? getAttackLabel(mission.monsterType, selectedTaskCount)
     : hasTemporal
-    ? (temporalSelectedCount >= 3 ? `GOLPE TEMPORAL CRÍTICO! (${temporalSelectedCount})` : `GOLPE TEMPORAL! (${temporalSelectedCount})`)
-    : `FOCO! ${focusSelectedCount} TASK${focusSelectedCount > 1 ? "S" : ""}`;
+    ? (temporalSelectedCount >= 3 ? `TEMPORAL CRITICAL HIT! (${temporalSelectedCount})` : `TEMPORAL STRIKE! (${temporalSelectedCount})`)
+    : `FOCUS! ${focusSelectedCount} TASK${focusSelectedCount > 1 ? "S" : ""}`;
 
   const shadow = mixed
     ? `0 0 18px ${alpha(COLOR_MAGE, "66")}, 0 8px 32px rgba(0,0,0,0.6)`
@@ -445,8 +444,8 @@ export default function HomeScreen() {
   const isDesktop  = useIsDesktop();
   const { nick }   = useAuth();
   const {
-    mission, campaignDone, defeated, lvInfo, rank, selectedClass, playerName,
-    needsClassPick, setNeedsClassPick, setSelectedClass,
+    mission, campaignDone, defeated, lvInfo, rank, activeSkin, playerName,
+    needsClassPick, setNeedsClassPick, setActiveSkin,
     handleComplete, handleTasksChange, handleUncompleteTask, handleDeleteTask,
     handleTemporalStrike, handleFocusStrike, handleChallengeFailed, handleEmptyStateChange,
     screenFlash, screenShake, attackBanner, xpPenaltyBanner,
@@ -469,12 +468,12 @@ export default function HomeScreen() {
   const addTriggerRef = useRef<(() => void) | null>(null);
   const [addFormOpen, setAddFormOpen] = useState(false);
 
-  void nick; void rank; void selectedClass; void playerName;
+  void nick; void rank; void activeSkin; void playerName;
 
   // ── DESKTOP ────────────────────────────────────────────────────────────────
   if (isDesktop) {
     return (
-      <PageShell icon={<Swords size={16} />} title="CAMPANHA" accentColor={ACCENT_GOLD}>
+      <PageShell icon={<Swords size={16} />} title="CAMPAIGN" accentColor={ACCENT_GOLD}>
         <div style={{ display: "flex", flexDirection: "column", gap: SP_SM, flex: 1 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: SP_SM, flexShrink: 0 }}>
             <ChallengePanel
@@ -553,9 +552,9 @@ export default function HomeScreen() {
       {xpPenaltyBanner && (
         <div style={{ position: "fixed", top: "35%", left: "50%", zIndex: 9500, pointerEvents: "none", textAlign: "center", animation: "penaltyDrop 3s ease forwards", transform: "translate(-50%,-50%)" }}>
           <div style={{ marginBottom: 6, color: COLOR_DANGER }}><Skull size={52} /></div>
-          <div style={{ fontFamily: FONT_PIXEL, fontSize: 22, color: COLOR_DANGER, textShadow: "3px 3px 0 #000", letterSpacing: 2, lineHeight: 1.3 }}>DESAFIO FALHOU!</div>
+          <div style={{ fontFamily: FONT_PIXEL, fontSize: 22, color: COLOR_DANGER, textShadow: "3px 3px 0 #000", letterSpacing: 2, lineHeight: 1.3 }}>CHALLENGE FAILED!</div>
           <div style={{ fontFamily: FONT_PIXEL, fontSize: 16, color: COLOR_DANGER, textShadow: "2px 2px 0 #000", marginTop: 8, animation: "criticalPulse 0.5s step-end infinite" }}>-{xpPenaltyBanner.amount} XP</div>
-          <div style={{ fontFamily: FONT_BODY, fontSize: VT_LG, color: "#ff8888", marginTop: 6 }}>50% do progresso do nível perdido</div>
+          <div style={{ fontFamily: FONT_BODY, fontSize: VT_LG, color: "#ff8888", marginTop: 6 }}>50% of level progress lost</div>
         </div>
       )}
       {attackBanner && (
@@ -569,7 +568,7 @@ export default function HomeScreen() {
       {/* Class picker */}
       {needsClassPick && (
         <ClassPickerOverlay
-          onConfirm={(cls) => { setNeedsClassPick(false); setSelectedClass(cls); }}
+          onConfirm={(skin) => { setNeedsClassPick(false); setActiveSkin(skin); }}
         />
       )}
 
@@ -597,8 +596,8 @@ export default function HomeScreen() {
           {campaignDone ? (
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, padding: 32 }}>
               <Trophy size={64} color={COLOR_LEGENDARY} />
-              <div style={{ fontFamily: FONT_PIXEL, color: COLOR_LEGENDARY, fontSize: 22, textShadow: "3px 3px 0 #000", textAlign: "center", animation: "pulse 2s infinite" }}>CAMPANHA CONCLUÍDA!</div>
-              <div style={{ fontFamily: FONT_BODY, color: COLOR_SUCCESS, fontSize: 22, textAlign: "center" }}>Você derrotou todos os monstros!</div>
+              <div style={{ fontFamily: FONT_PIXEL, color: COLOR_LEGENDARY, fontSize: 22, textShadow: "3px 3px 0 #000", textAlign: "center", animation: "pulse 2s infinite" }}>CAMPAIGN COMPLETE!</div>
+              <div style={{ fontFamily: FONT_BODY, color: COLOR_SUCCESS, fontSize: 22, textAlign: "center" }}>You defeated all monsters!</div>
             </div>
           ) : (
             <>
@@ -628,8 +627,8 @@ export default function HomeScreen() {
                   <div style={{ padding: "8px 14px" }}>
                     <div style={{ background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "b3")}`, borderRadius: RADIUS_XL, padding: "22px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 10, opacity: 0.45 }}>
                       <Skull size={34} color={TEXT_INACTIVE} />
-                      <span style={{ fontFamily: FONT_PIXEL, color: TEXT_INACTIVE, fontSize: PX_XS, textAlign: "center", letterSpacing: 1 }}>NENHUMA MISSÃO ATIVA</span>
-                      <span style={{ fontFamily: FONT_BODY, color: TEXT_INACTIVE, fontSize: VT_SM }}>Adicione tarefas abaixo para iniciar</span>
+                      <span style={{ fontFamily: FONT_PIXEL, color: TEXT_INACTIVE, fontSize: PX_XS, textAlign: "center", letterSpacing: 1 }}>NO ACTIVE MISSION</span>
+                      <span style={{ fontFamily: FONT_BODY, color: TEXT_INACTIVE, fontSize: VT_SM }}>Add tasks below to start</span>
                     </div>
                   </div>
                   <TaskList tasks={[]} onChange={handleEmptyStateChange} showDamage={false} playerLevel={lvInfo.level} addTriggerRef={addTriggerRef} onAddFormToggle={setAddFormOpen} />
@@ -671,7 +670,7 @@ export default function HomeScreen() {
           onMouseUp={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = ""; }}
           onTouchStart={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.92)"; }}
           onTouchEnd={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = ""; }}
-          aria-label="Nova Tarefa"
+          aria-label="New Task"
         >
           <div style={{ position: "absolute", inset: 0, border: "1.2px solid rgba(255,255,255,0.15)", borderRadius: 12, pointerEvents: "none" }} />
           <svg width="22" height="22" viewBox="0 0 21.9856 21.9856" fill="none">

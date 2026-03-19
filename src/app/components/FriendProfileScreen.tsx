@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { ArrowLeft, Zap, Shield, Swords, Star, Users } from "lucide-react";
-import imgAvatarWarrior from "figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf1e.png";
-import imgAvatarMage    from "figma:asset/5c09b71e009581d58103f7df9949281a05a710d1.png";
+import imgAvatarWarrior from "../../assets/profile_pic/profile_pic_warrior.png";
+import imgAvatarMage    from "../../assets/profile_pic/profile_pic_mage.png";
 import { getPowerRankFromCP, getNextPowerRankFromCP, formatCP } from "../data/combatPower";
 import { getRank } from "../data/gameEngine";
 import { useAuth } from "../hooks/useAuth";
@@ -52,7 +52,7 @@ export default function FriendProfileScreen() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!friendId) { setError("ID do aventureiro não encontrado."); setLoading(false); return; }
+      if (!friendId) { setError("Adventurer ID not found."); setLoading(false); return; }
       const token = session?.access_token ?? "";
       try {
         const res  = await fetch(`${SERVER_URL}/friends/profile/${friendId}`, {
@@ -62,11 +62,11 @@ export default function FriendProfileScreen() {
         if (data.friend) {
           setFriend(data.friend);
         } else if (!stateData) {
-          setError(data.error ?? "Perfil não encontrado.");
+          setError(data.error ?? "Profile not found.");
         }
       } catch (e) {
         console.log("Error fetching friend profile:", e);
-        if (!stateData) setError("Erro de conexão ao carregar perfil.");
+        if (!stateData) setError("Connection error loading profile.");
       } finally {
         setLoading(false);
       }
@@ -95,13 +95,13 @@ export default function FriendProfileScreen() {
       onMouseEnter={e => { e.currentTarget.style.borderColor = "#e39f64"; e.currentTarget.style.color = "#e39f64"; }}
       onMouseLeave={e => { e.currentTarget.style.borderColor = "#2a2e50"; e.currentTarget.style.color = "#8a9fba"; }}
     >
-      <ArrowLeft size={12} /> VOLTAR
+      <ArrowLeft size={12} /> BACK
     </button>
   );
 
   // ── Title helper ─────────────────────────────────────────────────────────────
   const pageTitle = (nick?: string) =>
-    nick ? `PERFIL DE ${nick.toUpperCase()}` : "PERFIL DO AVENTUREIRO";
+    nick ? `${nick.toUpperCase()}'S PROFILE` : "ADVENTURER PROFILE";
 
   // ── Loading ──────────────────────────────────────────────────────────────────
   if (loading && !friend) {
@@ -110,7 +110,7 @@ export default function FriendProfileScreen() {
         <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 0", flexDirection: "column", gap: 12 }}>
           <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, color: "#f0c040", animation: "pulse 1.5s ease-in-out infinite" }}>
-            CARREGANDO PERFIL...
+            LOADING PROFILE...
           </div>
         </div>
       </PageShell>
@@ -133,7 +133,7 @@ export default function FriendProfileScreen() {
   // ── Derived ──────────────────────────────────────────────────────────────────
   const isMage      = friend.selectedClass === "mago";
   const classAvatar = isMage ? imgAvatarMage : imgAvatarWarrior;
-  const classLabel  = isMage ? "MAGO" : "GUERREIRO";
+  const classLabel  = isMage ? "MAGE" : "WARRIOR";
   const classColor  = isMage ? "#c084fc" : "#e39f64";
 
   const cpRankData = getPowerRankFromCP(friend.combatPower);
@@ -152,7 +152,7 @@ export default function FriendProfileScreen() {
   }
 
   const sinceDate = friend.since
-    ? new Date(friend.since).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })
+    ? new Date(friend.since).toLocaleDateString("en-US", { month: "short", year: "numeric" })
     : "—";
 
   return (
@@ -165,7 +165,7 @@ export default function FriendProfileScreen() {
           <div style={{ ...CARD }}>
             <div style={{ ...TOOLBAR }}>
               <Star size={14} color={classColor} />
-              <span style={{ fontFamily: "'Press Start 2P', monospace", color: classColor, fontSize: 9, flex: 1, textShadow: "1px 1px 0 #000" }}>PERSONAGEM</span>
+              <span style={{ fontFamily: "'Press Start 2P', monospace", color: classColor, fontSize: 9, flex: 1, textShadow: "1px 1px 0 #000" }}>CHARACTER</span>
               <span style={{ fontFamily: "'Press Start 2P', monospace", color: "#FFD700", fontSize: 9, textShadow: "1px 1px 0 #000" }}>LVL {friend.level}</span>
             </div>
             <div style={{ display: "flex", alignItems: "stretch" }}>
@@ -208,7 +208,7 @@ export default function FriendProfileScreen() {
                   </span>
                 </div>
                 <div style={{ fontFamily: "'VT323', monospace", color: "#3a4060", fontSize: 16 }}>
-                  Amigos desde {sinceDate}
+                  Friends since {sinceDate}
                 </div>
               </div>
             </div>
@@ -218,15 +218,15 @@ export default function FriendProfileScreen() {
           <div style={{ ...CARD }}>
             <div style={{ ...TOOLBAR }}>
               <span style={{ fontSize: 14 }}>📊</span>
-              <span style={{ fontFamily: "'Press Start 2P', monospace", color: "#5a6080", fontSize: 9 }}>ESTATÍSTICAS</span>
+              <span style={{ fontFamily: "'Press Start 2P', monospace", color: "#5a6080", fontSize: 9 }}>STATISTICS</span>
             </div>
             <div style={{ padding: "12px 14px" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 {[
-                  { label: "Nível",    val: friend.level,                color: "#f0c040",        icon: <Star size={13} color="#f0c040" /> },
+                  { label: "Level",    val: friend.level,                color: "#f0c040",        icon: <Star size={13} color="#f0c040" /> },
                   { label: "Power",    val: formatCP(friend.combatPower / 75), color: cpRankData.color, icon: <Zap size={13} color={cpRankData.color} /> },
-                  { label: "Tarefas",  val: friend.totalTasks,           color: "#06FFA5",         icon: <Shield size={13} color="#06FFA5" /> },
-                  { label: "Monstros", val: friend.totalMonsters,        color: "#E63946",         icon: <Swords size={13} color="#E63946" /> },
+                  { label: "Tasks",    val: friend.totalTasks,           color: "#06FFA5",         icon: <Shield size={13} color="#06FFA5" /> },
+                  { label: "Monsters", val: friend.totalMonsters,        color: "#E63946",         icon: <Swords size={13} color="#E63946" /> },
                 ].map(({ label, val, color, icon }) => (
                   <div key={label} style={{ background: "#0b0d1e", border: "1px solid #1f254f", padding: "12px 14px", borderRadius: 6 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
@@ -277,12 +277,12 @@ export default function FriendProfileScreen() {
                     <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(90deg,transparent 0px,transparent 10px,rgba(0,0,0,0.2) 10px,rgba(0,0,0,0.2) 11px)", pointerEvents: "none" }} />
                   </div>
                   <div style={{ fontFamily: "'VT323', monospace", color: "#4a5070", fontSize: 14, marginTop: 3 }}>
-                    Faltam {remainingCP} Power para rank {nextRank.tier}
+                    {remainingCP} Power to rank {nextRank.tier}
                   </div>
                 </div>
               ) : (
                 <div style={{ textAlign: "center", fontFamily: "'VT323', monospace", color: cpRankData.color, fontSize: 18, animation: "pulse 2s infinite" }}>
-                  ✦ RANK MÁXIMO ATINGIDO ✦
+                  ✦ MAX RANK REACHED ✦
                 </div>
               )}
             </div>
@@ -292,7 +292,7 @@ export default function FriendProfileScreen() {
           <div style={{ ...CARD, marginBottom: 8 }}>
             <div style={{ ...TOOLBAR }}>
               <Swords size={14} color={classColor} />
-              <span style={{ fontFamily: "'Press Start 2P', monospace", color: classColor, fontSize: 9 }}>CLASSE</span>
+              <span style={{ fontFamily: "'Press Start 2P', monospace", color: classColor, fontSize: 9 }}>CLASS</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", minHeight: 80 }}>
               <div style={{ width: 64, flexShrink: 0, alignSelf: "stretch", background: "#0a0c1a", borderRight: `2px solid ${classColor}33`, position: "relative", overflow: "hidden" }}>
@@ -304,8 +304,8 @@ export default function FriendProfileScreen() {
                 </div>
                 <div style={{ fontFamily: "'VT323', monospace", color: "#5a6080", fontSize: 16 }}>
                   {isMage
-                    ? "Bônus de XP em tarefas · Dano mágico nas últimas"
-                    : "Bônus de dano físico · Força extra no final do dia"}
+                    ? "XP bonus on tasks · Magic damage on last tasks"
+                    : "Physical damage bonus · Extra strength at end of day"}
                 </div>
               </div>
             </div>

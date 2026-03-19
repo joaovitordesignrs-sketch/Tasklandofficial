@@ -18,7 +18,7 @@ import {
   updateMission, createMission, initialMissions,
   Mission, Task,
 } from "../data/missions";
-import { getEconomy, addBonusXP, addCoins, addEssences, recordOnePunchBoss, selectClass, buyClass, getMonsterCoinReward } from "../data/economy";
+import { getEconomy, addBonusXP, addCoins, addEssences, recordOnePunchBoss, selectSkin, buySkin, getMonsterCoinReward, type SkinId } from "../data/economy";
 import { getEssenceDrop } from "../data/items";
 import {
   calcTaskDamage, calcBatchDamage, calcMonsterXP,
@@ -55,7 +55,7 @@ export interface CampaignContextValue {
   defeated:         boolean;
   doneCampaign:     number;
   totalCampaign:    number;
-  selectedClass:    string | null;
+  activeSkin:       SkinId | null;
   needsClassPick:   boolean;
   damageNumbers:    DamageNumber[];
   // arena attack bridge
@@ -89,7 +89,7 @@ export interface CampaignContextValue {
   handleEmptyStateChange: (newTasks: Task[]) => void;
   setShowVictory:    (v: boolean) => void;
   setNeedsClassPick: (v: boolean) => void;
-  setSelectedClass:  (cls: string) => void;
+  setActiveSkin:     (skin: SkinId) => void;
   setLevelUpInfo:    (v: { level: number; rank: string; rankColor: string } | null) => void;
   refresh: () => void;
 }
@@ -124,7 +124,7 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
   const [taskCompleted,    setTaskCompleted]    = useState(false);
   const [xpPenaltyBanner,  setXpPenaltyBanner] = useState<{ amount: number } | null>(null);
   const [needsClassPick,   setNeedsClassPick]  = useState(() => getEconomy().needsClassSelection);
-  const [selectedClass,    setSelectedClassSt] = useState(() => getEconomy().selectedClass);
+  const [activeSkin,       setActiveSkinSt]    = useState<SkinId | null>(() => getEconomy().activeSkin ?? "warrior_base");
 
   const prevLevelRef        = useRef<number>(0);
   const pendingFeedbackRef  = useRef<(() => void) | null>(null);
@@ -188,7 +188,7 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
     // is read from the empty economy during CampaignProvider mount, before sync finishes).
     const freshEcon = getEconomy();
     setNeedsClassPick(freshEcon.needsClassSelection);
-    setSelectedClassSt(freshEcon.selectedClass);
+    setActiveSkinSt(freshEcon.activeSkin ?? "warrior_base");
   }, [syncMissions]);
 
   useEffect(() => {
@@ -476,22 +476,21 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
     }
   }, [syncMissions]);
 
-  const setSelectedClass = useCallback((cls: string) => {
-    // Persist to economy (localStorage) so it survives page refresh
+  const setActiveSkin = useCallback((skin: SkinId) => {
     const econ = getEconomy();
-    if (econ.unlockedClasses.includes(cls as any)) {
-      selectClass(cls as any);
+    if (econ.unlockedSkins.includes(skin)) {
+      selectSkin(skin);
     } else {
-      buyClass(cls as any);
+      buySkin(skin);
     }
-    setSelectedClassSt(cls);
+    setActiveSkinSt(skin);
   }, []);
 
   const value: CampaignContextValue = {
     mission, allMissions, monsterShake, taskCompleted, showVictory, victoryXP, victoryGold, victoryEssence,
     nextMission, campaignDone, levelUpInfo, attackBanner, screenShake, screenFlash,
     xpPenaltyBanner, hpInfo, hpColor, defeated, doneCampaign, totalCampaign,
-    selectedClass, needsClassPick, damageNumbers,
+    activeSkin, needsClassPick, damageNumbers,
     // arena attack bridge
     selectedTaskCount,
     setSelectedTaskCount,
@@ -508,7 +507,7 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
     handleAttackStart, handleComplete, handleTasksChange, handleUncompleteTask,
     handleDeleteTask, handleNextMission, handleTemporalStrike, handleFocusStrike,
     handleChallengeFailed, handleEmptyStateChange,
-    setShowVictory, setNeedsClassPick, setSelectedClass, setLevelUpInfo, refresh,
+    setShowVictory, setNeedsClassPick, setActiveSkin, setLevelUpInfo, refresh,
   };
 
   return (

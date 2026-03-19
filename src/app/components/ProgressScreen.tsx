@@ -225,7 +225,7 @@ export default function ProgressScreen() {
           <CardIn>
             <div style={{ ...TOOLBAR }}>
               <Castle size={14} color="#5a6080" />
-              <span style={{ fontFamily: "'Press Start 2P', monospace", color: "#5a6080", fontSize: 9 }}>CAMPANHA</span>
+              <span style={{ fontFamily: "'Press Start 2P', monospace", color: "#5a6080", fontSize: 9 }}>CAMPAIGN</span>
             </div>
             <div style={{ padding: "8px 0" }}>
               {campaignMissions.map((m, i) => {
@@ -242,7 +242,7 @@ export default function ProgressScreen() {
                     <div style={{ flex: 1 }}>
                       <div style={{ color: done ? "#06FFA5" : active ? "#fff" : "#3a4060", fontSize: 18 }}>{m.name}</div>
                       <div style={{ color: "#3a4060", fontSize: 13 }}>
-                        {done ? `Derrotado — ${m.monsterMaxHp}HP` : locked ? "Bloqueado" : `${m.monsterCurrentHp}/${m.monsterMaxHp} HP restante`}
+                        {done ? `Defeated — ${m.monsterMaxHp}HP` : locked ? "Locked" : `${m.monsterCurrentHp}/${m.monsterMaxHp} HP remaining`}
                       </div>
                     </div>
                     <Shield size={13} color={done ? "#06FFA5" : active ? "#E63946" : "#3a4060"} />

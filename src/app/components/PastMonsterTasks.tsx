@@ -214,10 +214,10 @@ export function PastMonsterTasks({ compact }: PastMonsterTasksProps) {
           fontFamily: "'Press Start 2P', monospace", fontSize: 7,
           color: "#3a4060", flex: 1,
         }}>
-          MONSTROS ANTERIORES ({groups.length})
+          PREVIOUS MONSTERS ({groups.length})
         </span>
         <span style={{ fontFamily: "'VT323', monospace", fontSize: 14, color: "#2a3050" }}>
-          {show ? "OCULTAR" : "MOSTRAR"}
+          {show ? "HIDE" : "SHOW"}
         </span>
         {show
           ? <ChevronUp size={13} color="#2a3050" />

@@ -226,7 +226,7 @@ export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardPro
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
-                  <span style={{ color: "#5a6080", fontSize: "13px", fontFamily: "'VT323', monospace" }}>TAREFAS</span>
+                  <span style={{ color: "#5a6080", fontSize: "13px", fontFamily: "'VT323', monospace" }}>TASKS</span>
                   <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
                     <span style={{ fontFamily: "'VT323', monospace", color: "#06FFA5", fontSize: "22px", lineHeight: 1 }}>
                       {stats.totalTasksDone}
@@ -312,8 +312,8 @@ export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardPro
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                 <div style={{ width: 4, height: 4, background: "#FFD70066", transform: "rotate(45deg)" }} />
                 <span style={{ fontFamily: "'VT323', monospace", color: "#4a5070", fontSize: "14px" }}>
-                  {lvInfo.neededXP - lvInfo.currentXP} XP para LVL {lvInfo.level + 1} —&nbsp;
-                  {Math.ceil((lvInfo.neededXP - lvInfo.currentXP) / AVG_XP_PER_TASK)} tarefa{Math.ceil((lvInfo.neededXP - lvInfo.currentXP) / AVG_XP_PER_TASK) !== 1 ? "s" : ""} restante{Math.ceil((lvInfo.neededXP - lvInfo.currentXP) / AVG_XP_PER_TASK) !== 1 ? "s" : ""}
+                  {lvInfo.neededXP - lvInfo.currentXP} XP to LVL {lvInfo.level + 1} —&nbsp;
+                  {Math.ceil((lvInfo.neededXP - lvInfo.currentXP) / AVG_XP_PER_TASK)} task{Math.ceil((lvInfo.neededXP - lvInfo.currentXP) / AVG_XP_PER_TASK) !== 1 ? "s" : ""} remaining
                 </span>
               </div>
             )}

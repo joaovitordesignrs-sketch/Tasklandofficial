@@ -304,6 +304,13 @@ export function applyCloudData(data: Partial<GameDataRow>, forceWipe = false): v
     localStorage.setItem(LS_KEYS.challenges, JSON.stringify(data.challenges ?? []));
     localStorage.setItem(LS_KEYS.habits, JSON.stringify(data.habits ?? []));
     localStorage.setItem(LS_KEYS.economy, JSON.stringify(data.economy ?? {}));
+    if (data.economy) {
+      const econObj = data.economy as unknown as Record<string, unknown>;
+      if (Array.isArray(econObj.tags))
+        localStorage.setItem("rpg_tags_v1", JSON.stringify(econObj.tags));
+      if (econObj.tagColors && typeof econObj.tagColors === "object")
+        localStorage.setItem("rpg_tag_colors_v1", JSON.stringify(econObj.tagColors));
+    }
     localStorage.setItem(LS_KEYS.items,   JSON.stringify(data.items   ?? []));
     if (data.player_name) localStorage.setItem(LS_KEYS.playerName, data.player_name);
   } else {
@@ -344,7 +351,15 @@ export function applyCloudData(data: Partial<GameDataRow>, forceWipe = false): v
     if (data.pity_history)  localStorage.setItem(LS_KEYS.pityHistory, JSON.stringify(data.pity_history));
     if (data.challenges)    localStorage.setItem(LS_KEYS.challenges, JSON.stringify(data.challenges));
     if (data.habits)        localStorage.setItem(LS_KEYS.habits, JSON.stringify(data.habits));
-    if (data.economy)       localStorage.setItem(LS_KEYS.economy, JSON.stringify(data.economy));
+    if (data.economy) {
+      localStorage.setItem(LS_KEYS.economy, JSON.stringify(data.economy));
+      // Restore tags from synced economy into separate localStorage keys
+      const econObj = data.economy as unknown as Record<string, unknown>;
+      if (Array.isArray(econObj.tags))
+        localStorage.setItem("rpg_tags_v1", JSON.stringify(econObj.tags));
+      if (econObj.tagColors && typeof econObj.tagColors === "object")
+        localStorage.setItem("rpg_tag_colors_v1", JSON.stringify(econObj.tagColors));
+    }
     if (data.items && data.items.length > 0) {
       localStorage.setItem(LS_KEYS.items, JSON.stringify(data.items));
     } else if (data.items !== undefined) {
@@ -722,6 +737,9 @@ export function setSyncUser(uid: string | null): void {
   // 3. Reliable push on page close
   unloadHandler = () => beaconPush();
   window.addEventListener("beforeunload", unloadHandler);
+
+  // 5. Push when tags change (tags are embedded in economy for sync)
+  window.addEventListener("rpg:tags-changed", () => schedulePush(3000));
 
   // 4. Push when page becomes hidden (mobile tab switch)
   const visibilityHandler = () => {

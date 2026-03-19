@@ -13,6 +13,7 @@ import RedirectToProfile    from "./components/RedirectToProfile";
 import AdminWipeScreen      from "./components/AdminWipeScreen";
 import DesignSystemScreen   from "./components/DesignSystemScreen";
 import ShopScreen           from "./components/ShopScreen";
+import GameMasterScreen     from "./components/GameMasterScreen";
 
 export const router = createBrowserRouter([
   {
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
       { path: "classe",           Component: ClassSelectionScreen },
       { path: "design_system",    Component: DesignSystemScreen  },
       { path: "loja",             Component: ShopScreen          },
+      { path: "game-master",      Component: GameMasterScreen    },
       // Legacy route redirects → /perfil
       { path: "progresso",        Component: RedirectToProfile  },
       { path: "historico",        Component: RedirectToProfile  },

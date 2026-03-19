@@ -44,7 +44,7 @@ function gatherStats(): PlayerStats {
   };
 }
 
-const CATEGORIES = ["Tarefas", "Monstros", "Bosses", "Nível", "Hábitos", "Tempo", "Hardcore"];
+const CATEGORIES = ["Tasks", "Monsters", "Bosses", "Level", "Habits", "Time", "Hardcore"];
 
 export default function AchievementsScreen() {
   const {
@@ -77,7 +77,7 @@ export default function AchievementsScreen() {
     <>
       <style>{`@keyframes achUnlock { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }`}</style>
 
-      <PageShell icon={<Trophy size={16} />} title="CONQUISTAS" accentColor={COLOR_MAGE}>
+      <PageShell icon={<Trophy size={16} />} title="ACHIEVEMENTS" accentColor={COLOR_MAGE}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {/* Progress bar */}
           <div style={{
@@ -87,7 +87,7 @@ export default function AchievementsScreen() {
             borderRadius: RADIUS_XL, padding: "14px 18px",
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-              <span style={{ color: COLOR_MAGE, fontSize: 18, fontFamily: FONT_BODY }}>Progresso Geral</span>
+              <span style={{ color: COLOR_MAGE, fontSize: 18, fontFamily: FONT_BODY }}>Overall Progress</span>
               <span style={{ fontFamily: FONT_PIXEL, color: COLOR_MAGE, fontSize: 12 }}>{unlockedCount}/{total}</span>
             </div>
             <div style={{ height: 10, background: BG_DEEPEST, border: `1px solid ${BORDER_ELEVATED}`, borderRadius: 5, position: "relative", overflow: "hidden" }}>
@@ -158,7 +158,7 @@ export default function AchievementsScreen() {
                               </span>
                             )}
                             {ach.reward.title && isUnlocked && (
-                              <div style={{ color: COLOR_MAGE, fontSize: 13, marginTop: 2, fontFamily: FONT_BODY }}>Título: {ach.reward.title}</div>
+                              <div style={{ color: COLOR_MAGE, fontSize: 13, marginTop: 2, fontFamily: FONT_BODY }}>Title: {ach.reward.title}</div>
                             )}
                           </div>
                         </div>

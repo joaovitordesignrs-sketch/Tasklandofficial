@@ -25,10 +25,10 @@ export default function ShopScreen() {
   } = useTheme();
 
   const SHOP_TABS: PixelTabDef<ShopTab>[] = [
-    { key: "weapon",    label: "ARMA",      Icon: () => <PixelIcon name="sword"    size={13} />, color: ACCENT_GOLD   },
-    { key: "armor",     label: "ARMADURA",  Icon: () => <PixelIcon name="shield"   size={13} />, color: COLOR_WARRIOR },
-    { key: "accessory", label: "ACESSÓRIO", Icon: () => <PixelIcon name="gem"      size={13} />, color: COLOR_MAGE    },
-    { key: "relic",     label: "RELÍQUIA",  Icon: () => <PixelIcon name="sparkles" size={13} />, color: COLOR_WARNING },
+    { key: "weapon",    label: "WEAPON",    Icon: () => <PixelIcon name="sword"    size={13} />, color: ACCENT_GOLD   },
+    { key: "armor",     label: "ARMOR",     Icon: () => <PixelIcon name="shield"   size={13} />, color: COLOR_WARRIOR },
+    { key: "accessory", label: "ACCESSORY", Icon: () => <PixelIcon name="gem"      size={13} />, color: COLOR_MAGE    },
+    { key: "relic",     label: "RELIC",     Icon: () => <PixelIcon name="sparkles" size={13} />, color: COLOR_WARNING },
   ];
 
   const SLOT_ACCENT: Record<ShopTab, string> = {
@@ -58,7 +58,7 @@ export default function ShopScreen() {
   const bonusT4 = (tpl.base_bonus_value * TIER_MULTIPLIERS[4]).toFixed(3);
 
   function handleBuy() {
-    if (econ.coins < tpl.gold_cost) return;
+    if (!canAfford || isOwned) return;
     setBuying(tpl.id);
     const ok = buyItem(tpl.id);
     setBuying(null);
@@ -68,7 +68,7 @@ export default function ShopScreen() {
   return (
     <PageShell
       icon={<ShoppingBag size={18} />}
-      title="LOJA"
+      title="SHOP"
       accentColor={ACCENT_GOLD}
       badge={
         <div style={{ display: "flex", gap: SP_SM, alignItems: "center" }}>
@@ -79,7 +79,7 @@ export default function ShopScreen() {
           }}>
             <Coins size={12} color={ACCENT_GOLD} />
             <span style={{ fontFamily: FONT_BODY, fontSize: 18, color: ACCENT_GOLD }}>
-              {econ.coins.toLocaleString("pt-BR")}
+              {econ.coins.toLocaleString("en-US")}
             </span>
           </div>
           <div style={{
@@ -89,7 +89,7 @@ export default function ShopScreen() {
           }}>
             <Sparkles size={12} color={COLOR_MAGE} />
             <span style={{ fontFamily: FONT_BODY, fontSize: 18, color: COLOR_MAGE }}>
-              {(econ.monsterEssences ?? 0).toLocaleString("pt-BR")}
+              {(econ.monsterEssences ?? 0).toLocaleString("en-US")}
             </span>
           </div>
         </div>
@@ -129,7 +129,7 @@ export default function ShopScreen() {
                   background: alpha(COLOR_SUCCESS, "18"), border: `1px solid ${alpha(COLOR_SUCCESS, "55")}`,
                   borderRadius: RADIUS_PILL, padding: "2px 6px",
                 }}>
-                  POSSUÍDO
+                  OWNED
                 </span>
               )}
             </div>
@@ -140,7 +140,7 @@ export default function ShopScreen() {
               Tier 1: <span style={{ color: accent }}>+{bonusT1}</span>
               {" "}→{" "}
               Tier 4: <span style={{ color: accent }}>+{bonusT4}</span>
-              <span style={{ color: TEXT_INACTIVE }}> ao {tpl.bonus_type}</span>
+              <span style={{ color: TEXT_INACTIVE }}> to {tpl.bonus_type}</span>
             </div>
           </div>
 
@@ -160,7 +160,7 @@ export default function ShopScreen() {
                 display: "flex", alignItems: "center", gap: SP_XS,
                 fontFamily: FONT_BODY, fontSize: 16, color: COLOR_SUCCESS,
               }}>
-                <Check size={14} color={COLOR_SUCCESS} /> Possuído
+                <Check size={14} color={COLOR_SUCCESS} /> Owned
               </div>
             ) : (
               <RpgButton
@@ -171,7 +171,7 @@ export default function ShopScreen() {
                 bodyFont
                 onClick={handleBuy}
               >
-                {isBuying ? "..." : canAfford ? "COMPRAR" : "OURO INSUF."}
+                {isBuying ? "..." : canAfford ? "BUY" : "NOT ENOUGH GOLD"}
               </RpgButton>
             )}
           </div>
@@ -186,9 +186,9 @@ export default function ShopScreen() {
         borderRadius: RADIUS_LG, textAlign: "center",
       }}>
         <span style={{ fontFamily: FONT_BODY, fontSize: 16, color: TEXT_MUTED }}>
-          Equipe e evolua seus itens na aba{" "}
-          <span style={{ color: ACCENT_GOLD }}>ITENS</span> do perfil.{" "}
-          Essência de monstro <Sparkles size={12} color={COLOR_MAGE} style={{ verticalAlign: "middle" }} /> é usada para evoluir.
+          Equip and upgrade your items in the{" "}
+          <span style={{ color: ACCENT_GOLD }}>ITEMS</span> tab of your profile.{" "}
+          Monster essence <Sparkles size={12} color={COLOR_MAGE} style={{ verticalAlign: "middle" }} /> is used to upgrade.
         </span>
       </div>
     </PageShell>

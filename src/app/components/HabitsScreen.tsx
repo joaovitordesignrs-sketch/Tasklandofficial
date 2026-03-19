@@ -91,7 +91,7 @@ export default function HabitsScreen() {
         @keyframes iconPop { 0%{transform:scale(0.7);opacity:0} 100%{transform:scale(1);opacity:1} }
       `}</style>
 
-      <PageShell icon={<Flame size={16} />} title="HÁBITOS" accentColor={COLOR_ORANGE}>
+      <PageShell icon={<Flame size={16} />} title="HABITS" accentColor={COLOR_ORANGE}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
           {/* Damage bonus banner */}
@@ -103,7 +103,7 @@ export default function HabitsScreen() {
             }}>
               <Flame size={18} color={COLOR_ORANGE} />
               <span style={{ color: COLOR_ORANGE, fontSize: 18, fontFamily: FONT_BODY }}>
-                +{totalStreakBonus}% dano de hábitos ativos ({streakingCount}/5 em streak)
+                +{totalStreakBonus}% damage from active habits ({streakingCount}/5 on streak)
               </span>
             </div>
           )}
@@ -116,10 +116,10 @@ export default function HabitsScreen() {
                 borderRadius: RADIUS_XL, padding: "30px 20px", textAlign: "center",
               }}>
                 <div style={{ color: TEXT_MUTED, fontSize: 20, fontFamily: FONT_BODY, marginBottom: 8 }}>
-                  Nenhum hábito criado
+                  No habits created
                 </div>
                 <div style={{ color: TEXT_INACTIVE, fontSize: 16, fontFamily: FONT_BODY }}>
-                  Crie até 5 hábitos para ganhar bônus de dano!
+                  Create up to 5 habits to earn damage bonuses!
                 </div>
               </div>
             )}
@@ -174,10 +174,10 @@ export default function HabitsScreen() {
                           display: "flex", alignItems: "center", gap: 4,
                           animation: h.currentStreak >= 21 ? "streakGlow 2s infinite" : "none",
                         }}>
-                          <Flame size={13} color={streakColor} /> {h.currentStreak} dias
+                          <Flame size={13} color={streakColor} /> {h.currentStreak} days
                         </span>
                         <span style={{ color: TEXT_INACTIVE, fontSize: 14, fontFamily: FONT_BODY }}>
-                          (recorde: {h.bestStreak})
+                          (record: {h.bestStreak})
                         </span>
                       </div>
                       {h.medals.length > 0 && (
@@ -218,7 +218,7 @@ export default function HabitsScreen() {
             borderTop: `2px solid ${TEXT_MUTED}`, borderRadius: RADIUS_XL, padding: "14px 16px",
           }}>
             <div style={{ fontFamily: FONT_PIXEL, color: TEXT_MUTED, fontSize: 9, marginBottom: 10 }}>
-              MEDALHAS DE HÁBITO
+              HABIT MEDALS
             </div>
             {(Object.entries(HABIT_MEDALS) as [HabitMedal, typeof HABIT_MEDALS[HabitMedal]][]).map(([key, info]) => (
               <div key={key} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0", borderBottom: `1px solid ${BORDER_SUBTLE}` }}>
@@ -239,7 +239,7 @@ export default function HabitsScreen() {
               fullWidth
               onClick={() => { audioManager.playClick("press"); setShowCreate(true); }}
             >
-              <Plus size={16} /> NOVO HÁBITO ({activeHabits.length}/5)
+              <Plus size={16} /> NEW HABIT ({activeHabits.length}/5)
             </RpgButton>
           )}
 
@@ -258,7 +258,7 @@ export default function HabitsScreen() {
               }}>
                 <Flame size={14} color={COLOR_ORANGE} />
                 <span style={{ fontFamily: FONT_PIXEL, color: COLOR_ORANGE, fontSize: 10, flex: 1 }}>
-                  NOVO HÁBITO
+                  NEW HABIT
                 </span>
                 <RpgButton variant="icon" color={TEXT_MUTED} onClick={() => setShowCreate(false)}>
                   <X size={16} />
@@ -274,7 +274,7 @@ export default function HabitsScreen() {
                     fontFamily: FONT_PIXEL, fontSize: 8,
                     color: TEXT_MUTED, marginBottom: 10, letterSpacing: 1,
                   }}>
-                    ÍCONE DO HÁBITO
+                    HABIT ICON
                   </div>
 
                   {/* Category tabs */}
@@ -371,7 +371,7 @@ export default function HabitsScreen() {
                       {currentCategory.label}
                     </span>
                     <span style={{ fontFamily: FONT_BODY, color: TEXT_MUTED, fontSize: 14 }}>
-                      · ícone selecionado
+                      · selected icon
                     </span>
                   </div>
                 </div>
@@ -380,7 +380,7 @@ export default function HabitsScreen() {
                 <input
                   value={newName}
                   onChange={e => setNewName(e.target.value)}
-                  placeholder="Ex: Beber 8 copos de água"
+                  placeholder="e.g. Drink 8 glasses of water"
                   maxLength={50}
                   style={{
                     width: "100%", padding: "10px 14px", background: BG_DEEPEST,
@@ -412,7 +412,7 @@ export default function HabitsScreen() {
                   onMouseDown={e => newName.trim() && ((e.currentTarget as HTMLButtonElement).style.transform = "translate(1px,1px)")}
                   onMouseUp={e   => ((e.currentTarget as HTMLButtonElement).style.transform = "")}
                 >
-                  <Flame size={13} /> CRIAR HÁBITO
+                  <Flame size={13} /> CREATE HABIT
                 </button>
               </div>
             </div>
@@ -443,7 +443,7 @@ export default function HabitsScreen() {
               <Medal size={48} color={HABIT_MEDALS[medalPopup.medal].color} />
             </div>
             <div style={{ fontFamily: FONT_PIXEL, color: HABIT_MEDALS[medalPopup.medal].color, fontSize: 14, marginBottom: 8 }}>
-              MEDALHA DESBLOQUEADA!
+              MEDAL UNLOCKED!
             </div>
             <div style={{ color: "#fff", fontSize: 22, fontFamily: FONT_BODY, marginBottom: 4 }}>
               {HABIT_MEDALS[medalPopup.medal].label}

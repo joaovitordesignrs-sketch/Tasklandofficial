@@ -1,37 +1,30 @@
 // ClassPickerOverlay.tsx
-// Simple two-card class selection overlay with live Rive idle animations.
+// Skin selection overlay shown on first launch — 3 skins with lock states.
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
-import { buyClass, CLASS_INFO, type CharacterClass } from '../data/economy';
+import { buySkin, selectSkin, getEconomy, SKIN_INFO, type SkinId } from '../data/economy';
 import { audioManager } from '../hooks/audioManager';
-import { PixelIcon } from './ui/PixelIcon';
-import imgAvatarWarrior from 'figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf1e.png';
-import imgAvatarMage    from 'figma:asset/5c09b71e009581d58103f7df9949281a05a710d1.png';
+import { Lock } from 'lucide-react';
+import imgAvatarWarrior from '../../assets/profile_pic/profile_pic_warrior.png';
+import imgAvatarMage    from '../../assets/profile_pic/profile_pic_mage.png';
 
-const RIV_URLS: Record<CharacterClass, string> = {
-  guerreiro: 'https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/taskland_animations_warrior_base.riv',
-  mago:      'https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/taskland_animations_mage_base.riv',
-};
-
-const CLASS_COLORS: Record<CharacterClass, { color: string; glow: string }> = {
-  mago:      { color: '#60a5fa', glow: 'rgba(96,165,250,0.35)' },
-  guerreiro: { color: '#E63946', glow: 'rgba(230,57,70,0.35)'  },
-};
+const SKIN_ORDER: SkinId[] = ['warrior_base', 'warrior_aventureiro', 'mage'];
 
 // ── Mini Rive preview ─────────────────────────────────────────────────────────
-function ClassRivePreview({ cls }: { cls: CharacterClass }) {
+function SkinRivePreview({ skinId }: { skinId: SkinId }) {
   const [riveReady, setRiveReady] = useState(false);
   const onLoad = useCallback(() => setRiveReady(true), []);
+  const info = SKIN_INFO[skinId];
 
   const { RiveComponent } = useRive({
-    src: RIV_URLS[cls],
+    src: info.rivUrl,
     autoplay: true,
     layout: new Layout({ fit: Fit.Contain, alignment: Alignment.BottomCenter }),
     onLoad,
   });
 
-  const fallbackSrc = cls === 'mago' ? imgAvatarMage : imgAvatarWarrior;
+  const fallbackSrc = info.fallbackImg === 'mage' ? imgAvatarMage : imgAvatarWarrior;
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
@@ -41,58 +34,75 @@ function ClassRivePreview({ cls }: { cls: CharacterClass }) {
           alt=""
           style={{
             position: 'absolute', inset: 0, width: '100%', height: '100%',
-            objectFit: 'contain', imageRendering: 'pixelated', opacity: 0.75,
+            objectFit: 'contain', imageRendering: 'pixelated',
+            opacity: info.locked ? 0.3 : 0.75,
           }}
         />
       )}
       <RiveComponent
-        style={{ width: '100%', height: '100%', imageRendering: 'pixelated', opacity: riveReady ? 1 : 0, transition: 'opacity 0.4s' }}
+        style={{
+          width: '100%', height: '100%', imageRendering: 'pixelated',
+          opacity: riveReady ? (info.locked ? 0.35 : 1) : 0,
+          transition: 'opacity 0.4s',
+          filter: info.locked ? 'grayscale(1)' : 'none',
+        }}
       />
     </div>
   );
 }
 
-// ── Class Card ────────────────────────────────────────────────────────────────
-function ClassCard({
-  cls,
-  isSelected,
-  onSelect,
-  disabled,
+// ── Skin Card ─────────────────────────────────────────────────────────────────
+function SkinCard({
+  skinId, isSelected, onSelect, unlocked,
 }: {
-  cls: CharacterClass;
-  isSelected: boolean;
-  onSelect: () => void;
-  disabled: boolean;
+  skinId: SkinId; isSelected: boolean; onSelect: () => void; unlocked: boolean;
 }) {
-  const { color, glow } = CLASS_COLORS[cls];
-  const info = CLASS_INFO[cls];
+  const info = SKIN_INFO[skinId];
+  const locked = info.locked;
+  const color = locked ? '#3a4060' : info.color;
+  const canClick = !locked;
 
   return (
     <button
-      onClick={onSelect}
-      disabled={disabled}
+      onClick={canClick ? onSelect : undefined}
       style={{
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         background: isSelected ? `${color}14` : '#0a0c1a',
-        border: `1px solid ${isSelected ? color : '#2a2e50'}`,
-        boxShadow: isSelected ? `0 0 20px ${glow}44` : 'none',
-        cursor: disabled ? 'default' : 'pointer',
-        padding: '0 0 16px',
+        border: `1px solid ${isSelected ? color : locked ? '#1a1e30' : '#2a2e50'}`,
+        boxShadow: isSelected ? `0 0 20px ${color}44` : 'none',
+        cursor: canClick ? 'pointer' : 'not-allowed',
+        padding: '0 0 12px',
         outline: 'none',
         transition: 'all 0.18s ease',
         overflow: 'hidden',
         borderRadius: 10,
+        opacity: locked ? 0.65 : 1,
       }}
     >
-      {/* Rive animation area */}
+      {/* Animation area */}
       <div style={{ width: '100%', aspectRatio: '1 / 1', background: '#060818', position: 'relative' }}>
-        <ClassRivePreview cls={cls} />
+        <SkinRivePreview skinId={skinId} />
 
-        {/* Selected checkmark */}
-        {isSelected && (
+        {/* Lock overlay */}
+        {locked && (
+          <div style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(4,6,18,0.55)',
+            gap: 6,
+          }}>
+            <Lock size={22} color="#3a4060" />
+            <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 6, color: '#3a4060', letterSpacing: 1 }}>
+              COMING SOON
+            </span>
+          </div>
+        )}
+
+        {/* Active checkmark */}
+        {isSelected && !locked && (
           <div style={{
             position: 'absolute', top: 8, right: 8,
             background: color, width: 20, height: 20,
@@ -102,30 +112,50 @@ function ClassCard({
             ✓
           </div>
         )}
+
+        {/* Coin cost badge for unlockable skins */}
+        {!locked && !unlocked && info.cost > 0 && (
+          <div style={{
+            position: 'absolute', bottom: 6, right: 6,
+            background: '#0d1024', border: `1px solid ${info.color}`,
+            padding: '2px 6px', borderRadius: 4,
+            fontFamily: "'VT323', monospace", fontSize: 13, color: info.color,
+          }}>
+            🪙 {info.cost}
+          </div>
+        )}
+
+        {/* Unlocked badge */}
+        {!locked && unlocked && skinId !== 'warrior_base' && (
+          <div style={{
+            position: 'absolute', bottom: 6, right: 6,
+            background: '#0d1024', border: `1px solid #06FFA5`,
+            padding: '2px 6px', borderRadius: 4,
+            fontFamily: "'VT323', monospace", fontSize: 13, color: '#06FFA5',
+          }}>
+            OWNED
+          </div>
+        )}
       </div>
 
       {/* Name */}
       <div style={{
         fontFamily: "'Press Start 2P', monospace",
-        fontSize: 'clamp(9px, 2.5vw, 11px)',
-        color: isSelected ? color : '#d0d4e8',
-        textShadow: isSelected ? `0 0 10px ${glow}` : 'none',
-        marginTop: 14, marginBottom: 6,
-        letterSpacing: 1,
+        fontSize: 'clamp(7px, 2vw, 9px)',
+        color: isSelected && !locked ? color : locked ? '#2a3050' : '#d0d4e8',
+        marginTop: 10, marginBottom: 4, letterSpacing: 1,
       }}>
-        {info.icon && <PixelIcon name={info.icon} size={14} color={isSelected ? color : '#d0d4e8'} />} {info.label.toUpperCase()}
+        {info.label.toUpperCase()}
       </div>
 
-      {/* Short description */}
+      {/* Cost or status line */}
       <div style={{
         fontFamily: "'VT323', monospace",
-        fontSize: 16,
-        color: '#6a7890',
-        textAlign: 'center',
-        padding: '0 12px',
-        lineHeight: 1.3,
+        fontSize: 14,
+        color: locked ? '#2a3050' : unlocked ? '#06FFA5' : info.color,
+        letterSpacing: 0.5,
       }}>
-        {info.desc}
+        {locked ? 'LOCKED' : unlocked ? (skinId === 'warrior_base' ? 'DEFAULT' : 'UNLOCKED') : `${info.cost} coins`}
       </div>
     </button>
   );
@@ -133,34 +163,50 @@ function ClassCard({
 
 // ── Main Overlay ──────────────────────────────────────────────────────────────
 interface ClassPickerOverlayProps {
-  onConfirm: (cls: CharacterClass) => void;
+  onConfirm: (skin: SkinId) => void;
 }
 
 export function ClassPickerOverlay({ onConfirm }: ClassPickerOverlayProps) {
-  const [selected, setSelected] = useState<CharacterClass | null>(null);
+  const econ = getEconomy();
+  const [selected,  setSelected]  = useState<SkinId>('warrior_base');
   const [confirmed, setConfirmed] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const [visible,   setVisible]   = useState(false);
+  const [coins,     setCoins]     = useState(econ.coins);
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 80);
     return () => clearTimeout(t);
   }, []);
 
-  function handleSelect(cls: CharacterClass) {
-    if (confirmed) return;
+  function handleSelect(skin: SkinId) {
+    if (confirmed || SKIN_INFO[skin].locked) return;
     audioManager.playClick('navigate');
-    setSelected(cls);
+    setSelected(skin);
   }
 
   function handleConfirm() {
-    if (!selected || confirmed) return;
+    if (confirmed) return;
+    const info = SKIN_INFO[selected];
+    const economy = getEconomy();
+
+    // Check if player can afford it
+
     audioManager.playClick('press');
     setConfirmed(true);
-    buyClass(selected);
+
+    if (economy.unlockedSkins.includes(selected)) {
+      selectSkin(selected);
+    } else {
+      buySkin(selected);
+    }
+    setCoins(getEconomy().coins);
     setTimeout(() => onConfirm(selected), 800);
   }
 
-  const selColor = selected ? CLASS_COLORS[selected].color : '#f0c040';
+  const economy = getEconomy();
+  const selInfo = SKIN_INFO[selected];
+  const canAfford = selInfo.locked ? false : (economy.unlockedSkins.includes(selected) || economy.coins >= selInfo.cost);
+  const selColor = selInfo.locked ? '#3a4060' : selInfo.color;
 
   return (
     <div
@@ -183,13 +229,11 @@ export function ClassPickerOverlay({ onConfirm }: ClassPickerOverlayProps) {
       }} />
 
       {/* Background glow */}
-      {selected && (
-        <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: `radial-gradient(ellipse at ${selected === 'mago' ? '35%' : '65%'} 50%, ${CLASS_COLORS[selected].glow} 0%, transparent 60%)`,
-          transition: 'background 0.4s ease',
-        }} />
-      )}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        background: `radial-gradient(ellipse at 50% 50%, ${selColor}22 0%, transparent 60%)`,
+        transition: 'background 0.4s ease',
+      }} />
 
       <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 500 }}>
 
@@ -202,22 +246,22 @@ export function ClassPickerOverlay({ onConfirm }: ClassPickerOverlayProps) {
             textShadow: '2px 2px 0 #000, 0 0 16px rgba(240,192,64,0.25)',
             margin: 0, lineHeight: 1.6,
           }}>
-            ESCOLHA SEU HERÓI
+            CHOOSE YOUR SKIN
           </h1>
           <p style={{ color: '#3a4060', fontSize: 17, margin: '4px 0 0', fontFamily: "'VT323', monospace" }}>
-            Sua classe define como você enfrenta os monstros.
+            Your hero's appearance. More skins coming soon.
           </p>
         </div>
 
-        {/* ── Two class cards ── */}
-        <div style={{ display: 'flex', gap: 14, marginBottom: 16 }}>
-          {(['mago', 'guerreiro'] as CharacterClass[]).map(cls => (
-            <ClassCard
-              key={cls}
-              cls={cls}
-              isSelected={selected === cls}
-              onSelect={() => handleSelect(cls)}
-              disabled={confirmed}
+        {/* ── Three skin cards ── */}
+        <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+          {SKIN_ORDER.map(skinId => (
+            <SkinCard
+              key={skinId}
+              skinId={skinId}
+              isSelected={selected === skinId}
+              onSelect={() => handleSelect(skinId)}
+              unlocked={economy.unlockedSkins.includes(skinId)}
             />
           ))}
         </div>
@@ -225,30 +269,38 @@ export function ClassPickerOverlay({ onConfirm }: ClassPickerOverlayProps) {
         {/* ── Confirm button ── */}
         <button
           onClick={handleConfirm}
-          disabled={!selected || confirmed}
+          disabled={SKIN_INFO[selected].locked || confirmed || !canAfford}
           style={{
             width: '100%',
             padding: '15px 0',
             fontFamily: "'Press Start 2P', monospace",
             fontSize: 'clamp(9px, 2.5vw, 11px)',
             letterSpacing: 1,
-            color: confirmed ? '#06FFA5' : selected ? '#0d1024' : '#3a4060',
+            color: confirmed ? '#06FFA5' : SKIN_INFO[selected].locked ? '#2a3050' : !canAfford ? '#E63946' : '#0d1024',
             background: confirmed
               ? 'rgba(6,255,165,0.1)'
-              : selected ? selColor : '#131628',
+              : SKIN_INFO[selected].locked ? '#0a0c1a'
+              : !canAfford ? 'rgba(230,57,70,0.08)'
+              : selColor,
             border: confirmed
               ? '3px solid #06FFA5'
-              : selected ? `1px solid ${selColor}` : '1px solid #2a2e50',
-            boxShadow: selected && !confirmed ? `0 0 18px ${selColor}44` : 'none',
-            cursor: selected && !confirmed ? 'pointer' : 'default',
+              : SKIN_INFO[selected].locked ? '1px solid #1a1e30'
+              : !canAfford ? '1px solid #E63946'
+              : `1px solid ${selColor}`,
+            boxShadow: !SKIN_INFO[selected].locked && canAfford && !confirmed ? `0 0 18px ${selColor}44` : 'none',
+            cursor: !SKIN_INFO[selected].locked && canAfford && !confirmed ? 'pointer' : 'default',
             transition: 'all 0.2s',
           }}
         >
           {confirmed
-            ? `✦ ${CLASS_INFO[selected!].label.toUpperCase()} CONFIRMADO! ✦`
-            : selected
-              ? `JOGAR COMO ${CLASS_INFO[selected].label.toUpperCase()} ▶`
-              : 'SELECIONE UMA CLASSE'}
+            ? `✦ ${SKIN_INFO[selected].label.toUpperCase()} CONFIRMED! ✦`
+            : SKIN_INFO[selected].locked
+              ? 'LOCKED'
+              : !canAfford
+                ? `NOT ENOUGH COINS (need ${selInfo.cost})`
+                : economy.unlockedSkins.includes(selected)
+                  ? `PLAY AS ${SKIN_INFO[selected].label.toUpperCase()} ▶`
+                  : `UNLOCK & PLAY (${selInfo.cost} coins) ▶`}
         </button>
       </div>
     </div>

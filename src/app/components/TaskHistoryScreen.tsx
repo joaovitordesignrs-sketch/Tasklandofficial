@@ -43,9 +43,9 @@ interface DayGroup {
 
 // Source/mode config
 const MODE_INFO: Record<string, { color: string; label: string; icon: React.ReactNode }> = {
-  campaign:      { color: "#e39f64", label: "CAMPANHA", icon: <Swords size={10} /> },
+  campaign:      { color: "#e39f64", label: "CAMPAIGN", icon: <Swords size={10} /> },
   "time-attack": { color: "#FF6B35", label: "TEMPORAL", icon: <Timer  size={10} /> },
-  focus:         { color: "#c084fc", label: "FOCO",     icon: <Brain  size={10} /> },
+  focus:         { color: "#c084fc", label: "FOCUS",    icon: <Brain  size={10} /> },
 };
 
 function DiffIcon({ difficulty }: { difficulty: string }) {
@@ -203,25 +203,25 @@ export default function TaskHistoryScreen() {
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 10 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ color: "#06FFA5", fontSize: 20, fontFamily: "'VT323', monospace" }}>{totalTasks}</span>
-              <span style={{ color: "#5a6080", fontSize: 15, fontFamily: "'VT323', monospace" }}>tarefas concluídas</span>
+              <span style={{ color: "#5a6080", fontSize: 15, fontFamily: "'VT323', monospace" }}>tasks completed</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <Calendar size={13} color="#c084fc" />
               <span style={{ color: "#c084fc", fontSize: 20, fontFamily: "'VT323', monospace" }}>{totalDays}</span>
-              <span style={{ color: "#5a6080", fontSize: 15, fontFamily: "'VT323', monospace" }}>dias ativos</span>
+              <span style={{ color: "#5a6080", fontSize: 15, fontFamily: "'VT323', monospace" }}>active days</span>
             </div>
             {timeAttackCount > 0 && (
               <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                 <Timer size={12} color="#FF6B35" />
                 <span style={{ color: "#FF6B35", fontSize: 20, fontFamily: "'VT323', monospace" }}>{timeAttackCount}</span>
-                <span style={{ color: "#5a6080", fontSize: 15, fontFamily: "'VT323', monospace" }}>temporais</span>
+                <span style={{ color: "#5a6080", fontSize: 15, fontFamily: "'VT323', monospace" }}>temporal</span>
               </div>
             )}
             {focusCount > 0 && (
               <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                 <Brain size={12} color="#c084fc" />
                 <span style={{ color: "#c084fc", fontSize: 20, fontFamily: "'VT323', monospace" }}>{focusCount}</span>
-                <span style={{ color: "#5a6080", fontSize: 15, fontFamily: "'VT323', monospace" }}>foco</span>
+                <span style={{ color: "#5a6080", fontSize: 15, fontFamily: "'VT323', monospace" }}>focus</span>
               </div>
             )}
           </div>
@@ -229,10 +229,10 @@ export default function TaskHistoryScreen() {
           {/* Mode filter tabs */}
           <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: allTags.length > 0 ? 10 : 0 }}>
             {([
-              { key: "all",         label: "TODAS",    accent: "#e39f64", Icon: null   },
-              { key: "campaign",    label: "CAMPANHA", accent: "#e39f64", Icon: Swords  },
+              { key: "all",         label: "ALL",      accent: "#e39f64", Icon: null   },
+              { key: "campaign",    label: "CAMPAIGN", accent: "#e39f64", Icon: Swords  },
               { key: "time-attack", label: "TEMPORAL", accent: "#FF6B35", Icon: Timer   },
-              { key: "focus",       label: "FOCO",     accent: "#c084fc", Icon: Brain   },
+              { key: "focus",       label: "FOCUS",    accent: "#c084fc", Icon: Brain   },
             ] as const).map(({ key, label, accent, Icon }) => (
               <button
                 key={key}
@@ -285,7 +285,7 @@ export default function TaskHistoryScreen() {
                   fontFamily: "'VT323', monospace", fontSize: 15, cursor: "pointer",
                 }}
               >
-                Todas
+                All
               </button>
               {allTags.map(tag => {
                 const c = tagColor(tag);
@@ -315,7 +315,7 @@ export default function TaskHistoryScreen() {
           <CardIn index={1} style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, padding: "40px 20px", textAlign: "center", opacity: 0.5 }}>
             <Scroll size={36} color="#3a4060" style={{ margin: "0 auto 12px" }} />
             <div style={{ fontFamily: "'Press Start 2P', monospace", color: "#3a4060", fontSize: 8 }}>
-              {filter === "all" && !tagFilter ? "NENHUMA TAREFA CONCLUÍDA" : "NENHUMA TAREFA NESTA CATEGORIA"}
+              {filter === "all" && !tagFilter ? "NO TASKS COMPLETED" : "NO TASKS IN THIS CATEGORY"}
             </div>
           </CardIn>
         )}
@@ -345,7 +345,7 @@ export default function TaskHistoryScreen() {
                   {group.label}
                 </span>
                 <span style={{ color: "#5a6080", fontSize: 15, fontFamily: "'VT323', monospace" }}>
-                  {group.tasks.length} tarefa{group.tasks.length !== 1 ? "s" : ""}
+                  {group.tasks.length} task{group.tasks.length !== 1 ? "s" : ""}
                 </span>
                 {collapsed ? <ChevronDown size={14} color="#5a6080" /> : <ChevronUp size={14} color="#5a6080" />}
               </button>

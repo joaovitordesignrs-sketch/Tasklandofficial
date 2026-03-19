@@ -16,8 +16,7 @@ import {
 import { getTaskHistory, TaskHistoryEntry, getMissions, loadPlayerName, resetAllProgress } from "../data/missions";
 import { DIFFICULTY_INFO, calcTotalXP, getLevelInfo, getRank } from "../data/gameEngine";
 import {
-  getEconomy, CLASS_INFO, resetEconomy, resetBonusXP,
-  selectClass, buyClass, type CharacterClass,
+  getEconomy, SKIN_INFO, resetEconomy, resetBonusXP,
 } from "../data/economy";
 import { getActiveHabits, resetHabits } from "../data/habits";
 import { getPower, formatPower, getPowerProgress, getNextPowerRank } from "../data/combatPower";
@@ -32,8 +31,8 @@ import { ItemsTab } from "./ItemsTab";
 import { PixelIcon } from "./ui/PixelIcon";
 import { PixelTabs, PixelTabDef } from "./ui/PixelTabs";
 import { RpgButton } from "./ui/RpgButton";
-import imgAvatarGuerreiro from "figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf1e.png";
-import imgAvatarMago from "figma:asset/5c09b71e009581d58103f7df9949281a05a710d1.png";
+import imgAvatarGuerreiro from "../../assets/profile_pic/profile_pic_warrior.png";
+import imgAvatarMago from "../../assets/profile_pic/profile_pic_mage.png";
 import { useTheme } from "../contexts/PreferencesContext";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -49,23 +48,23 @@ function formatDate(ts: number): string {
   const today = new Date();
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  if (d.toDateString() === today.toDateString()) return "HOJE";
-  if (d.toDateString() === yesterday.toDateString()) return "ONTEM";
-  const days = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
-  const months = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
+  if (d.toDateString() === today.toDateString()) return "TODAY";
+  if (d.toDateString() === yesterday.toDateString()) return "YESTERDAY";
+  const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
   return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 function formatTime(ts: number): string {
-  return new Date(ts).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  return new Date(ts).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 }
 function dateKey(ts: number): string {
   const d = new Date(ts);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 const MODE_INFO: Record<string, { color: string; label: string; icon: React.ReactNode }> = {
-  campaign:      { color: "#e39f64", label: "CAMPANHA", icon: <Swords size={10} /> },
+  campaign:      { color: "#e39f64", label: "CAMPAIGN", icon: <Swords size={10} /> },
   "time-attack": { color: "#FF6B35", label: "TEMPORAL", icon: <Timer size={10} /> },
-  focus:         { color: "#c084fc", label: "FOCO",     icon: <Brain size={10} /> },
+  focus:         { color: "#c084fc", label: "FOCUS",    icon: <Brain size={10} /> },
 };
 
 function DiffIcon({ difficulty }: { difficulty: string }) {
@@ -152,35 +151,35 @@ function DiarioTab() {
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ color: COLOR_SUCCESS, fontSize: 20, fontFamily: FONT_BODY }}>{totalTasks}</span>
-            <span style={{ color: TEXT_MUTED, fontSize: 15, fontFamily: FONT_BODY }}>tarefas concluídas</span>
+            <span style={{ color: TEXT_MUTED, fontSize: 15, fontFamily: FONT_BODY }}>tasks completed</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <Calendar size={13} color={COLOR_MAGE} />
             <span style={{ color: COLOR_MAGE, fontSize: 20, fontFamily: FONT_BODY }}>{totalDays}</span>
-            <span style={{ color: TEXT_MUTED, fontSize: 15, fontFamily: FONT_BODY }}>dias ativos</span>
+            <span style={{ color: TEXT_MUTED, fontSize: 15, fontFamily: FONT_BODY }}>active days</span>
           </div>
           {timeAttackCount > 0 && (
             <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
               <Timer size={12} color={COLOR_ORANGE} />
               <span style={{ color: COLOR_ORANGE, fontSize: 20, fontFamily: FONT_BODY }}>{timeAttackCount}</span>
-              <span style={{ color: TEXT_MUTED, fontSize: 15, fontFamily: FONT_BODY }}>temporais</span>
+              <span style={{ color: TEXT_MUTED, fontSize: 15, fontFamily: FONT_BODY }}>temporal</span>
             </div>
           )}
           {focusCount > 0 && (
             <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
               <Brain size={12} color={COLOR_MAGE} />
               <span style={{ color: COLOR_MAGE, fontSize: 20, fontFamily: FONT_BODY }}>{focusCount}</span>
-              <span style={{ color: TEXT_MUTED, fontSize: 15, fontFamily: FONT_BODY }}>foco</span>
+              <span style={{ color: TEXT_MUTED, fontSize: 15, fontFamily: FONT_BODY }}>focus</span>
             </div>
           )}
         </div>
         {/* Filter chips */}
         <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
           {([
-            { key: "all",         label: "TODAS",    accent: ACCENT_GOLD,  Icon: null   },
-            { key: "campaign",    label: "CAMPANHA", accent: ACCENT_GOLD,  Icon: Swords  },
-            { key: "time-attack", label: "TEMPORAL", accent: COLOR_ORANGE, Icon: Timer   },
-            { key: "focus",       label: "FOCO",     accent: COLOR_MAGE,   Icon: Brain   },
+            { key: "all",         label: "ALL",      accent: ACCENT_GOLD,  Icon: null   },
+            { key: "campaign",    label: "CAMPAIGN",  accent: ACCENT_GOLD,  Icon: Swords  },
+            { key: "time-attack", label: "TEMPORAL",  accent: COLOR_ORANGE, Icon: Timer   },
+            { key: "focus",       label: "FOCUS",     accent: COLOR_MAGE,   Icon: Brain   },
           ] as const).map(({ key, label, accent, Icon }) => (
             <button key={key} onClick={() => { audioManager.playClick("tap"); setFilter(key); }} style={{ padding: "6px 10px", background: filter === key ? accent + "18" : "transparent", border: `1px solid ${filter === key ? accent : BORDER_SUBTLE}`, color: filter === key ? accent : TEXT_MUTED, fontFamily: FONT_BODY, fontSize: 15, cursor: "pointer", borderRadius: 5, transition: "all 0.15s", display: "flex", alignItems: "center", gap: 5 }}>
               {Icon && <Icon size={13} />}{label}
@@ -193,7 +192,7 @@ function DiarioTab() {
         <CardIn index={1} style={{ background: BG_CARD, border: "1px solid rgba(42,46,80,0.8)", borderRadius: RADIUS_XL, padding: "40px 20px", textAlign: "center", opacity: 0.5 }}>
           <Scroll size={36} color={TEXT_INACTIVE} style={{ margin: "0 auto 12px" }} />
           <div style={{ fontFamily: FONT_PIXEL, color: TEXT_INACTIVE, fontSize: 8 }}>
-            {filter === "all" ? "NENHUMA TAREFA CONCLUÍDA" : "NENHUMA TAREFA NESTA CATEGORIA"}
+            {filter === "all" ? "NO TASKS COMPLETED" : "NO TASKS IN THIS CATEGORY"}
           </div>
         </CardIn>
       )}
@@ -205,7 +204,7 @@ function DiarioTab() {
             <button onClick={() => toggleDay(group.key)} style={{ width: "100%", background: BG_DEEPEST, borderTop: "none", borderLeft: "none", borderRight: "none", borderBottom: collapsed ? "none" : `1px solid ${BORDER_SUBTLE}`, padding: "10px 14px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
               <Calendar size={13} color={ACCENT_GOLD} />
               <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: 9, flex: 1, textAlign: "left", textShadow: "1px 1px 0 #000" }}>{group.label}</span>
-              <span style={{ color: TEXT_MUTED, fontSize: 15, fontFamily: FONT_BODY }}>{group.tasks.length} tarefa{group.tasks.length !== 1 ? "s" : ""}</span>
+              <span style={{ color: TEXT_MUTED, fontSize: 15, fontFamily: FONT_BODY }}>{group.tasks.length} task{group.tasks.length !== 1 ? "s" : ""}</span>
               {collapsed ? <ChevronDown size={14} color={TEXT_MUTED} /> : <ChevronUp size={14} color={TEXT_MUTED} />}
             </button>
             {!collapsed && (
@@ -220,13 +219,6 @@ function DiarioTab() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Class colors helper (shared between EvolucaoTab)
-// ─────────────────────────────────────────────────────────────────────────────
-const CLASS_COLORS: Record<CharacterClass, { color: string; glow: string }> = {
-  mago:      { color: "#60a5fa", glow: "rgba(96,165,250,0.35)"  },
-  guerreiro: { color: "#E63946", glow: "rgba(230,57,70,0.35)"   },
-};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TAB: EVOLUÇÃO
@@ -243,7 +235,7 @@ function EvolucaoTab() {
   const TOOLBAR = { background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`, padding: "8px 14px", display: "flex" as const, alignItems: "center" as const, gap: 8 } as const;
   const navigate = useNavigate();
   const { nick } = useAuth();
-  const { selectedClass } = useCampaign();
+  const { activeSkin } = useCampaign();
   const missions = getMissions();
   const player   = loadPlayerName();
 
@@ -274,11 +266,12 @@ function EvolucaoTab() {
     hard:   Math.max(1, Math.round(75 * cpData.total)),
   };
   const economy    = getEconomy(); void economy;
-  const avatarSrc  = selectedClass === "mago" ? imgAvatarMago : imgAvatarGuerreiro;
+  const avatarSrc  = activeSkin === "mage" ? imgAvatarMago : imgAvatarGuerreiro;
   const displayName = nick || player;
 
-  const activeClass       = selectedClass ? CLASS_INFO[selectedClass as keyof typeof CLASS_INFO] : null;
-  const activeClassColors = selectedClass ? CLASS_COLORS[selectedClass as CharacterClass] : null;
+  const skinInfo   = SKIN_INFO[activeSkin ?? "warrior_base"];
+  const activeClass       = { label: skinInfo.label, desc: "" };
+  const activeClassColors = { color: skinInfo.color, glow: `${skinInfo.color}59` };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -287,7 +280,7 @@ function EvolucaoTab() {
       <CardIn style={{ ...CARD, marginBottom: 0, overflow: "hidden" }}>
         <div style={{ ...TOOLBAR }}>
           <Star size={14} color={ACCENT_GOLD} />
-          <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: 9, flex: 1, textShadow: "1px 1px 0 #000" }}>PERSONAGEM</span>
+          <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: 9, flex: 1, textShadow: "1px 1px 0 #000" }}>CHARACTER</span>
           <span style={{ fontFamily: FONT_PIXEL, color: COLOR_LEGENDARY, fontSize: 9, textShadow: "1px 1px 0 #000" }}>LVL {lvInfo.level}</span>
         </div>
 
@@ -315,7 +308,7 @@ function EvolucaoTab() {
             <div style={{ position: "absolute", inset: 0, width: `${xpPct}%`, background: COLOR_LEGENDARY, transition: "width 0.8s ease" }} />
             <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(90deg,transparent 0px,transparent 10px,rgba(0,0,0,0.2) 10px,rgba(0,0,0,0.2) 11px)", pointerEvents: "none" }} />
           </div>
-          <div style={{ color: TEXT_INACTIVE, fontSize: 14, marginTop: 4, fontFamily: FONT_BODY }}>{lvInfo.neededXP - lvInfo.currentXP} XP para Nível {nextLevel}</div>
+          <div style={{ color: TEXT_INACTIVE, fontSize: 14, marginTop: 4, fontFamily: FONT_BODY }}>{lvInfo.neededXP - lvInfo.currentXP} XP to Level {nextLevel}</div>
         </div>
 
         {/* ── Botão para página de seleção de classe ── */}
@@ -337,15 +330,15 @@ function EvolucaoTab() {
               </div>
               <div style={{ textAlign: "left" }}>
                 <div style={{ fontFamily: FONT_PIXEL, fontSize: 8, color: activeClassColors?.color ?? TEXT_MUTED, letterSpacing: 0.5 }}>
-                  {activeClass ? activeClass.label.toUpperCase() : "SEM CLASSE"}
+                  {activeClass ? activeClass.label.toUpperCase() : "NO CLASS"}
                 </div>
                 <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: TEXT_INACTIVE, marginTop: 2 }}>
-                  {activeClass ? activeClass.desc : "Toque para escolher sua classe"}
+                  {activeClass ? activeClass.desc : "Tap to choose your class"}
                 </div>
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: activeClassColors?.color ?? TEXT_INACTIVE }}>MUDAR</span>
+              <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: activeClassColors?.color ?? TEXT_INACTIVE }}>CHANGE</span>
               <span style={{ color: activeClassColors?.color ?? TEXT_INACTIVE, fontSize: 20, fontFamily: FONT_BODY }}>▶</span>
             </div>
           </button>
@@ -375,7 +368,7 @@ function EvolucaoTab() {
                 <div style={{ position: "absolute", inset: 0, width: `${cpProgress.percent}%`, background: `linear-gradient(90deg, ${cpData.rank.color}, ${nextRank.color})`, transition: "width 0.8s ease" }} />
                 <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(90deg,transparent 0px,transparent 10px,rgba(0,0,0,0.2) 10px,rgba(0,0,0,0.2) 11px)", pointerEvents: "none" }} />
               </div>
-              <div style={{ color: TEXT_INACTIVE, fontSize: 13, marginTop: 3, fontFamily: FONT_BODY }}>Faltam {cpProgress.remaining.toFixed(2)}× para rank {nextRank.tier}</div>
+              <div style={{ color: TEXT_INACTIVE, fontSize: 13, marginTop: 3, fontFamily: FONT_BODY }}>{cpProgress.remaining.toFixed(2)}× to rank {nextRank.tier}</div>
             </div>
           )}
           {/* ── Spider Chart ── */}
@@ -407,7 +400,7 @@ function EvolucaoTab() {
             </div>
           </div>
           <div style={{ borderTop: `1px solid ${BORDER_SUBTLE}`, paddingTop: 12 }}>
-            <div style={{ color: TEXT_MUTED, fontSize: 14, marginBottom: 6, fontFamily: FONT_BODY }}>Dano por Dificuldade (Power ×{damageMultiplier})</div>
+            <div style={{ color: TEXT_MUTED, fontSize: 14, marginBottom: 6, fontFamily: FONT_BODY }}>Damage by Difficulty (Power ×{damageMultiplier})</div>
             <div style={{ display: "flex", gap: 8 }}>
               {(["easy", "medium", "hard"] as const).map(d => {
                 const info = DIFFICULTY_INFO[d];
@@ -427,16 +420,16 @@ function EvolucaoTab() {
       <CardIn index={2} style={{ ...CARD, marginBottom: 0 }}>
         <div style={{ ...TOOLBAR }}>
           <BarChart3 size={14} color={TEXT_MUTED} />
-          <span style={{ fontFamily: FONT_PIXEL, color: TEXT_MUTED, fontSize: 9 }}>ESTATÍSTICAS</span>
+          <span style={{ fontFamily: FONT_PIXEL, color: TEXT_MUTED, fontSize: 9 }}>STATISTICS</span>
         </div>
         <div style={{ padding: "12px 14px" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             {[
-              { label: "XP Total",  val: totalXP,                              color: COLOR_LEGENDARY },
-              { label: "Nível",     val: lvInfo.level,                         color: COLOR_WARNING   },
-              { label: "Tarefas",   val: `${completedTasks}/${totalTasks}`,    color: COLOR_SUCCESS   },
-              { label: "Monstros",  val: `${defeatedBosses.length}/${campaignMissions.length}`, color: COLOR_DANGER },
-              { label: "Hábitos",   val: `${activeHabits.length}/5`,           color: COLOR_ORANGE    },
+              { label: "Total XP",  val: totalXP,                              color: COLOR_LEGENDARY },
+              { label: "Level",     val: lvInfo.level,                         color: COLOR_WARNING   },
+              { label: "Tasks",     val: `${completedTasks}/${totalTasks}`,    color: COLOR_SUCCESS   },
+              { label: "Monsters",  val: `${defeatedBosses.length}/${campaignMissions.length}`, color: COLOR_DANGER },
+              { label: "Habits",    val: `${activeHabits.length}/5`,           color: COLOR_ORANGE    },
               { label: "Power",     val: formatPower(cpData.total),            color: cpData.rank.color },
             ].map(({ label, val, color }) => (
               <div key={label} style={{ background: BG_DEEPEST, border: `1px solid ${BORDER_SUBTLE}`, padding: "10px 14px" }}>
@@ -451,7 +444,7 @@ function EvolucaoTab() {
       {/* Reset */}
       <button
         onClick={() => {
-          if (confirm("ATENÇÃO: Isso vai resetar TODO o seu progresso (nível, missões, hábitos, conquistas). Tem certeza?")) {
+          if (confirm("WARNING: This will reset ALL your progress (level, missions, habits, achievements). Are you sure?")) {
             resetAllProgress(); resetBonusXP(); resetEconomy(); resetHabits();
             audioManager.playClick("press");
             navigate("/");
@@ -460,7 +453,7 @@ function EvolucaoTab() {
         }}
         style={{ width: "100%", padding: "12px 0", background: BG_CARD, border: `2px solid ${COLOR_DANGER}`, color: COLOR_DANGER, fontFamily: FONT_BODY, fontSize: 18, cursor: "pointer", marginBottom: 8, opacity: 0.6, borderRadius: RADIUS_LG }}
       >
-        RESETAR PROGRESSO
+        RESET PROGRESS
       </button>
     </div>
   );
@@ -488,14 +481,14 @@ function CampanhaTab() {
       <CardIn style={{ ...CARD }}>
         <div style={{ ...TOOLBAR }}>
           <Castle size={14} color={ACCENT_GOLD} />
-          <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: 9, flex: 1 }}>PROGRESSO DA CAMPANHA</span>
+          <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: 9, flex: 1 }}>CAMPAIGN PROGRESS</span>
           <span style={{ fontFamily: FONT_BODY, color: TEXT_MUTED, fontSize: 16 }}>{defeated}/{campaignMissions.length}</span>
         </div>
 
         {campaignMissions.length === 0 ? (
           <div style={{ padding: "40px 20px", textAlign: "center", opacity: 0.5 }}>
             <Castle size={36} color={TEXT_INACTIVE} style={{ margin: "0 auto 12px" }} />
-            <div style={{ fontFamily: FONT_PIXEL, color: TEXT_INACTIVE, fontSize: 8 }}>NENHUMA MISSÃO ENCONTRADA</div>
+            <div style={{ fontFamily: FONT_PIXEL, color: TEXT_INACTIVE, fontSize: 8 }}>NO MISSIONS FOUND</div>
           </div>
         ) : (
           <div style={{ padding: "4px 0" }}>
@@ -522,12 +515,12 @@ function CampanhaTab() {
                           <div style={{ width: `${hpPct}%`, height: "100%", background: hpPct > 50 ? "#06FFA5" : hpPct > 25 ? "#f0c040" : "#E63946", transition: "width 0.5s" }} />
                         </div>
                         <div style={{ color: "#3a4060", fontSize: 13, fontFamily: "'VT323', monospace" }}>
-                          {m.monsterCurrentHp}/{m.monsterMaxHp} HP restante
+                          {m.monsterCurrentHp}/{m.monsterMaxHp} HP remaining
                         </div>
                       </div>
                     )}
-                    {done && <div style={{ color: "#3a4060", fontSize: 13, fontFamily: "'VT323', monospace" }}>Derrotado — {m.monsterMaxHp}HP</div>}
-                    {!m.unlocked && <div style={{ color: "#3a4060", fontSize: 13, fontFamily: "'VT323', monospace" }}>Bloqueado</div>}
+                    {done && <div style={{ color: "#3a4060", fontSize: 13, fontFamily: "'VT323', monospace" }}>Defeated — {m.monsterMaxHp}HP</div>}
+                    {!m.unlocked && <div style={{ color: "#3a4060", fontSize: 13, fontFamily: "'VT323', monospace" }}>Locked</div>}
                   </div>
                   <Shield size={13} color={done ? "#06FFA5" : active ? "#E63946" : "#3a4060"} />
                 </div>
@@ -539,7 +532,7 @@ function CampanhaTab() {
         {/* Progress dots footer */}
         <div style={{ background: "#0b0d1e", borderTop: "1px solid #1f254f", padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span style={{ fontFamily: "'VT323', monospace", color: "#5a6080", fontSize: 16 }}>
-            {defeated} de {campaignMissions.length} derrotados
+            {defeated} of {campaignMissions.length} defeated
           </span>
           <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}>
             {campaignMissions.map(m => {
@@ -569,10 +562,10 @@ function CampanhaTab() {
 // Tab definitions
 // ─────────────────────────────────────────────────────────────────────────────
 const TABS: PixelTabDef<ProfileTab>[] = [
-  { key: "evolucao", label: "EVOLUÇÃO", Icon: BarChart3, color: "#06FFA5" },
-  { key: "diario",   label: "DIÁRIO",   Icon: Scroll,    color: "#e39f64" },
-  { key: "campanha", label: "CAMPANHA", Icon: Castle,    color: "#e39f64" },
-  { key: "itens",    label: "ITENS",    Icon: Backpack,  color: "#e39f64" },
+  { key: "evolucao", label: "EVOLUTION", Icon: BarChart3, color: "#06FFA5" },
+  { key: "diario",   label: "JOURNAL",   Icon: Scroll,    color: "#e39f64" },
+  { key: "campanha", label: "CAMPAIGN",  Icon: Castle,    color: "#e39f64" },
+  { key: "itens",    label: "ITEMS",     Icon: Backpack,  color: "#e39f64" },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -589,7 +582,7 @@ export default function ProfileScreen() {
 
       <PageShell
         icon={<User size={16} />}
-        title="PERFIL"
+        title="PROFILE"
         accentColor={activeColor}
       >
         <PixelTabs tabs={TABS} active={activeTab} onSelect={setActiveTab} style={{ marginBottom: 20 }} />

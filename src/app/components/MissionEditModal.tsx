@@ -43,12 +43,12 @@ export function MissionEditModal({ mission, onSave, onClose }: MissionEditModalP
         <button onClick={onClose} style={{ position: "absolute", top: 12, right: 12, background: "none", border: "none", color: "#888", cursor: "pointer" }}>
           <X size={20} />
         </button>
-        <h2 style={{ fontFamily: "'Press Start 2P', monospace", color: "#e39f64", fontSize: 13, marginBottom: 24, textShadow: "2px 2px 0 #000" }}>EDITAR MISSÃO</h2>
+        <h2 style={{ fontFamily: "'Press Start 2P', monospace", color: "#e39f64", fontSize: 13, marginBottom: 24, textShadow: "2px 2px 0 #000" }}>EDIT MISSION</h2>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {[
-            { label: "Nome da Missão", val: name, set: setName, ph: "" },
-            { label: "Nome do Monstro", val: monsterName, set: setMonsterName, ph: "" },
+            { label: "Mission Name", val: name, set: setName, ph: "" },
+            { label: "Monster Name", val: monsterName, set: setMonsterName, ph: "" },
           ].map(({ label, val, set, ph }) => (
             <div key={label}>
               <label style={{ color: "#e39f64", fontSize: 17, display: "block", marginBottom: 6, fontFamily: "'VT323', monospace" }}>{label}</label>
@@ -56,18 +56,18 @@ export function MissionEditModal({ mission, onSave, onClose }: MissionEditModalP
             </div>
           ))}
           <div>
-            <label style={{ color: "#e39f64", fontSize: 17, display: "block", marginBottom: 6, fontFamily: "'VT323', monospace" }}>Descrição</label>
+            <label style={{ color: "#e39f64", fontSize: 17, display: "block", marginBottom: 6, fontFamily: "'VT323', monospace" }}>Description</label>
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} style={{ ...inputStyle, resize: "none" }} onFocus={(e) => (e.target.style.borderColor = "#e39f64")} onBlur={(e) => (e.target.style.borderColor = "#333")} />
           </div>
           <div>
-            <label style={{ color: "#e39f64", fontSize: 17, display: "block", marginBottom: 6, fontFamily: "'VT323', monospace" }}>Prazo</label>
+            <label style={{ color: "#e39f64", fontSize: 17, display: "block", marginBottom: 6, fontFamily: "'VT323', monospace" }}>Deadline</label>
             <input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} style={inputStyle} onFocus={(e) => (e.target.style.borderColor = "#e39f64")} onBlur={(e) => (e.target.style.borderColor = "#333")} />
           </div>
 
           <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-            <button onClick={onClose} style={{ flex: 1, background: "none", border: "2px solid #333", color: "#5a6080", padding: 12, fontFamily: "'VT323', monospace", fontSize: 20, cursor: "pointer" }}>Cancelar</button>
+            <button onClick={onClose} style={{ flex: 1, background: "none", border: "2px solid #333", color: "#5a6080", padding: 12, fontFamily: "'VT323', monospace", fontSize: 20, cursor: "pointer" }}>Cancel</button>
             <button onClick={handleSave} style={{ flex: 2, background: "#e39f64", border: "none", color: "#0d1024", padding: 12, fontFamily: "'Press Start 2P', monospace", fontSize: 11, cursor: "pointer", boxShadow: "3px 3px 0 #b07830", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-              <Save size={14} /> SALVAR
+              <Save size={14} /> SAVE
             </button>
           </div>
         </div>

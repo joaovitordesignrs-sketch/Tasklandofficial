@@ -252,9 +252,9 @@ export const en = {
   "common.off":           "OFF",
 };
 
-export const ptBr: Record<TranslationKey, string> = {
-  // ── Navigation ──
-  "nav.campaign":     "CAMPANHA",
+export const ptBr = en; // Portuguese removed — English only
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _ptBrRemoved = { "nav.campaign":     "CAMPANHA",
   "nav.habits":       "HÁBITOS",
   "nav.achievements": "CONQUISTAS",
   "nav.profile":      "PERFIL",

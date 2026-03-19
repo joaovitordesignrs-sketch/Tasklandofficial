@@ -171,7 +171,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
 
   function startSession() {
     createChallenge({
-      name: `Foco ${sessionMin}min`,
+      name: `Focus ${sessionMin}min`,
       type: "focus",
       status: "active",
       sessionMinutes: sessionMin,
@@ -302,7 +302,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
             onMouseEnter={e => { e.currentTarget.style.background = "rgba(192,132,252,0.13)"; }}
             onMouseLeave={e => { e.currentTarget.style.background = "rgba(192,132,252,0.06)"; }}
           >
-            <Brain size={13} /> ATIVAR MODO FOCO
+            <Brain size={13} /> ACTIVATE FOCUS MODE
           </button>
         </div>
       );
@@ -326,7 +326,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
           }}>
             <Brain size={16} color={ACCENT} />
             <span style={{ fontFamily: "'Press Start 2P', monospace", color: ACCENT, fontSize: 10, flex: 1, textShadow: "1px 1px 0 #000" }}>
-              CRIAR SESSÃO DE FOCO
+              CREATE FOCUS SESSION
             </span>
             <button onClick={() => { setCreating(false); setNewTasks([]); setCustomMode(false); }}
               style={{ background: "none", border: "none", color: "#5a6080", cursor: "pointer", padding: 4 }}>
@@ -345,7 +345,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
                 {String(sessionMin).padStart(2, "0")}:00
               </div>
               <div style={{ fontFamily: "'VT323', monospace", color: "#5a6080", fontSize: 15, marginTop: 6 }}>
-                duração da sessão · cada task +0.01x dano permanente
+                session duration · each task +0.01x permanent damage
               </div>
             </div>
 
@@ -392,7 +392,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
                 border: `1px solid ${ACCENT}33`, borderRadius: 7,
               }}>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                  <span style={{ fontFamily: "'VT323', monospace", color: "#5a6080", fontSize: 14 }}>MINUTOS</span>
+                  <span style={{ fontFamily: "'VT323', monospace", color: "#5a6080", fontSize: 14 }}>MINUTES</span>
                   <input type="number" min={1} max={180} value={customMinutes}
                     onChange={e => {
                       const m = Math.max(1, Math.min(180, parseInt(e.target.value) || 1));
@@ -420,7 +420,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
             }}>
               <Zap size={14} color="#FFD700" />
               <span style={{ fontFamily: "'VT323', monospace", color: "#FFD700", fontSize: 16 }}>
-                Tasks de foco: dano ao monstro + <span style={{ color: "#06FFA5" }}>+0.01x DMG permanente</span>
+                Focus tasks: damage to monster + <span style={{ color: "#06FFA5" }}>+0.01x permanent DMG</span>
               </span>
             </div>
 
@@ -459,7 +459,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
                   value={newText}
                   onChange={e => setNewText(e.target.value)}
                   onKeyDown={e => { if (e.key === "Enter") addNewTask(); }}
-                  placeholder="Adicionar tarefa de foco..."
+                  placeholder="Add focus task..."
                   style={{
                     flex: 1, background: "#1b1e37", border: "1px solid #2a2e50",
                     color: "#fff", padding: "8px 12px", fontSize: 18,
@@ -490,7 +490,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               }}
             >
-              <Play size={14} /> INICIAR SESSÃO{newTasks.length > 0 ? ` (${newTasks.length} tasks)` : ""}
+              <Play size={14} /> START SESSION{newTasks.length > 0 ? ` (${newTasks.length} tasks)` : ""}
             </button>
           </div>
         </div>
@@ -589,7 +589,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
             onMouseEnter={e => { e.currentTarget.style.filter = "brightness(1.12)"; }}
             onMouseLeave={e => { e.currentTarget.style.filter = ""; }}
           >
-            {running ? <><Pause size={13} /> PAUSAR</> : <><Play size={13} /> {elapsed > 0 ? "RETOMAR" : "INICIAR"}</>}
+            {running ? <><Pause size={13} /> PAUSE</> : <><Play size={13} /> {elapsed > 0 ? "RESUME" : "START"}</>}
           </button>
 
           {/* Delete */}
@@ -638,7 +638,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
             onMouseLeave={e => (e.currentTarget.style.color = "#5a6080")}
           >
             <CheckSquare size={14} />
-            {allUncomplSelected && uncompletedCount > 0 ? "Desmarcar" : "Selecionar Tudo"}
+            {allUncomplSelected && uncompletedCount > 0 ? "Deselect All" : "Select All"}
           </button>
 
           <div style={{ flex: 1 }} />
@@ -663,7 +663,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
             onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = `${ACCENT}30`; }}
             onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = `${ACCENT}18`; }}
           >
-            <Plus size={14} /> Nova Task
+            <Plus size={14} /> New Task
           </button>
         </div>
 
@@ -686,7 +686,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
                   }
                   if (e.key === "Escape") { setShowAddInput(false); setActiveText(""); }
                 }}
-                placeholder="Nome da tarefa de foco..."
+                placeholder="Focus task name..."
                 style={{
                   flex: 1, background: "#1b1e37", border: `1px solid ${ACCENT}55`,
                   color: "#fff", padding: "6px 10px", fontSize: 19,
@@ -712,7 +712,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
               background: "#0b0d1e", borderBottom: "1px solid #1f254f",
               padding: "6px 14px 10px",
             }}>
-              <div style={{ color: "#5a6080", fontSize: 13, fontFamily: "'VT323', monospace", marginBottom: 5 }}>DIFICULDADE</div>
+              <div style={{ color: "#5a6080", fontSize: 13, fontFamily: "'VT323', monospace", marginBottom: 5 }}>DIFFICULTY</div>
               <DiffPicker value={activeDiff} onChange={setActiveDiff} />
             </div>
           </div>
@@ -722,7 +722,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
         <div style={{ overflowY: "auto" }}>
           {tasks.length === 0 && (
             <div style={{ color: "#5a6080", textAlign: "center", padding: "30px 20px", fontSize: 20, fontFamily: "'VT323', monospace" }}>
-              Adicione tarefas para ganhar bônus permanente!
+              Add tasks to earn permanent bonus!
             </div>
           )}
 
@@ -784,7 +784,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 14px", background: "#0a0c1a" }}>
               <div style={{ flex: 1, height: 1, background: "#1f254f" }} />
               <span style={{ color: "#3a4060", fontSize: 13, fontFamily: "'VT323', monospace", whiteSpace: "nowrap" }}>
-                CONCLUÍDAS ({completedCount})
+                COMPLETED ({completedCount})
               </span>
               <div style={{ flex: 1, height: 1, background: "#1f254f" }} />
             </div>
@@ -822,8 +822,8 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
       <MobileAddTaskModal
         open={showAddInput && !isDesktop}
         accent={ACCENT}
-        title="NOVA TASK DE FOCO"
-        placeholder="Nome da tarefa de foco..."
+        title="NEW FOCUS TASK"
+        placeholder="Focus task name..."
         onClose={() => setShowAddInput(false)}
         onAdd={(text, diff) => { addTaskToActive(text, diff); }}
       />

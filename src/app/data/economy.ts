@@ -1,6 +1,30 @@
 // ── Economy, Classes, Pets & Achievements System ─────────────────────────────
 
-// ── Character Classes ────────────────────────────────────────────────────────
+// ── Skins ─────────────────────────────────────────────────────────────────────
+export type SkinId = "warrior_base" | "warrior_aventureiro" | "mage";
+
+export const SKIN_INFO: Record<SkinId, {
+  label: string; cost: number; color: string; locked: boolean;
+  rivUrl: string; fallbackImg: "warrior" | "mage";
+}> = {
+  warrior_base: {
+    label: "Warrior", cost: 0, color: "#E63946", locked: false,
+    rivUrl: "https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/taskland_animations_warrior_base.riv",
+    fallbackImg: "warrior",
+  },
+  warrior_aventureiro: {
+    label: "Adventurer", cost: 500, color: "#e39f64", locked: false,
+    rivUrl: "/assets/taskland_animations_warrior_skin_aventureiro.riv",
+    fallbackImg: "warrior",
+  },
+  mage: {
+    label: "Mage", cost: 0, color: "#60a5fa", locked: true,
+    rivUrl: "https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/taskland_animations_mage_base.riv",
+    fallbackImg: "mage",
+  },
+};
+
+// ── Character Classes (kept for backward compat with saved data) ──────────────
 export type CharacterClass = "guerreiro" | "mago";
 
 export const CLASS_INFO: Record<CharacterClass, {
@@ -8,16 +32,16 @@ export const CLASS_INFO: Record<CharacterClass, {
   ability: string; desc: string; detailedDesc: string;
 }> = {
   guerreiro: {
-    label: "Guerreiro", cost: 0, color: "#E63946", icon: "swords",
-    ability: "Investida Final",
-    desc: "Última task do dia +30% dano",
-    detailedDesc: "Especialista em combate corpo a corpo. A última tarefa completada a cada dia causa 30% mais dano ao monstro.",
+    label: "Warrior", cost: 0, color: "#E63946", icon: "swords",
+    ability: "Final Charge",
+    desc: "Last task of the day +30% damage",
+    detailedDesc: "Combat specialist. The last task completed each day deals 30% more damage to the monster.",
   },
   mago: {
-    label: "Mago", cost: 0, color: "#60a5fa", icon: "wand2",
-    ability: "Sabedoria Arcana",
-    desc: "Tasks difíceis +15% XP",
-    detailedDesc: "Mestre dos arcanos. Tarefas de dificuldade DIFÍCIL concedem 15% mais XP, acelerando a progressão de nível.",
+    label: "Mage", cost: 0, color: "#60a5fa", icon: "wand2",
+    ability: "Arcane Wisdom",
+    desc: "Hard tasks +15% XP",
+    detailedDesc: "Master of arcane arts. HARD difficulty tasks grant 15% more XP, accelerating level progression.",
   },
 };
 
@@ -29,16 +53,16 @@ export const PET_INFO: Record<PetType, {
   effect: string; desc: string;
 }> = {
   dragao: {
-    label: "Dragãozinho", cost: 500, color: "#FF6B35", icon: "flame",
-    effect: "+5 moedas/task", desc: "Coleta automaticamente 5 moedas por task concluída",
+    label: "Little Dragon", cost: 500, color: "#FF6B35", icon: "flame",
+    effect: "+5 coins/task", desc: "Automatically collects 5 coins per completed task",
   },
   fenix: {
-    label: "Fênix", cost: 2000, color: "#FFD700", icon: "sparkles",
-    effect: "Revive 1 task/dia", desc: "Revive 1 task falhada por dia",
+    label: "Phoenix", cost: 2000, color: "#FFD700", icon: "sparkles",
+    effect: "Revives 1 task/day", desc: "Revives 1 failed task per day",
   },
   slime: {
-    label: "Slime Tático", cost: 800, color: "#06FFA5", icon: "zap",
-    effect: "+10% loot", desc: "+10% chance de loot duplicado em moedas",
+    label: "Tactical Slime", cost: 800, color: "#06FFA5", icon: "zap",
+    effect: "+10% loot", desc: "+10% chance of doubled coin loot",
   },
 };
 
@@ -79,32 +103,32 @@ export interface PlayerStats {
 }
 
 export const ACHIEVEMENTS: AchievementDef[] = [
-  // Tempo
-  { id: "speedrunner-b", category: "Tempo",    name: "Speedrunner",           desc: "Complete 5 desafios de tempo",              icon: "timer",    tier: "bronze",   check: s => s.challengesCompleted >= 5,   reward: { damageBonus: 0.10 } },
-  { id: "speedrunner-p", category: "Tempo",    name: "Speedrunner Platina",   desc: "Complete 50 desafios de tempo",             icon: "timer",    tier: "lendario", check: s => s.challengesCompleted >= 50,  reward: { damageBonus: 0.60 } },
+  // Time
+  { id: "speedrunner-b", category: "Time",     name: "Speedrunner",          desc: "Complete 5 time challenges",                icon: "timer",    tier: "bronze",   check: s => s.challengesCompleted >= 5,   reward: { damageBonus: 0.10 } },
+  { id: "speedrunner-p", category: "Time",     name: "Platinum Speedrunner", desc: "Complete 50 time challenges",               icon: "timer",    tier: "lendario", check: s => s.challengesCompleted >= 50,  reward: { damageBonus: 0.60 } },
   // Bosses
-  { id: "boss-slayer-b", category: "Bosses",   name: "Caçador de Chefes",     desc: "Derrote 3 bosses",                          icon: "skull",    tier: "bronze",   check: s => s.totalBossesDefeated >= 3,   reward: { damageBonus: 0.10 } },
-  { id: "boss-slayer-s", category: "Bosses",   name: "Caçador de Chefes II",  desc: "Derrote 10 bosses",                         icon: "skull",    tier: "prata",    check: s => s.totalBossesDefeated >= 10,  reward: { damageBonus: 0.15 } },
-  { id: "boss-slayer-g", category: "Bosses",   name: "Exterminador de Bosses",desc: "Derrote 25 bosses",                         icon: "skull",    tier: "diamante", check: s => s.totalBossesDefeated >= 25,  reward: { damageBonus: 0.40 } },
-  // Hábitos
-  { id: "iron-disc",     category: "Hábitos",  name: "Disciplina de Ferro",   desc: "3 hábitos acima de 100 dias",               icon: "flame",    tier: "lendario", check: s => s.habitsOver100Days >= 3,     reward: { damageBonus: 0.60, title: "Mestre da Disciplina" } },
-  { id: "habit-start",   category: "Hábitos",  name: "Primeiro Passo",        desc: "Crie seu primeiro hábito",                  icon: "sprout",   tier: "bronze",   check: s => s.maxHabitStreak >= 1,        reward: { damageBonus: 0.10 } },
-  { id: "habit-week",    category: "Hábitos",  name: "Semana Consistente",    desc: "7 dias de streak em um hábito",             icon: "calendar-days", tier: "prata", check: s => s.maxHabitStreak >= 7,   reward: { damageBonus: 0.15 } },
+  { id: "boss-slayer-b", category: "Bosses",   name: "Boss Hunter",          desc: "Defeat 3 bosses",                           icon: "skull",    tier: "bronze",   check: s => s.totalBossesDefeated >= 3,   reward: { damageBonus: 0.10 } },
+  { id: "boss-slayer-s", category: "Bosses",   name: "Boss Hunter II",       desc: "Defeat 10 bosses",                          icon: "skull",    tier: "prata",    check: s => s.totalBossesDefeated >= 10,  reward: { damageBonus: 0.15 } },
+  { id: "boss-slayer-g", category: "Bosses",   name: "Boss Exterminator",    desc: "Defeat 25 bosses",                          icon: "skull",    tier: "diamante", check: s => s.totalBossesDefeated >= 25,  reward: { damageBonus: 0.40 } },
+  // Habits
+  { id: "iron-disc",     category: "Habits",   name: "Iron Discipline",      desc: "3 habits above 100 days",                   icon: "flame",    tier: "lendario", check: s => s.habitsOver100Days >= 3,     reward: { damageBonus: 0.60, title: "Discipline Master" } },
+  { id: "habit-start",   category: "Habits",   name: "First Step",           desc: "Create your first habit",                   icon: "sprout",   tier: "bronze",   check: s => s.maxHabitStreak >= 1,        reward: { damageBonus: 0.10 } },
+  { id: "habit-week",    category: "Habits",   name: "Consistent Week",      desc: "7-day streak on a habit",                   icon: "calendar-days", tier: "prata", check: s => s.maxHabitStreak >= 7,  reward: { damageBonus: 0.15 } },
   // Hardcore
-  { id: "one-punch",     category: "Hardcore", name: "One Punch",             desc: "Derrote um boss com 1 task difícil",        icon: "zap",      tier: "lendario", check: s => s.onePunchBosses >= 1,        reward: { damageBonus: 0.60, title: "Saitama" } },
+  { id: "one-punch",     category: "Hardcore", name: "One Punch",            desc: "Defeat a boss with 1 hard task",            icon: "zap",      tier: "lendario", check: s => s.onePunchBosses >= 1,        reward: { damageBonus: 0.60, title: "Saitama" } },
   // Tasks
-  { id: "tasks-10",      category: "Tarefas",  name: "Aprendiz",              desc: "Complete 10 tarefas",                       icon: "pencil",   tier: "bronze",   check: s => s.totalTasksCompleted >= 10,  reward: { damageBonus: 0.10 } },
-  { id: "tasks-50",      category: "Tarefas",  name: "Dedicado",              desc: "Complete 50 tarefas",                       icon: "pencil",   tier: "prata",    check: s => s.totalTasksCompleted >= 50,  reward: { damageBonus: 0.15 } },
-  { id: "tasks-200",     category: "Tarefas",  name: "Imparável",             desc: "Complete 200 tarefas",                      icon: "pencil",   tier: "ouro",     check: s => s.totalTasksCompleted >= 200, reward: { damageBonus: 0.20 } },
-  { id: "tasks-1000",    category: "Tarefas",  name: "Lenda Viva",            desc: "Complete 1000 tarefas",                     icon: "pencil",   tier: "lendario", check: s => s.totalTasksCompleted >= 1000,reward: { damageBonus: 0.60 } },
-  // Monstros
-  { id: "monsters-10",   category: "Monstros", name: "Caçador",               desc: "Derrote 10 monstros",                       icon: "sword",    tier: "bronze",   check: s => s.totalMonstersDefeated >= 10,reward: { damageBonus: 0.10 } },
-  { id: "monsters-50",   category: "Monstros", name: "Veterano de Guerra",    desc: "Derrote 50 monstros",                       icon: "sword",    tier: "prata",    check: s => s.totalMonstersDefeated >= 50,reward: { damageBonus: 0.15 } },
+  { id: "tasks-10",      category: "Tasks",    name: "Apprentice",           desc: "Complete 10 tasks",                         icon: "pencil",   tier: "bronze",   check: s => s.totalTasksCompleted >= 10,  reward: { damageBonus: 0.10 } },
+  { id: "tasks-50",      category: "Tasks",    name: "Dedicated",            desc: "Complete 50 tasks",                         icon: "pencil",   tier: "prata",    check: s => s.totalTasksCompleted >= 50,  reward: { damageBonus: 0.15 } },
+  { id: "tasks-200",     category: "Tasks",    name: "Unstoppable",          desc: "Complete 200 tasks",                        icon: "pencil",   tier: "ouro",     check: s => s.totalTasksCompleted >= 200, reward: { damageBonus: 0.20 } },
+  { id: "tasks-1000",    category: "Tasks",    name: "Living Legend",        desc: "Complete 1000 tasks",                       icon: "pencil",   tier: "lendario", check: s => s.totalTasksCompleted >= 1000,reward: { damageBonus: 0.60 } },
+  // Monsters
+  { id: "monsters-10",   category: "Monsters", name: "Hunter",               desc: "Defeat 10 monsters",                        icon: "sword",    tier: "bronze",   check: s => s.totalMonstersDefeated >= 10,reward: { damageBonus: 0.10 } },
+  { id: "monsters-50",   category: "Monsters", name: "War Veteran",          desc: "Defeat 50 monsters",                        icon: "sword",    tier: "prata",    check: s => s.totalMonstersDefeated >= 50,reward: { damageBonus: 0.15 } },
   // Level
-  { id: "level-5",       category: "Nível",    name: "Guerreiro",             desc: "Alcance nível 5",                           icon: "star",     tier: "bronze",   check: s => s.level >= 5,                 reward: { damageBonus: 0.10 } },
-  { id: "level-10",      category: "Nível",    name: "Veterano",              desc: "Alcance nível 10",                          icon: "star",     tier: "prata",    check: s => s.level >= 10,                reward: { damageBonus: 0.15 } },
-  { id: "level-20",      category: "Nível",    name: "Mestre",                desc: "Alcance nível 20",                          icon: "star",     tier: "ouro",     check: s => s.level >= 20,                reward: { damageBonus: 0.20 } },
-  { id: "level-30",      category: "Nível",    name: "Lendário",              desc: "Alcance nível 30",                          icon: "star",     tier: "diamante", check: s => s.level >= 30,                reward: { damageBonus: 0.40 } },
+  { id: "level-5",       category: "Level",    name: "Warrior",              desc: "Reach level 5",                             icon: "star",     tier: "bronze",   check: s => s.level >= 5,                 reward: { damageBonus: 0.10 } },
+  { id: "level-10",      category: "Level",    name: "Veteran",              desc: "Reach level 10",                            icon: "star",     tier: "prata",    check: s => s.level >= 10,                reward: { damageBonus: 0.15 } },
+  { id: "level-20",      category: "Level",    name: "Master",               desc: "Reach level 20",                            icon: "star",     tier: "ouro",     check: s => s.level >= 20,                reward: { damageBonus: 0.20 } },
+  { id: "level-30",      category: "Level",    name: "Legendary",            desc: "Reach level 30",                            icon: "star",     tier: "diamante", check: s => s.level >= 30,                reward: { damageBonus: 0.40 } },
 ];
 
 export const TIER_COLORS: Record<AchievementTier, string> = {
@@ -115,8 +139,10 @@ export const TIER_COLORS: Record<AchievementTier, string> = {
 export interface EconomyState {
   coins:           number;
   totalCoinsEarned: number;
-  selectedClass:   CharacterClass | null;
-  unlockedClasses: CharacterClass[];
+  selectedClass:   CharacterClass | null;   // kept for cloud sync compat
+  unlockedClasses: CharacterClass[];        // kept for cloud sync compat
+  activeSkin:      SkinId;
+  unlockedSkins:   SkinId[];
   pets:            PetType[];
   activePet:       PetType | null;
   unlockedAchievements: string[];
@@ -125,6 +151,7 @@ export interface EconomyState {
   needsClassSelection: boolean;
   bonusXP:         number;   // XP from monster kills (synced to cloud via economy)
   monsterEssences: number;   // essência de monstro — usada para evoluir itens
+  gmBonusXP:       number;   // XP extra definido pelo Game Master (nunca resetado)
 }
 
 const ECON_KEY = "rpg_economy_v1";
@@ -150,6 +177,16 @@ function loadEconomy(): EconomyState {
       if (parsed.monsterEssences === undefined) {
         parsed.monsterEssences = 0;
       }
+      if (!parsed.activeSkin) {
+        parsed.activeSkin = "warrior_base";
+        parsed.unlockedSkins = ["warrior_base"];
+      }
+      if (!parsed.unlockedSkins) {
+        parsed.unlockedSkins = ["warrior_base"];
+      }
+      if (parsed.gmBonusXP === undefined) {
+        parsed.gmBonusXP = 0;
+      }
       return parsed;
     }
   } catch { /* noop */ }
@@ -161,10 +198,11 @@ function loadEconomy(): EconomyState {
   } catch { /* noop */ }
   return {
     coins: 0, totalCoinsEarned: 0, selectedClass: null,
-    unlockedClasses: [], pets: [], activePet: null,
+    unlockedClasses: [], activeSkin: "warrior_base", unlockedSkins: ["warrior_base"],
+    pets: [], activePet: null,
     unlockedAchievements: [], title: null, onePunchBosses: 0,
     needsClassSelection: true, bonusXP: migratedBonusXP,
-    monsterEssences: 0,
+    monsterEssences: 0, gmBonusXP: 0,
   };
 }
 
@@ -216,6 +254,26 @@ export function selectClass(cls: CharacterClass | null): void {
 /** Mark class as chosen — clears the selection gate */
 export function markClassSelected(): void {
   econ = { ...econ, needsClassSelection: false };
+  saveEconomy(econ);
+}
+
+export function buySkin(skin: SkinId): boolean {
+  const info = SKIN_INFO[skin];
+  if (info.locked) return false;
+  if (econ.unlockedSkins.includes(skin)) {
+    econ = { ...econ, activeSkin: skin, needsClassSelection: false };
+    saveEconomy(econ);
+    return true;
+  }
+  if (!spendCoins(info.cost)) return false;
+  econ = { ...econ, unlockedSkins: [...econ.unlockedSkins, skin], activeSkin: skin, needsClassSelection: false };
+  saveEconomy(econ);
+  return true;
+}
+
+export function selectSkin(skin: SkinId): void {
+  if (!econ.unlockedSkins.includes(skin)) return;
+  econ = { ...econ, activeSkin: skin };
   saveEconomy(econ);
 }
 
@@ -308,10 +366,11 @@ export function getClassXPBonus(difficulty: string): number {
 export function resetEconomy(): void {
   econ = {
     coins: 0, totalCoinsEarned: 0, selectedClass: null,
-    unlockedClasses: [], pets: [], activePet: null,
+    unlockedClasses: [], activeSkin: "warrior_base", unlockedSkins: ["warrior_base"],
+    pets: [], activePet: null,
     unlockedAchievements: [], title: null, onePunchBosses: 0,
     needsClassSelection: true, bonusXP: 0,
-    monsterEssences: econ.monsterEssences ?? 0,
+    monsterEssences: econ.monsterEssences ?? 0, gmBonusXP: 0,
   };
   saveEconomy(econ);
 }
@@ -359,5 +418,26 @@ export function spendEssences(amount: number): boolean {
   econ = { ...econ, monsterEssences: (econ.monsterEssences ?? 0) - amount };
   saveEconomy(econ);
   return true;
+}
+
+// ── Game Master functions ─────────────────────────────────────────────────────
+
+export function getGmBonusXP(): number {
+  return econ.gmBonusXP ?? 0;
+}
+
+export function gmSetCoins(amount: number): void {
+  econ = { ...econ, coins: Math.max(0, Math.floor(amount)) };
+  saveEconomy(econ);
+}
+
+export function gmSetEssences(amount: number): void {
+  econ = { ...econ, monsterEssences: Math.max(0, Math.floor(amount)) };
+  saveEconomy(econ);
+}
+
+export function gmSetBonusXP(amount: number): void {
+  econ = { ...econ, gmBonusXP: Math.max(0, Math.floor(amount)) };
+  saveEconomy(econ);
 }
 

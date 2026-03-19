@@ -1,35 +1,25 @@
 // TaskCharacter.tsx
-// Loads the correct .riv animation based on the player's selected class.
-// Guerreiro → warrior_base.riv | Mago → mage_base.riv
+// Loads the correct .riv animation based on the player's active skin.
 import { useRive, Layout, Fit, Alignment, EventType } from '@rive-app/react-canvas';
 import { useEffect, useRef, useCallback, useState } from 'react';
-import type { CharacterClass } from '../data/economy';
-import imgAvatarWarrior from 'figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf1e.png';
-import imgAvatarMage    from 'figma:asset/5c09b71e009581d58103f7df9949281a05a710d1.png';
+import { SKIN_INFO, type SkinId } from '../data/economy';
+import imgAvatarWarrior from '../../assets/profile_pic/profile_pic_warrior.png';
+import imgAvatarMage    from '../../assets/profile_pic/profile_pic_mage.png';
 
-const RIV_URLS: Record<CharacterClass, string> = {
-  guerreiro: 'https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/taskland_animations_warrior_base.riv',
-  mago:      'https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/taskland_animations_mage_base.riv',
-};
-
-/**
- * Per-class scale correction so both characters appear visually the same height.
- * Adjust these values if one still looks too large/small after testing.
- * transform-origin is always "bottom center" so scaling grows upward.
- */
-const CLASS_SCALE: Record<CharacterClass, number> = {
-  guerreiro: 1.0,
-  mago:      1.22,   // mage artboard has more padding → scale up to match warrior
+const SKIN_SCALE: Record<SkinId, number> = {
+  warrior_base:       1.0,
+  warrior_aventureiro: 1.0,
+  mage:               1.22,
 };
 
 interface TaskCharacterProps {
   taskCompleted: boolean;
-  selectedClass: CharacterClass | null;
+  activeSkin: SkinId | null;
   /** Called the instant Rive transitions into any "attack" state — use this to sync feedback */
   onAttackStart?: () => void;
 }
 
-export function TaskCharacter({ taskCompleted, selectedClass, onAttackStart }: TaskCharacterProps) {
+export function TaskCharacter({ taskCompleted, activeSkin, onAttackStart }: TaskCharacterProps) {
   const hasFired        = useRef(false);
   const attackInputRef  = useRef<any>(null);
   const [riveReady, setRiveReady] = useState(false);
@@ -38,10 +28,8 @@ export function TaskCharacter({ taskCompleted, selectedClass, onAttackStart }: T
   const onAttackStartRef = useRef(onAttackStart);
   useEffect(() => { onAttackStartRef.current = onAttackStart; }, [onAttackStart]);
 
-  // Resolve URL — fall back to warrior if class is null/unknown
-  const rivSrc = selectedClass && RIV_URLS[selectedClass]
-    ? RIV_URLS[selectedClass]
-    : RIV_URLS.guerreiro;
+  const skin = activeSkin ?? "warrior_base";
+  const rivSrc = SKIN_INFO[skin].rivUrl;
 
   const onLoad = useCallback(() => {
     setRiveReady(true);
@@ -59,14 +47,14 @@ export function TaskCharacter({ taskCompleted, selectedClass, onAttackStart }: T
   useEffect(() => {
     if (!rive || !riveReady) return;
 
-    // Reset refs whenever the riv file changes (class switch)
+    // Reset refs whenever the riv file changes (skin switch)
     attackInputRef.current = null;
     hasFired.current = false;
 
     const sms: string[]   = (rive as any).stateMachineNames ?? [];
     const anims: string[] = rive.animationNames ?? [];
 
-    console.log('[TaskCharacter] class:', selectedClass, '| Animations:', anims);
+    console.log('[TaskCharacter] skin:', skin, '| Animations:', anims);
     console.log('[TaskCharacter] State Machines:', sms);
 
     if (sms.length === 0) {
@@ -115,7 +103,7 @@ export function TaskCharacter({ taskCompleted, selectedClass, onAttackStart }: T
     return () => {
       try { rive.off(EventType.StateChange, handleStateChange); } catch (_) {}
     };
-  }, [rive, riveReady, selectedClass]);
+  }, [rive, riveReady, skin]);
 
   // ── Fire attack when taskCompleted flips to true ──────────────────────
   useEffect(() => {
@@ -138,8 +126,8 @@ export function TaskCharacter({ taskCompleted, selectedClass, onAttackStart }: T
     setTimeout(() => { input.value = false; }, 70);
   }, [taskCompleted]);
 
-  const scale = selectedClass ? (CLASS_SCALE[selectedClass] ?? 1.0) : 1.0;
-  const fallbackSrc = selectedClass === 'mago' ? imgAvatarMage : imgAvatarWarrior;
+  const scale = SKIN_SCALE[skin] ?? 1.0;
+  const fallbackSrc = SKIN_INFO[skin].fallbackImg === 'mage' ? imgAvatarMage : imgAvatarWarrior;
 
   return (
     <div style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'flex-end' }}>

@@ -177,7 +177,7 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
               lineHeight: 2,
             }}
           >
-            CONCLUA MISSÕES E<br />DERROTE A PROCRASTINAÇÃO
+            COMPLETE MISSIONS AND<br />DEFEAT PROCRASTINATION
           </div>
 
           {/* CTA */}
@@ -191,7 +191,7 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
               animation: ready ? "blink 1.2s step-end infinite" : "none",
             }}
           >
-            ▶ CLIQUE PARA COMEÇAR
+            ▶ CLICK TO START
           </div>
         </div>
 

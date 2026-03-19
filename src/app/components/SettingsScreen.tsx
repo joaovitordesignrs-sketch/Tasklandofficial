@@ -10,7 +10,7 @@ import { useNavigate } from "react-router";
 import { PageShell } from "./ui/PageShell";
 import { PixelTabs, PixelTabDef } from "./ui/PixelTabs";
 import { RpgButton } from "./ui/RpgButton";
-import { setLanguage, setTheme, getPreferences } from "../data/preferences";
+import { setTheme, getPreferences } from "../data/preferences";
 import { useTheme } from "../contexts/PreferencesContext";
 import { useLanguage } from "../contexts/PreferencesContext";
 
@@ -179,7 +179,7 @@ function ProfileSettings() {
   const [saved, setSaved] = useState(false);
 
   function handleSave() {
-    const trimmed = name.trim() || "Aventureiro";
+    const trimmed = name.trim() || "Adventurer";
     savePlayerName(trimmed);
     setName(trimmed);
     setSaved(true);
@@ -278,38 +278,6 @@ function PreferencesSettings() {
           </span>
         </div>
 
-        {/* Language row */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontFamily: FONT_BODY, color: TEXT_LIGHT, fontSize: 18 }}>
-            {t("settings.language")}
-          </span>
-          <div style={{ display: "flex", gap: 8 }}>
-            {(["pt-br", "en"] as const).map((lang) => {
-              const active = prefs.language === lang;
-              const label = lang === "pt-br" ? t("settings.lang.ptbr") : t("settings.lang.en");
-              return (
-                <button
-                  key={lang}
-                  onClick={() => { setLanguage(lang); audioManager.playClick("tap"); }}
-                  style={{
-                    padding: "6px 16px",
-                    background: active ? ACCENT_GOLD + "22" : "transparent",
-                    border: `1.5px solid ${active ? ACCENT_GOLD : BORDER_ELEVATED}`,
-                    color: active ? ACCENT_GOLD : TEXT_MUTED,
-                    fontFamily: FONT_PIXEL,
-                    fontSize: 8,
-                    cursor: "pointer",
-                    borderRadius: RADIUS_MD,
-                    transition: "all 0.15s",
-                  }}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Theme row */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span style={{ fontFamily: FONT_BODY, color: TEXT_LIGHT, fontSize: 18 }}>
@@ -353,7 +321,7 @@ export default function SettingsScreen() {
   const t = useLanguage();
   const {
     BG_DEEPEST, BG_CARD, BORDER_SUBTLE,
-    ACCENT_GOLD, COLOR_MAGE, COLOR_WARRIOR, COLOR_SUCCESS,
+    ACCENT_GOLD, COLOR_MAGE, COLOR_WARRIOR, COLOR_SUCCESS, COLOR_WARNING,
     TEXT_MUTED, TEXT_LIGHT,
     FONT_PIXEL, FONT_BODY,
     RADIUS_XL,
@@ -396,7 +364,7 @@ export default function SettingsScreen() {
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
                 {[
                   { label: "Email", value: user?.email ?? "—" },
-                  { label: "Nick",  value: nick ? `@${nick}` : "Não definido" },
+                  { label: "Nick",  value: nick ? `@${nick}` : "Not set" },
                   { label: "UID",   value: (user?.id ?? "—").slice(0, 8) + "…" },
                 ].map(({ label, value }) => (
                   <div key={label} style={{
@@ -421,6 +389,16 @@ export default function SettingsScreen() {
                 <Save size={14} /> {t("settings.sync")}
               </RpgButton>
             </div>
+
+            {/* Game Master */}
+            <RpgButton
+              variant="ghost"
+              color={COLOR_WARNING}
+              fullWidth
+              onClick={() => { audioManager.playClick("navigate"); navigate("/game-master"); }}
+            >
+              <Shield size={14} /> GAME MASTER
+            </RpgButton>
 
             {/* Logout */}
             <RpgButton

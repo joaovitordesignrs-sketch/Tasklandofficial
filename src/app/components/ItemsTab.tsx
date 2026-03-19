@@ -69,9 +69,9 @@ export function ItemsTab() {
         padding: "10px 14px",
       }}>
         <Sparkles size={14} color={COLOR_MAGE} />
-        <span style={{ fontFamily: FONT_BODY, fontSize: 18, color: COLOR_MAGE }}>Essência de Monstro</span>
+        <span style={{ fontFamily: FONT_BODY, fontSize: 18, color: COLOR_MAGE }}>Monster Essence</span>
         <span style={{ fontFamily: FONT_BODY, fontSize: 20, color: COLOR_MAGE, marginLeft: "auto", fontWeight: "bold" }}>
-          {essence.toLocaleString("pt-BR")}
+          {essence.toLocaleString("en-US")}
         </span>
       </div>
 
@@ -118,7 +118,7 @@ export function ItemsTab() {
                   </div>
                 ) : (
                   <span style={{ fontFamily: FONT_BODY, fontSize: 16, color: TEXT_INACTIVE }}>
-                    {slotItems.length > 0 ? "Clique para equipar" : "Vazio — compre na Loja"}
+                    {slotItems.length > 0 ? "Click to equip" : "Empty — buy in Shop"}
                   </span>
                 )}
               </div>
@@ -134,7 +134,7 @@ export function ItemsTab() {
                     background: alpha(BORDER_SUBTLE, "88"), border: `1px solid ${BORDER_SUBTLE}`,
                     fontFamily: FONT_BODY, fontSize: 16, color: TEXT_INACTIVE, textAlign: "center",
                   }}>
-                    Nenhum item. Compre na <span style={{ color: "#FFD700" }}>Loja</span>.
+                    No items. Buy in the <span style={{ color: "#FFD700" }}>Shop</span>.
                   </div>
                 ) : slotItems.map(item => {
                   const tpl       = getItemTemplate(item.template_id)!;
@@ -193,13 +193,13 @@ export function ItemsTab() {
                           {/* Tier info row */}
                           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                             <div>
-                              <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: TEXT_MUTED }}>TIER ATUAL</span>
+                              <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: TEXT_MUTED }}>CURRENT TIER</span>
                               <div style={{ fontFamily: FONT_BODY, fontSize: 18, color: TIER_COLORS[selected.tier], marginTop: 2 }}>
                                 T{selected.tier} — {TIER_NAMES[selected.tier]}
                               </div>
                             </div>
                             <div style={{ textAlign: "right" }}>
-                              <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: TEXT_MUTED }}>BÔNUS</span>
+                              <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: TEXT_MUTED }}>BONUS</span>
                               <div style={{ fontFamily: FONT_BODY, fontSize: 20, color: TIER_COLORS[selected.tier], marginTop: 2 }}>
                                 +{getItemBonus(selected).toFixed(3)} {selectedTpl.bonus_type}
                               </div>
@@ -237,11 +237,11 @@ export function ItemsTab() {
                           <div style={{ display: "flex", gap: 6 }}>
                             {selected.is_equipped ? (
                               <RpgButton variant="ghost" color={TEXT_MUTED} fullWidth bodyFont small onClick={() => handleUnequip(selected.id)}>
-                                DESEQUIPAR
+                                UNEQUIP
                               </RpgButton>
                             ) : (
                               <RpgButton variant="primary" color="#FFD700" fullWidth bodyFont small onClick={() => handleEquip(selected.id)}>
-                                EQUIPAR
+                                EQUIP
                               </RpgButton>
                             )}
                             {selected.tier < 4 && (() => {
@@ -249,7 +249,7 @@ export function ItemsTab() {
                               const can  = essence >= cost;
                               return (
                                 <RpgButton variant="ghost" color={can ? COLOR_MAGE : TEXT_INACTIVE} disabled={!can} fullWidth bodyFont small onClick={() => handleUpgrade(selected.id)}>
-                                  ▲ EVOLUIR ({cost}✦)
+                                  ▲ UPGRADE ({cost}✦)
                                 </RpgButton>
                               );
                             })()}
@@ -277,10 +277,10 @@ export function ItemsTab() {
         }}>
           <PixelIcon name="shield" size={32} color={TEXT_INACTIVE} />
           <div style={{ fontFamily: FONT_BODY, fontSize: 18, color: TEXT_MUTED, marginTop: 8 }}>
-            Nenhum item no inventário.
+            No items in inventory.
           </div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 15, color: TEXT_INACTIVE, marginTop: 4 }}>
-            Derrote monstros para ganhar ouro e compre na <span style={{ color: "#FFD700" }}>Loja</span>.
+            Defeat monsters to earn gold and buy in the <span style={{ color: "#FFD700" }}>Shop</span>.
           </div>
         </div>
       )}

@@ -25,8 +25,8 @@ interface MobileAddTaskModalProps {
 export function MobileAddTaskModal({
   open,
   accent,
-  title = "NOVA TAREFA",
-  placeholder = "Nome da tarefa...",
+  title = "NEW TASK",
+  placeholder = "Task name...",
   availableTags = [],
   onClose,
   onAdd,
@@ -210,7 +210,7 @@ export function MobileAddTaskModal({
                     fontFamily: "'VT323', monospace", fontSize: 16, cursor: "pointer",
                   }}
                 >
-                  Nenhuma
+                  None
                 </button>
               )}
               {availableTags.map(tag => {
@@ -263,7 +263,7 @@ export function MobileAddTaskModal({
                   autoFocus
                   value={newTagInput}
                   onChange={(e) => setNewTagInput(e.target.value)}
-                  placeholder="Nome da tag..."
+                  placeholder="Tag name..."
                   onKeyDown={(e) => { if (e.key === "Escape") { setShowNewTag(false); setNewTagInput(""); } }}
                   style={{
                     flex: 1, background: "#131629", border: `1px solid ${pickedColor}55`,
@@ -280,7 +280,7 @@ export function MobileAddTaskModal({
               </div>
               {/* Color palette */}
               <div>
-                <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 6, color: "#5a6080", marginBottom: 8 }}>COR DA TAG</div>
+                <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 6, color: "#5a6080", marginBottom: 8 }}>TAG COLOR</div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {TAG_PALETTE.map(c => (
                     <button
@@ -318,7 +318,7 @@ export function MobileAddTaskModal({
                   cursor: "pointer", borderRadius: 8, display: "flex", alignItems: "center", gap: 6,
                 }}
               >
-                <Tag size={12} /> Nova tag...
+                <Tag size={12} /> New tag...
               </button>
             )
           )}
@@ -340,7 +340,7 @@ export function MobileAddTaskModal({
               boxShadow: text.trim() ? `0 0 20px ${accent}55` : "none",
             }}
           >
-            + ADICIONAR TAREFA
+            + ADD TASK
           </button>
         </div>
       </div>

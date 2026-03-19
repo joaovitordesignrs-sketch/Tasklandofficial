@@ -4,8 +4,8 @@ import {
 } from "lucide-react";
 import { audioManager } from "../hooks/audioManager";
 import { getPower, formatPower } from "../data/combatPower";
-import imgAvatar from "figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf1e.png";
-import imgAvatarMago from "figma:asset/5c09b71e009581d58103f7df9949281a05a710d1.png";
+import imgAvatar from "../../assets/profile_pic/profile_pic_warrior.png";
+import imgAvatarMago from "../../assets/profile_pic/profile_pic_mage.png";
 import { useAuth } from "../hooks/useAuth";
 import { forcePush } from "../data/syncService";
 import { getEconomy } from "../data/economy";
@@ -23,23 +23,23 @@ interface Props {
 }
 
 const MENU_ITEMS = [
-  { path: "/",              label: "CAMPANHA",   Icon: Swords       },
-  { path: "/desafios",      label: "FOCO",       Icon: Brain        },
-  { path: "/habitos",       label: "HÁBITOS",    Icon: Flame        },
-  { path: "/conquistas",    label: "CONQUISTAS", Icon: Award        },
-  { path: "/perfil",        label: "PERFIL",     Icon: User         },
-  { path: "/loja",          label: "LOJA",       Icon: ShoppingBag  },
-  { path: "/amigos",        label: "AMIGOS",     Icon: Users        },
-  { path: "/configuracoes", label: "CONFIG",     Icon: Settings     },
-  { path: "/design_system", label: "DESIGN KIT", Icon: Palette      },
+  { path: "/",              label: "CAMPAIGN",    Icon: Swords       },
+  { path: "/desafios",      label: "FOCUS",       Icon: Brain        },
+  { path: "/habitos",       label: "HABITS",      Icon: Flame        },
+  { path: "/conquistas",    label: "ACHIEVEMENTS", Icon: Award       },
+  { path: "/perfil",        label: "PROFILE",     Icon: User         },
+  { path: "/loja",          label: "SHOP",        Icon: ShoppingBag  },
+  { path: "/amigos",        label: "FRIENDS",     Icon: Users        },
+  { path: "/configuracoes", label: "SETTINGS",    Icon: Settings     },
+  { path: "/design_system", label: "DESIGN KIT",  Icon: Palette      },
 ];
 
 export function DesktopSidebar({ playerName, level, rankLabel, rankColor, xpPct, currentXP, neededXP }: Props) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { signOut, nick } = useAuth();
-  const { selectedClass } = useCampaign();
-  const avatarSrc = selectedClass === "mago" ? imgAvatarMago : imgAvatar;
+  const { activeSkin } = useCampaign();
+  const avatarSrc = activeSkin === "mage" ? imgAvatarMago : imgAvatar;
 
   return (
     <aside style={{
@@ -136,7 +136,7 @@ export function DesktopSidebar({ playerName, level, rankLabel, rankColor, xpPct,
               }}>
                 <Coins size={11} color="#FFD700" />
                 <span style={{ fontFamily: "'VT323', monospace", color: "#FFD700", fontSize: 14 }}>
-                  {econ.coins.toLocaleString("pt-BR")}
+                  {econ.coins.toLocaleString("en-US")}
                 </span>
               </div>
               <div style={{
@@ -147,7 +147,7 @@ export function DesktopSidebar({ playerName, level, rankLabel, rankColor, xpPct,
               }}>
                 <Sparkles size={11} color="#a855f7" />
                 <span style={{ fontFamily: "'VT323', monospace", color: "#a855f7", fontSize: 14 }}>
-                  {(econ.monsterEssences ?? 0).toLocaleString("pt-BR")}
+                  {(econ.monsterEssences ?? 0).toLocaleString("en-US")}
                 </span>
               </div>
             </div>
@@ -244,7 +244,7 @@ export function DesktopSidebar({ playerName, level, rankLabel, rankColor, xpPct,
           onMouseDown={(e) => { e.currentTarget.style.transform = "translate(1px,1px)"; e.currentTarget.style.boxShadow = "1px 1px 0 rgba(0,0,0,0.4)"; }}
           onMouseUp={(e) => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "2px 2px 0 rgba(0,0,0,0.4)"; }}
         >
-          <LogOut size={14} /> SAIR
+          <LogOut size={14} /> EXIT
         </button>
       </div>
     </aside>

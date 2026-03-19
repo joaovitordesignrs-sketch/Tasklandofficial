@@ -7,7 +7,7 @@
  */
 import { Task, Mission, MonsterType, TYPE_MODIFIERS, getPhase, getPhaseBaseXP } from "./missions";
 import { getBonusXP } from "./challenges";
-import { getClassXPBonus } from "./economy";
+import { getClassXPBonus, getGmBonusXP } from "./economy";
 import { getPower, type PowerMode } from "./combatPower";
 
 // ── Difficulty tables ─────────────────────────────────────────────────────────
@@ -27,9 +27,9 @@ const DIFFICULTY_XP: Record<string, number> = {
 };
 
 export const DIFFICULTY_INFO: Record<string, { label: string; color: string; short: string; emoji: string }> = {
-  easy:   { label: "Fácil",   color: "#06FFA5", short: "F", emoji: "shield"  },
-  medium: { label: "Médio",   color: "#f0c040", short: "M", emoji: "swords"  },
-  hard:   { label: "Difícil", color: "#E63946", short: "D", emoji: "flame"   },
+  easy:   { label: "Easy",   color: "#06FFA5", short: "E", emoji: "shield"  },
+  medium: { label: "Medium", color: "#f0c040", short: "M", emoji: "swords"  },
+  hard:   { label: "Hard",   color: "#E63946", short: "H", emoji: "flame"   },
 };
 
 // ── Damage calculation ────────────────────────────────────────────────────────
@@ -127,7 +127,7 @@ export function calcTotalXP(missions: Mission[]): number {
   const streakMult = todayCount >= 5 ? 1.5 : 1.0;
   const totalTaskXP = historicalXP + Math.round(todayXP * streakMult);
 
-  return totalTaskXP + getBonusXP();
+  return totalTaskXP + getBonusXP() + getGmBonusXP();
 }
 
 /** XP earned when defeating a campaign monster.
@@ -141,13 +141,13 @@ export function calcMonsterXP(mission: Mission): number {
 
 // ── Rank system ───────────────────────────────────────────────────────────────
 export function getRank(level: number): { label: string; color: string } {
-  if (level >= 30) return { label: "LENDÁRIO",  color: "#FF6B35" };
-  if (level >= 20) return { label: "ÉPICO",     color: "#c084fc" };
-  if (level >= 15) return { label: "MESTRE",    color: "#60a5fa" };
-  if (level >= 10) return { label: "RARO",      color: "#06FFA5" };
-  if (level >= 5)  return { label: "GUERREIRO", color: "#e39f64" };
-  if (level >= 3)  return { label: "VETERANO",  color: "#8a9fba" };
-  return              { label: "NOVATO",      color: "#8a7a6a" };
+  if (level >= 30) return { label: "LEGENDARY", color: "#FF6B35" };
+  if (level >= 20) return { label: "EPIC",      color: "#c084fc" };
+  if (level >= 15) return { label: "MASTER",    color: "#60a5fa" };
+  if (level >= 10) return { label: "RARE",      color: "#06FFA5" };
+  if (level >= 5)  return { label: "WARRIOR",   color: "#e39f64" };
+  if (level >= 3)  return { label: "VETERAN",   color: "#8a9fba" };
+  return              { label: "NOVICE",      color: "#8a7a6a" };
 }
 
 // ── HP info ───────────────────────────────────────────────────────────────────
@@ -180,8 +180,8 @@ export type AttackBanner = {
 
 export function getAttackBanner(count: number, damage: number): AttackBanner {
   const dmgStr = `-${damage}HP`;
-  if (count >= 5) return { text: "ATAQUE CRÍTICO!!!", sub: `${count} tarefas! ${dmgStr}`, color: "#FF6B35", emoji: "zap",      size: "34px" };
-  if (count >= 3) return { text: "GOLPE TRIPLO!",     sub: `${count} destruídas! ${dmgStr}`, color: "#FFD700", emoji: "sparkles", size: "28px" };
-  if (count >= 2) return { text: "DUPLO GOLPE!",      sub: `2 de uma vez! ${dmgStr}`,        color: "#06FFA5", emoji: "sparkles", size: "24px" };
-  return            { text: "ATAQUE!",               sub: `tarefa concluída! ${dmgStr}`,    color: "#ffffff", emoji: "swords",   size: "20px" };
+  if (count >= 5) return { text: "CRITICAL HIT!!!", sub: `${count} tasks! ${dmgStr}`,     color: "#FF6B35", emoji: "zap",      size: "34px" };
+  if (count >= 3) return { text: "TRIPLE STRIKE!",  sub: `${count} destroyed! ${dmgStr}`, color: "#FFD700", emoji: "sparkles", size: "28px" };
+  if (count >= 2) return { text: "DOUBLE STRIKE!",  sub: `2 at once! ${dmgStr}`,          color: "#06FFA5", emoji: "sparkles", size: "24px" };
+  return            { text: "ATTACK!",              sub: `task completed! ${dmgStr}`,     color: "#ffffff", emoji: "swords",   size: "20px" };
 }

@@ -105,7 +105,7 @@ function TagInput({
               background: "transparent", border: "1px dashed #2a2e50", color: "#3a4060",
             }}
           >
-            + nova
+            + new
           </button>
         )}
 
@@ -116,7 +116,7 @@ function TagInput({
                 autoFocus
                 value={newVal}
                 onChange={e => setNewVal(e.target.value)}
-                placeholder="nome da tag..."
+                placeholder="tag name..."
                 onKeyDown={e => {
                   if (e.key === "Enter") commitNewTag();
                   if (e.key === "Escape") { setShowNew(false); setNewVal(""); }
@@ -188,11 +188,12 @@ interface TaskItemProps {
   onEdit:         (id: string, updates: Partial<Task>) => void;
   onMoveTask:     (di: number, hi: number) => void;
   onUncomplete:   (id: string) => void;
+  onTagCreated:   () => void;
 }
 
 function TaskItem({
   task, index, isSelected, showDamage, playerLevel, isMobile, dndDisabled,
-  availableTags, onToggleSelect, onDelete, onEdit, onMoveTask, onUncomplete,
+  availableTags, onToggleSelect, onDelete, onEdit, onMoveTask, onUncomplete, onTagCreated,
 }: TaskItemProps) {
   const [isEditing,   setIsEditing]   = useState(false);
   const [editText,    setEditText]    = useState(task.text);
@@ -383,7 +384,7 @@ function TaskItem({
                       onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(227,159,100,0.1)"; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "none"; }}
                     >
-                      <Pencil size={13} /> Editar
+                      <Pencil size={13} /> Edit
                     </button>
                     <div style={{ height: 1, background: "#1f254f" }} />
                     <button
@@ -392,7 +393,7 @@ function TaskItem({
                       onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(230,57,70,0.1)"; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "none"; }}
                     >
-                      <Trash2 size={13} /> Excluir
+                      <Trash2 size={13} /> Delete
                     </button>
                   </div>
                 </>
@@ -419,15 +420,15 @@ function TaskItem({
             <div style={{ fontFamily: "'VT323', monospace", fontSize: 13, color: "#5a6080", marginBottom: 4, display: "flex", alignItems: "center", gap: 4 }}>
               <Tag size={11} /> TAG
             </div>
-            <TagInput value={editTag} onChange={setEditTag} availableTags={availableTags} onTagCreated={refreshTags} />
+            <TagInput value={editTag} onChange={setEditTag} availableTags={availableTags} onTagCreated={onTagCreated} />
           </div>
 
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={saveEdit} style={{ padding: "4px 16px", background: "#e39f64", border: "none", color: "#0d1024", fontFamily: "'VT323', monospace", fontSize: 16, cursor: "pointer", borderRadius: 5 }}>
-              Salvar
+              Save
             </button>
             <button onClick={() => { setEditText(task.text); setIsEditing(false); }} style={{ padding: "4px 12px", background: "transparent", border: "1px solid #2a2e50", color: "#5a6080", fontFamily: "'VT323', monospace", fontSize: 16, cursor: "pointer", borderRadius: 5 }}>
-              Cancelar
+              Cancel
             </button>
           </div>
         </div>
@@ -654,7 +655,7 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
             onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#5a6080")}
           >
             <CheckSquare size={14} />
-            {selected.size === uncompletedCount && uncompletedCount > 0 ? "Desmarcar" : "Tudo"}
+            {selected.size === uncompletedCount && uncompletedCount > 0 ? "Deselect" : "All"}
           </button>
 
           <div style={{ flex: 1 }} />
@@ -666,7 +667,7 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
           {allTags.length > 0 && (
             <button
               onClick={toggleFilterBar}
-              title={showFilterBar ? "Ocultar filtros" : "Filtrar por tag"}
+              title={showFilterBar ? "Hide filters" : "Filter by tag"}
               style={{
                 background: showFilterBar ? "rgba(124,77,255,0.18)" : "transparent",
                 border: `1px solid ${showFilterBar ? "#7c4dff" : "#2a2e50"}`,
@@ -701,9 +702,9 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
               }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(227,159,100,0.30)"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(227,159,100,0.18)"; }}
-              title="Nova Tarefa"
+              title="New Task"
             >
-              <Plus size={14} /> Nova Task
+              <Plus size={14} /> New Task
             </button>
           )}
         </div>
@@ -727,7 +728,7 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
                 fontFamily: "'VT323', monospace", fontSize: 15, cursor: "pointer", flexShrink: 0,
               }}
             >
-              Todas
+              All
             </button>
 
             {allTags.map(tag => {
@@ -753,7 +754,7 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
                   {/* Delete button */}
                   <button
                     onClick={() => handleDeleteTag(tag)}
-                    title={`Excluir tag "${tag}"`}
+                    title={`Delete tag "${tag}"`}
                     style={{
                       padding: "3px 9px",
                       background: active ? `${c}22` : "transparent",
@@ -790,7 +791,7 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
                 id="new-task-input"
                 value={newText}
                 onChange={(e) => setNewText(e.target.value)}
-                placeholder="Nome da tarefa..."
+                placeholder="Task name..."
                 onKeyDown={(e) => { if (e.key === "Enter") handleAddDesktop(); if (e.key === "Escape") { setShowAddInput(false); setNewText(""); } }}
                 style={{ flex: 1, background: "#1b1e37", border: "1px solid #e39f6466", color: "#fff", padding: "6px 10px", fontSize: 19, fontFamily: "'VT323', monospace", outline: "none", borderRadius: 5 }}
               />
@@ -803,13 +804,13 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
             </div>
             {/* Difficulty row */}
             <div style={{ background: "#0b0d1e", borderBottom: "1px solid #1f254f", padding: "6px 14px 8px" }}>
-              <div style={{ color: "#5a6080", fontSize: 13, fontFamily: "'VT323', monospace", marginBottom: 5 }}>DIFICULDADE</div>
+              <div style={{ color: "#5a6080", fontSize: 13, fontFamily: "'VT323', monospace", marginBottom: 5 }}>DIFFICULTY</div>
               <DifficultyPickerLocal value={newDiff} onChange={setNewDiff} />
             </div>
             {/* Tag row */}
             <div style={{ background: "#0b0d1e", borderBottom: "1px solid #1f254f", padding: "6px 14px 10px" }}>
               <div style={{ color: "#5a6080", fontSize: 13, fontFamily: "'VT323', monospace", marginBottom: 5, display: "flex", alignItems: "center", gap: 4 }}>
-                <Tag size={11} /> TAG (OPCIONAL)
+                <Tag size={11} /> TAG (OPTIONAL)
               </div>
               <TagInput
                 value={showNewTagInput ? newTagInput : newTaskTag}
@@ -830,8 +831,8 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
           {displayTasks.length === 0 && !showAddInput && (
             <div style={{ color: "#333", textAlign: "center", padding: "40px 20px", fontSize: 20, fontFamily: "'VT323', monospace" }}>
               {activeTagFilters.size > 0
-                ? `Nenhuma task com as tags selecionadas.`
-                : "Nenhuma tarefa. Adicione uma para começar a batalha!"}
+                ? `No tasks with the selected tags.`
+                : "No tasks. Add one to start the battle!"}
             </div>
           )}
 
@@ -843,7 +844,7 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
                   <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 14px", background: "#0a0c1a" }}>
                     <div style={{ flex: 1, height: 1, background: "#1f254f" }} />
                     <span style={{ color: "#3a4060", fontSize: 13, fontFamily: "'VT323', monospace", whiteSpace: "nowrap" }}>
-                      CONCLUÍDAS ({completedCount})
+                      COMPLETED ({completedCount})
                     </span>
                     <div style={{ flex: 1, height: 1, background: "#1f254f" }} />
                   </div>
@@ -862,6 +863,7 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
                   onEdit={handleEdit}
                   onMoveTask={handleMoveTask}
                   onUncomplete={handleUncomplete}
+                  onTagCreated={refreshTags}
                 />
               </div>
             );
@@ -895,12 +897,12 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
             >
               <Swords size={16} />
               {selected.size >= 5
-                ? `ATAQUE CRÍTICO!!! ×${selected.size}`
+                ? `CRITICAL HIT!!! ×${selected.size}`
                 : selected.size >= 3
-                ? `GOLPE TRIPLO! (${selected.size})`
+                ? `TRIPLE STRIKE! (${selected.size})`
                 : selected.size >= 2
-                ? `DUPLO GOLPE! (${selected.size})`
-                : `ATACAR! (${selected.size})`}
+                ? `DOUBLE STRIKE! (${selected.size})`
+                : `ATTACK! (${selected.size})`}
             </button>
           </div>
         )}
@@ -910,8 +912,8 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
       <MobileAddTaskModal
         open={showAddInput && isMobile}
         accent="#e39f64"
-        title="NOVA TAREFA"
-        placeholder="Nome da tarefa..."
+        title="NEW TASK"
+        placeholder="Task name..."
         availableTags={availableTags}
         onClose={() => setShowAddInput(false)}
         onAdd={handleAdd}

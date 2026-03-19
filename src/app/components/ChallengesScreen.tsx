@@ -36,7 +36,7 @@ export default function ChallengesScreen() {
   const focusActive = challenges.filter(c => c.type === "focus" && c.status === "active");
 
   return (
-    <PageShell icon={<Brain size={16} />} title="FOCO CONTÍNUO" accentColor={COLOR_MAGE}>
+    <PageShell icon={<Brain size={16} />} title="CONTINUOUS FOCUS" accentColor={COLOR_MAGE}>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {/* Permanent focus bonus card */}
         <div style={{
@@ -50,11 +50,11 @@ export default function ChallengesScreen() {
             color: COLOR_MAGE, marginBottom: 14,
             display: "flex", alignItems: "center", gap: 8,
           }}>
-            <Brain size={13} /> BÔNUS DE FOCO ACUMULADO
+            <Brain size={13} /> ACCUMULATED FOCUS BONUS
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <div>
-              <div style={{ color: TEXT_MUTED, fontSize: 15, marginBottom: 4, fontFamily: FONT_BODY }}>Dano permanente ganho via sessões de foco</div>
+              <div style={{ color: TEXT_MUTED, fontSize: 15, marginBottom: 4, fontFamily: FONT_BODY }}>Permanent damage gained through focus sessions</div>
               <div style={{
                 fontFamily: FONT_PIXEL, fontSize: 22,
                 color: focusBonus > 0 ? COLOR_SUCCESS : TEXT_INACTIVE,
@@ -65,10 +65,10 @@ export default function ChallengesScreen() {
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ color: TEXT_MUTED, fontSize: 14, marginBottom: 6, fontFamily: FONT_BODY }}>
-                Cada task concluída no modo foco = +0.01x permanente
+                Each task completed in focus mode = +0.01x permanent
               </div>
               <div style={{ color: TEXT_INACTIVE, fontSize: 14, fontFamily: FONT_BODY }}>
-                {focusDone.length + focusActive.length} sessões · {focusBonus > 0 ? Math.round(focusBonus / 0.01) : 0} tasks de foco concluídas
+                {focusDone.length + focusActive.length} sessions · {focusBonus > 0 ? Math.round(focusBonus / 0.01) : 0} focus tasks completed
               </div>
             </div>
           </div>
@@ -83,7 +83,7 @@ export default function ChallengesScreen() {
           }}>
             <Brain size={16} color={COLOR_MAGE} />
             <span style={{ fontFamily: FONT_BODY, color: COLOR_MAGE, fontSize: 18 }}>
-              {focusActive.length} sessão ativa — acesse a tela principal para gerenciar
+              {focusActive.length} active session — go to the main screen to manage
             </span>
           </div>
         )}
@@ -95,10 +95,10 @@ export default function ChallengesScreen() {
             borderRadius: RADIUS_XL, padding: "30px 20px", textAlign: "center",
           }}>
             <div style={{ color: TEXT_MUTED, fontSize: 20, fontFamily: FONT_BODY, marginBottom: 8 }}>
-              Nenhuma sessão concluída ainda
+              No sessions completed yet
             </div>
             <div style={{ color: TEXT_INACTIVE, fontSize: 16, fontFamily: FONT_BODY }}>
-              Ative o Modo Foco na tela de Campanha para começar!
+              Activate Focus Mode on the Campaign screen to begin!
             </div>
           </div>
         )}
@@ -106,7 +106,7 @@ export default function ChallengesScreen() {
         {focusDone.length > 0 && (
           <div>
             <div style={{ fontFamily: FONT_PIXEL, color: TEXT_MUTED, fontSize: 9, marginBottom: 8, padding: "0 4px" }}>
-              HISTÓRICO DE SESSÕES ({focusDone.length})
+              SESSION HISTORY ({focusDone.length})
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {[...focusDone].reverse().map((c, idx) => (
@@ -126,7 +126,7 @@ export default function ChallengesScreen() {
                           {c.tasks?.filter(t => t.completed).length ?? 0}/{c.tasks?.length ?? 0} tasks
                         </span>
                         <span style={{ color: c.status === "completed" ? COLOR_SUCCESS : COLOR_DANGER, fontSize: 14, fontFamily: FONT_BODY }}>
-                          {c.status === "completed" ? "CONCLUÍDO" : "CANCELADO"}
+                          {c.status === "completed" ? "COMPLETED" : "CANCELLED"}
                         </span>
                       </div>
                     </div>

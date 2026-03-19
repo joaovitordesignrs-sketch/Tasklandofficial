@@ -283,7 +283,7 @@ export function LevelUpOverlay({ level, rank, rankColor, onClose }: LevelUpOverl
               animation: "lvlBlink 1.2s step-end infinite",
             }}
           >
-            Clique para continuar
+            Click to continue
           </div>
         </div>
       </div>

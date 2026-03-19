@@ -15,7 +15,6 @@ import { useAuth }             from "../hooks/useAuth";
 import { useEffect }           from "react";
 import { TaskCharacter }       from "./TaskCharacter";
 import { ClassPickerOverlay }  from "./ClassPickerOverlay";
-import type { CharacterClass } from "../data/economy";
 import { TYPE_INFO }           from "../data/missions";
 import { forcePush }           from "../data/syncService";
 import { getEconomy } from "../data/economy";
@@ -24,15 +23,15 @@ import { useNotifications }    from "../hooks/useNotifications";
 import { RpgButton }           from "./ui/RpgButton";
 import { useTheme } from "../contexts/PreferencesContext";
 
-import imgAvatar  from "figma:asset/97194cdd6dc3ec8040cc985dae2b65b2314dcf1e.png";
-import imgAvatarMago from "figma:asset/5c09b71e009581d58103f7df9949281a05a710d1.png";
-import imgArenaBackground from "../../assets/arena_background_1.png";
-import imgSlime    from "figma:asset/dc6ff590dfbf25672d088cf95ba85807861b754a.png";
-import imgGoblin   from "figma:asset/6b2c7d65c99eabe04c7cf81373859cf650099675.png";
-import imgCogu     from "figma:asset/02b7cadfe976fe3622d67cb58af1c8f90572a8f2.png";
-import imgSkeleton from "figma:asset/aac85f62dfb7ce285b01089399299b9b6b091fe5.png";
+import imgAvatar  from "../../assets/profile_pic/profile_pic_warrior.png";
+import imgAvatarMago from "../../assets/profile_pic/profile_pic_mage.png";
+import imgArenaBackground from "../../assets/arena_background/arena_background_default.png";
+import imgSlime    from "../../assets/monsters/monster_slime.png";
+import imgGoblin   from "../../assets/monsters/monster_goblin.png";
+import imgCogu     from "../../assets/monsters/monster_cogu.png";
+import imgSkeleton from "../../assets/monsters/monster_skeleton.png";
 import imgGolem    from "figma:asset/843a5f024b278e6710a508a853f1ebd9c4fed362.png";
-import imgDarkLord from "figma:asset/028f146c821934274d14ce8a95fd29ab64707c54.png";
+import imgDarkLord from "../../assets/monsters/monster_darklord.png";
 
 // ── Monster sprite picker ─────────────────────────────────────────────────────
 function getMonsterSprite(monsterType?: string, campaignOrder?: number): string {
@@ -110,7 +109,7 @@ function LevelUpBanner({ level, rankColor, onDone }: { level: number; rankColor:
 // ── Strip type suffixes from monster name ──────────────────────────────────────
 function cleanMonsterName(name: string): string {
   return name
-    .replace(/\s*[▽▲★♛]\s*(FRACO|FORTE|XP\s*BÔNUS|BOSS)\s*$/i, "")
+    .replace(/\s*[▽▲★♛]\s*(WEAK|STRONG|XP\s*BONUS|BOSS)\s*$/i, "")
     .trim();
 }
 
@@ -126,7 +125,7 @@ function ArenaCard() {
 
   const {
     mission, hpInfo, hpColor, defeated, monsterShake, taskCompleted,
-    selectedClass, showVictory, victoryXP, nextMission,
+    activeSkin, showVictory, victoryXP, nextMission,
     campaignDone, handleAttackStart, handleNextMission, setShowVictory,
     levelUpInfo, setLevelUpInfo, cpData,
     selectedTaskCount, attackCallbackRef,
@@ -139,8 +138,8 @@ function ArenaCard() {
     return (
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, padding: 32, background: BG_CARD, borderRadius: RADIUS_XL, border: `1px solid ${alpha(BORDER_ELEVATED, "b3")}` }}>
         <Trophy size={64} color={COLOR_LEGENDARY} />
-        <div style={{ fontFamily: FONT_PIXEL, color: COLOR_LEGENDARY, fontSize: 14, textShadow: "3px 3px 0 #000", textAlign: "center", animation: "pulse 2s infinite" }}>CAMPANHA CONCLUÍDA!</div>
-        <div style={{ fontFamily: FONT_BODY, color: COLOR_SUCCESS, fontSize: VT_LG, textAlign: "center" }}>Todos os monstros derrotados!</div>
+        <div style={{ fontFamily: FONT_PIXEL, color: COLOR_LEGENDARY, fontSize: 14, textShadow: "3px 3px 0 #000", textAlign: "center", animation: "pulse 2s infinite" }}>CAMPAIGN COMPLETE!</div>
+        <div style={{ fontFamily: FONT_BODY, color: COLOR_SUCCESS, fontSize: VT_LG, textAlign: "center" }}>All monsters defeated!</div>
       </div>
     );
   }
@@ -149,8 +148,8 @@ function ArenaCard() {
     return (
       <div style={{ background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "b3")}`, borderRadius: RADIUS_XL, padding: "28px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 10, opacity: 0.45 }}>
         <Skull size={34} color={TEXT_INACTIVE} />
-        <span style={{ fontFamily: FONT_PIXEL, color: TEXT_INACTIVE, fontSize: PX_XS, textAlign: "center", letterSpacing: 1 }}>NENHUMA MISSÃO ATIVA</span>
-        <span style={{ fontFamily: FONT_BODY, color: TEXT_INACTIVE, fontSize: VT_SM }}>Adicione tarefas à direita para iniciar</span>
+        <span style={{ fontFamily: FONT_PIXEL, color: TEXT_INACTIVE, fontSize: PX_XS, textAlign: "center", letterSpacing: 1 }}>NO ACTIVE MISSION</span>
+        <span style={{ fontFamily: FONT_BODY, color: TEXT_INACTIVE, fontSize: VT_SM }}>Add tasks to the right to start</span>
       </div>
     );
   }
@@ -173,12 +172,12 @@ function ArenaCard() {
   const attackTextColor = hasFocus && !mixed ? "#fff" : BG_CARD;
 
   const attackLabel = mixed
-    ? `ATACAR! (${total})`
+    ? `ATTACK! (${total})`
     : hasCampaign
-    ? (total >= 5 ? `ATAQUE CRÍTICO!!! ×${total}` : total >= 3 ? `GOLPE TRIPLO! (${total})` : total >= 2 ? `DUPLO GOLPE! (${total})` : `ATACAR! (${total})`)
+    ? (total >= 5 ? `CRITICAL HIT!!! ×${total}` : total >= 3 ? `TRIPLE STRIKE! (${total})` : total >= 2 ? `DOUBLE STRIKE! (${total})` : `ATTACK! (${total})`)
     : hasTemporal
-    ? (temporalSelectedCount >= 3 ? `GOLPE TEMPORAL CRÍTICO! (${temporalSelectedCount})` : `GOLPE TEMPORAL! (${temporalSelectedCount})`)
-    : `FOCO! ${focusSelectedCount} TASK${focusSelectedCount > 1 ? "S" : ""}`;
+    ? (temporalSelectedCount >= 3 ? `TEMPORAL CRITICAL HIT! (${temporalSelectedCount})` : `TEMPORAL STRIKE! (${temporalSelectedCount})`)
+    : `FOCUS! ${focusSelectedCount} TASK${focusSelectedCount > 1 ? "S" : ""}`;
 
   const attackShadow = mixed
     ? "0 0 16px rgba(192,132,252,0.4)"
@@ -211,7 +210,7 @@ function ArenaCard() {
 
         {/* Character — foreground */}
         <div style={{ position: "absolute", left: "4%", bottom: "4%", height: "85%", zIndex: 4 }}>
-          <TaskCharacter key={selectedClass ?? "__none__"} taskCompleted={taskCompleted} selectedClass={selectedClass as CharacterClass | null} onAttackStart={handleAttackStart} />
+          <TaskCharacter key={activeSkin ?? "__none__"} taskCompleted={taskCompleted} activeSkin={activeSkin} onAttackStart={handleAttackStart} />
         </div>
 
         {/* Power badge */}
@@ -305,7 +304,7 @@ function ArenaCard() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <Trophy size={18} color={COLOR_WARNING} />
-                <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_SM, color: COLOR_WARNING, textShadow: "1px 1px 0 #000" }}>VITÓRIA!</span>
+                <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_SM, color: COLOR_WARNING, textShadow: "1px 1px 0 #000" }}>VICTORY!</span>
               </div>
               <span style={{ fontFamily: FONT_PIXEL, fontSize: 11, color: COLOR_LEGENDARY, textShadow: "1px 1px 0 #000", animation: "pulse 0.8s ease-out" }}>+{victoryXP} XP</span>
             </div>
@@ -316,7 +315,7 @@ function ArenaCard() {
                 onClick={handleNextMission}
                 style={{ animation: "pulse 1.5s infinite", padding: "10px 16px", borderRadius: RADIUS_LG - 1, fontSize: PX_MD }}
               >
-                <Zap size={14} /> PRÓXIMO MONSTRO ▶
+                <Zap size={14} /> NEXT MONSTER ▶
               </RpgButton>
             ) : (
               <RpgButton
@@ -327,7 +326,7 @@ function ArenaCard() {
                 onClick={() => setShowVictory(false)}
                 style={{ fontSize: VT_LG }}
               >
-                Fechar
+                Close
               </RpgButton>
             )}
           </div>
@@ -347,12 +346,12 @@ function CharacterCard() {
     SP_SM, alpha,
   } = useTheme();
 
-  const { lvInfo, xpPct, rank, cpData, selectedClass, levelUpInfo, playerName } = useCampaign();
+  const { lvInfo, xpPct, rank, cpData, activeSkin, levelUpInfo, playerName } = useCampaign();
   const { nick } = useAuth();
 
-  const avatarSrc  = selectedClass === "mago" ? imgAvatarMago : imgAvatar;
-  const classLabel = selectedClass === "mago" ? "MAGO" : selectedClass === "guerreiro" ? "GUERREIRO" : null;
-  const classColor = selectedClass === "mago" ? COLOR_WARRIOR : COLOR_DANGER;
+  const avatarSrc  = activeSkin === "mage" ? imgAvatarMago : imgAvatar;
+  const classLabel = activeSkin === "mage" ? "MAGE" : activeSkin ? "WARRIOR" : null;
+  const classColor = activeSkin === "mage" ? COLOR_WARRIOR : COLOR_DANGER;
 
   return (
     <div style={{ background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "b3")}`, borderRadius: RADIUS_XL, padding: "14px 16px", flexShrink: 0 }}>
@@ -414,7 +413,7 @@ function CharacterCard() {
             }}>
               <Coins size={12} color={ACCENT_GOLD} />
               <span style={{ fontFamily: FONT_BODY, color: ACCENT_GOLD, fontSize: VT_LG }}>
-                {econ.coins.toLocaleString("pt-BR")}
+                {econ.coins.toLocaleString("en-US")}
               </span>
             </div>
             <div style={{
@@ -425,7 +424,7 @@ function CharacterCard() {
             }}>
               <Sparkles size={12} color={COLOR_MAGE} />
               <span style={{ fontFamily: FONT_BODY, color: COLOR_MAGE, fontSize: VT_LG }}>
-                {(econ.monsterEssences ?? 0).toLocaleString("pt-BR")}
+                {(econ.monsterEssences ?? 0).toLocaleString("en-US")}
               </span>
             </div>
           </div>
@@ -437,12 +436,12 @@ function CharacterCard() {
 
 // ── Navigation menu ────────────────────────────────────────────────────────────
 const HOME_NAV_ITEMS = [
-  { path: "/",           label: "CAMPANHA",   Icon: Swords,       notif: null as null | "habitsUnchecked" | "newAchievements" },
-  { path: "/habitos",    label: "HÁBITOS",    Icon: Flame,        notif: "habitsUnchecked" as const },
-  { path: "/conquistas", label: "CONQUISTAS", Icon: Award,        notif: "newAchievements" as const },
-  { path: "/perfil",     label: "PERFIL",     Icon: User,         notif: null },
-  { path: "/loja",       label: "LOJA",       Icon: ShoppingBag,  notif: null },
-  { path: "/amigos",     label: "AMIGOS",     Icon: Users,        notif: null },
+  { path: "/",           label: "CAMPAIGN",      Icon: Swords,       notif: null as null | "habitsUnchecked" | "newAchievements" },
+  { path: "/habitos",    label: "HABITS",         Icon: Flame,        notif: "habitsUnchecked" as const },
+  { path: "/conquistas", label: "ACHIEVEMENTS",   Icon: Award,        notif: "newAchievements" as const },
+  { path: "/perfil",     label: "PROFILE",        Icon: User,         notif: null },
+  { path: "/loja",       label: "SHOP",           Icon: ShoppingBag,  notif: null },
+  { path: "/amigos",     label: "FRIENDS",        Icon: Users,        notif: null },
 ];
 
 function NavMenu() {
@@ -513,10 +512,10 @@ function NavMenu() {
           color={COLOR_WARRIOR}
           small
           onClick={() => { audioManager.playClick("navigate"); navigate("/configuracoes"); }}
-          title="Configurações"
+          title="Settings"
           style={{ marginLeft: nick ? "0" : "auto" }}
         >
-          <Settings size={10} /> CONFIG
+          <Settings size={10} /> SETTINGS
         </RpgButton>
 
         <RpgButton
@@ -525,7 +524,7 @@ function NavMenu() {
           small
           onClick={async () => { await forcePush(); await signOut(); navigate("/"); }}
         >
-          <LogOut size={10} /> SAIR
+          <LogOut size={10} /> EXIT
         </RpgButton>
       </div>
     </div>
@@ -534,15 +533,15 @@ function NavMenu() {
 
 // ── Main export ────────────────────────────────────────────────────────────────
 export function DesktopLeftColumn() {
-  const { needsClassPick, setNeedsClassPick, setSelectedClass } = useCampaign();
+  const { needsClassPick, setNeedsClassPick, setActiveSkin } = useCampaign();
 
   return (
     <>
       {needsClassPick && (
         <ClassPickerOverlay
-          onConfirm={(cls) => {
+          onConfirm={(skin) => {
             setNeedsClassPick(false);
-            setSelectedClass(cls);
+            setActiveSkin(skin);
           }}
         />
       )}
