@@ -118,7 +118,7 @@ function ArenaCard() {
   const {
     BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED, ACCENT_GOLD,
     COLOR_DANGER, COLOR_SUCCESS, COLOR_WARNING, COLOR_MAGE, COLOR_LEGENDARY,
-    COLOR_ORANGE, TEXT_INACTIVE, FONT_PIXEL, FONT_BODY,
+    COLOR_ORANGE, TEXT_INACTIVE, TEXT_LIGHT, FONT_PIXEL, FONT_BODY,
     PX_MD, PX_SM, PX_XS, PX_2XS, VT_LG, VT_SM, VT_XS,
     RADIUS_SM, RADIUS_LG, RADIUS_XL, SP_SM, alpha,
   } = useTheme();
@@ -191,22 +191,22 @@ function ArenaCard() {
     <div style={{ background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "b3")}`, borderRadius: RADIUS_XL, overflow: "hidden", flexShrink: 0 }}>
       {/* Toolbar */}
       <div style={{ background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`, padding: "6px 14px", display: "flex", alignItems: "center", gap: SP_SM }}>
-        <div style={{ flexShrink: 0, minWidth: 24, height: 24, background: "#1a1e37", border: `1px solid ${BORDER_ELEVATED}`, borderRadius: RADIUS_SM + 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ flexShrink: 0, minWidth: 24, height: 24, background: BG_CARD, border: `1px solid ${BORDER_ELEVATED}`, borderRadius: RADIUS_SM + 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: PX_2XS, lineHeight: 1 }}>
             #{(mission.campaignOrder ?? 0) + 1}
           </span>
         </div>
-        <span style={{ fontFamily: FONT_PIXEL, color: "#fff", fontSize: PX_SM, textShadow: "1px 1px 0 #000", whiteSpace: "nowrap", flex: 1, overflow: "hidden", textOverflow: "ellipsis" }}>{cleanMonsterName(mission.name)}</span>
+        <span style={{ fontFamily: FONT_PIXEL, color: TEXT_LIGHT, fontSize: PX_SM, whiteSpace: "nowrap", flex: 1, overflow: "hidden", textOverflow: "ellipsis" }}>{cleanMonsterName(mission.name)}</span>
       </div>
 
       {/* Battle area */}
-      <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", background: "#0a0c1a" }}>
+      <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", background: BG_DEEPEST }}>
         <img
           src={imgArenaBackground}
           alt=""
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", imageRendering: "pixelated", zIndex: 1 }}
         />
-        <div style={{ position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none", background: "radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(5,7,18,0.45) 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none", background: `radial-gradient(ellipse at 50% 50%, transparent 55%, ${alpha(BG_DEEPEST, "73")} 100%)` }} />
 
         {/* Character — foreground */}
         <div style={{ position: "absolute", left: "4%", bottom: "4%", height: "85%", zIndex: 4 }}>
@@ -217,7 +217,7 @@ function ArenaCard() {
         <div style={{
           position: "absolute", left: "4%", top: "6%", zIndex: 6,
           display: "flex", alignItems: "center", gap: 6,
-          background: "rgba(10, 14, 40, 0.88)",
+          background: alpha(BG_DEEPEST, "e0"),
           border: `1px solid ${cpData.rank.color}88`,
           borderRadius: RADIUS_LG - 1,
           padding: "5px 11px",
@@ -260,7 +260,7 @@ function ArenaCard() {
           )}
 
           <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-end" }}>
-            <div style={{ flex: 1, maxWidth: 140, height: 8, background: "rgba(0,0,0,0.6)", border: `1px solid ${hpColor}55`, borderRadius: RADIUS_SM, overflow: "hidden" }}>
+            <div style={{ flex: 1, maxWidth: 140, height: 8, background: BG_DEEPEST, border: `1px solid ${hpColor}55`, borderRadius: RADIUS_SM, overflow: "hidden" }}>
               <div style={{ width: `${hpInfo.percent}%`, height: "100%", background: hpColor, transition: "width 0.6s ease" }} />
             </div>
             <span style={{ fontFamily: FONT_BODY, color: hpColor, fontSize: VT_XS, whiteSpace: "nowrap", minWidth: 48, textAlign: "right" }}>{hpInfo.label}</span>

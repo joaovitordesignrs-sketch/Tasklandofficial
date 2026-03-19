@@ -19,7 +19,7 @@ export default function HabitsScreen() {
     BG_DEEPEST, BG_PAGE, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
     COLOR_ORANGE, COLOR_SUCCESS, COLOR_DANGER, COLOR_LEGENDARY,
     TEXT_INACTIVE, TEXT_MUTED, TEXT_BODY,
-    FONT_PIXEL, FONT_BODY, RADIUS_LG, RADIUS_XL,
+    FONT_PIXEL, FONT_BODY, RADIUS_LG, RADIUS_XL, alpha,
   } = useTheme();
   const isDesktop = useIsDesktop();
   const [habits, setHabits]           = useState<Habit[]>([]);
@@ -427,7 +427,7 @@ export default function HabitsScreen() {
           style={{
             position: "fixed", inset: 0, zIndex: 1000,
             display: "flex", alignItems: "center", justifyContent: "center",
-            background: "rgba(0,0,0,0.7)",
+            background: alpha(BG_DEEPEST, "b3"),
           }}
           onClick={() => setMedalPopup(null)}
         >

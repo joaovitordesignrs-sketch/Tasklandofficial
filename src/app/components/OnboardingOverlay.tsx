@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, type CSSProperties } from "react";
 import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
 import imgAvatarWarrior from '../../assets/profile_pic/profile_pic_warrior.png';
 import imgAvatarMage    from '../../assets/profile_pic/profile_pic_mage.png';
+import { useTheme } from "../contexts/PreferencesContext";
 
 const ONBOARDING_KEY = "rpg_onboarding_v1";
 
@@ -379,6 +380,7 @@ interface OnboardingOverlayProps {
 }
 
 export function OnboardingOverlay({ onFinish }: OnboardingOverlayProps) {
+  const { BG_CARD, BORDER_ELEVATED, BORDER_SUBTLE, TEXT_MUTED, TEXT_INACTIVE, alpha, BG_DEEPEST } = useTheme();
   const [step, setStep]       = useState(0);
   const [leaving, setLeaving] = useState(false);
   const [animKey, setAnimKey] = useState(0);
@@ -426,7 +428,7 @@ export function OnboardingOverlay({ onFinish }: OnboardingOverlayProps) {
       <div
         style={{
           position: "fixed", inset: 0, zIndex: 9800,
-          background: "rgba(8, 12, 26, 0.92)",
+          background: alpha(BG_DEEPEST, "eb"),
           backdropFilter: "blur(2px)",
           animation: leaving ? "obFadeOut 0.5s ease forwards" : "obFadeIn 0.35s ease forwards",
           display: "flex", alignItems: "center", justifyContent: "center",
@@ -446,7 +448,7 @@ export function OnboardingOverlay({ onFinish }: OnboardingOverlayProps) {
         {/* Modal */}
         <div style={{
           position: "relative", width: "100%", maxWidth: 440, maxHeight: "90dvh",
-          background: "#0f1221", border: "3px solid #2a2e4a",
+          background: BG_CARD, border: `3px solid ${BORDER_ELEVATED}`,
           boxShadow: "6px 6px 0 #000, 0 0 40px rgba(122,100,255,0.15)",
           display: "flex", flexDirection: "column", overflow: "hidden",
         }}>
@@ -465,14 +467,14 @@ export function OnboardingOverlay({ onFinish }: OnboardingOverlayProps) {
 
           {/* Header: step + skip */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 20px 0" }}>
-            <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: "#3a3e5a" }}>
+            <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: TEXT_INACTIVE }}>
               {step + 1}/{SLIDES.length}
             </div>
             <button
               onClick={() => { setLeaving(true); setTimeout(() => { localStorage.setItem(ONBOARDING_KEY, "done"); onFinish(); }, 400); }}
-              style={{ background: "none", border: "none", fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: "#3a3e5a", cursor: "pointer", padding: "2px 4px" }}
+              style={{ background: "none", border: "none", fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: TEXT_INACTIVE, cursor: "pointer", padding: "2px 4px" }}
               onMouseEnter={e => (e.currentTarget.style.color = "#e39f64")}
-              onMouseLeave={e => (e.currentTarget.style.color = "#3a3e5a")}
+              onMouseLeave={e => (e.currentTarget.style.color = TEXT_INACTIVE)}
             >
               SKIP ▶▶
             </button>
@@ -504,20 +506,20 @@ export function OnboardingOverlay({ onFinish }: OnboardingOverlayProps) {
           </div>
 
           {/* Footer */}
-          <div style={{ padding: "12px 24px 18px", display: "flex", flexDirection: "column", gap: 12, borderTop: "2px solid #1a1f38" }}>
+          <div style={{ padding: "12px 24px 18px", display: "flex", flexDirection: "column", gap: 12, borderTop: `2px solid ${BORDER_SUBTLE}` }}>
             <ProgressDots total={SLIDES.length} current={step} />
             <div style={{ display: "flex", gap: 10 }}>
               {step > 0 && (
-                <button onClick={goBack} style={{ flex: 1, maxWidth: 120, padding: "10px 0", background: "#1a1f38", border: "2px solid #2a2e4a", color: "#5a6080", fontFamily: "'Press Start 2P', monospace", fontSize: 8, cursor: "pointer", boxShadow: "2px 2px 0 #000" }}
+                <button onClick={goBack} style={{ flex: 1, maxWidth: 120, padding: "10px 0", background: BG_CARD, border: `2px solid ${BORDER_ELEVATED}`, color: TEXT_MUTED, fontFamily: "'Press Start 2P', monospace", fontSize: 8, cursor: "pointer", boxShadow: "2px 2px 0 rgba(0,0,0,0.15)" }}
                   onMouseEnter={e => (e.currentTarget.style.borderColor = "#e39f64")}
-                  onMouseLeave={e => (e.currentTarget.style.borderColor = "#2a2e4a")}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = BORDER_ELEVATED)}
                 >
                   ◀ BACK
                 </button>
               )}
-              <button onClick={goNext} style={{ flex: 1, padding: "12px 0", background: isLast ? "#7c4dff" : "#1a1f38", border: `2px solid ${isLast ? "#a97dff" : "#e39f64"}`, color: isLast ? "#fff" : "#f0c040", fontFamily: "'Press Start 2P', monospace", fontSize: 9, cursor: "pointer", boxShadow: isLast ? "3px 3px 0 #000, 0 0 14px #7c4dff88" : "3px 3px 0 #000", animation: isLast ? "obBtnPulse 1.8s ease-in-out infinite" : "none", letterSpacing: "0.08em" }}
-                onMouseEnter={e => { e.currentTarget.style.background = isLast ? "#9a6dff" : "#252d4a"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = isLast ? "#7c4dff" : "#1a1f38"; }}
+              <button onClick={goNext} style={{ flex: 1, padding: "12px 0", background: isLast ? "#7c4dff" : BG_CARD, border: `2px solid ${isLast ? "#a97dff" : "#e39f64"}`, color: isLast ? "#fff" : "#f0c040", fontFamily: "'Press Start 2P', monospace", fontSize: 9, cursor: "pointer", boxShadow: isLast ? "3px 3px 0 rgba(0,0,0,0.2), 0 0 14px #7c4dff88" : "3px 3px 0 rgba(0,0,0,0.15)", animation: isLast ? "obBtnPulse 1.8s ease-in-out infinite" : "none", letterSpacing: "0.08em" }}
+                onMouseEnter={e => { e.currentTarget.style.background = isLast ? "#9a6dff" : BORDER_ELEVATED; }}
+                onMouseLeave={e => { e.currentTarget.style.background = isLast ? "#7c4dff" : BG_CARD; }}
               >
                 {isLast ? "⚔ START ADVENTURE!" : "NEXT ▶"}
               </button>

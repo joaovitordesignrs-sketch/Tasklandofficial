@@ -83,7 +83,7 @@ function useTimerTick(isRunning: boolean) {
 // CHALLENGE PANEL
 // ══════════════════════════════════════════════════════════════════════════════
 export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, onChallengeFailed, onSelectedCountChange, attackCallbackRef }: ChallengePanelProps) {
-  const { COLOR_ORANGE } = useTheme();
+  const { COLOR_ORANGE, BG_CARD, BG_DEEPEST, BG_PAGE, BORDER_SUBTLE, BORDER_ELEVATED, TEXT_LIGHT, TEXT_MUTED, TEXT_INACTIVE } = useTheme();
   const ACCENT        = COLOR_ORANGE;
   const ACCENT_BG     = "rgba(255,107,53,0.10)";
   const ACCENT_BORDER = COLOR_ORANGE + "55";
@@ -307,7 +307,7 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
   if (!activeChallenge) {
     if (!creating) {
       return (
-        <div style={{ borderTop: isDesktop ? undefined : "1px solid #1a1e37" }}>
+        <div style={{ borderTop: isDesktop ? undefined : `1px solid ${BORDER_SUBTLE}` }}>
           <button
             onClick={() => { audioManager.playClick("press"); setCreating(true); }}
             style={{
@@ -337,23 +337,23 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
     return (
       <div>
         <div style={{
-          background: "#0d1024",
-          border: isDesktop ? `1px solid #2a2e50` : "none",
+          background: BG_CARD,
+          border: isDesktop ? `1px solid ${BORDER_ELEVATED}` : "none",
           borderTop: `2px solid ${ACCENT}`,
-          borderBottom: isDesktop ? undefined : `1px solid #1a1e37`,
+          borderBottom: isDesktop ? undefined : `1px solid ${BORDER_SUBTLE}`,
           borderRadius: isDesktop ? 10 : 0,
           overflow: "hidden",
         }}>
           {/* Header */}
           <div style={{
-            background: "#0b0d1e", borderBottom: `1px solid #1f254f`,
+            background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`,
             padding: "10px 14px", display: "flex", alignItems: "center", gap: 8,
           }}>
             <Timer size={16} color={ACCENT} />
-            <span style={{ fontFamily: "'Press Start 2P', monospace", color: ACCENT, fontSize: 10, flex: 1, textShadow: "1px 1px 0 #000" }}>
+            <span style={{ fontFamily: "'Press Start 2P', monospace", color: ACCENT, fontSize: 10, flex: 1, textShadow: "1px 1px 0 rgba(0,0,0,0.2)" }}>
               CREATE TEMPORAL CHALLENGE
             </span>
-            <button onClick={() => { setCreating(false); setNewTasks([]); }} style={{ background: "none", border: "none", color: "#5a6080", cursor: "pointer", padding: 4 }}>
+            <button onClick={() => { setCreating(false); setNewTasks([]); }} style={{ background: "none", border: "none", color: TEXT_MUTED, cursor: "pointer", padding: 4 }}>
               <X size={16} />
             </button>
           </div>
@@ -370,7 +370,7 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
                   ? `${String(Math.floor(duration / 60)).padStart(2, "0")}:${String(duration % 60).padStart(2, "0")}:00`
                   : `${String(duration).padStart(2, "0")}:00`}
               </div>
-              <div style={{ fontFamily: "'VT323', monospace", color: "#5a6080", fontSize: 16, marginTop: 6 }}>
+              <div style={{ fontFamily: "'VT323', monospace", color: TEXT_MUTED, fontSize: 16, marginTop: 6 }}>
                 Complete tasks before time runs out!
               </div>
             </div>
@@ -385,8 +385,8 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
                     style={{
                       padding: "6px 14px",
                       background: isActive ? ACCENT + "22" : "transparent",
-                      border: `1px solid ${isActive ? ACCENT : "#2a2e50"}`,
-                      color: isActive ? ACCENT : "#5a6080",
+                      border: `1px solid ${isActive ? ACCENT : BORDER_ELEVATED}`,
+                      color: isActive ? ACCENT : TEXT_MUTED,
                       fontFamily: "'Press Start 2P', monospace", fontSize: 9, cursor: "pointer",
                       transition: "all 0.12s", borderRadius: 6,
                     }}
@@ -400,8 +400,8 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
                 style={{
                   padding: "6px 14px",
                   background: customMode ? ACCENT + "22" : "transparent",
-                  border: `1px solid ${customMode ? ACCENT : "#2a2e50"}`,
-                  color: customMode ? ACCENT : "#5a6080",
+                  border: `1px solid ${customMode ? ACCENT : BORDER_ELEVATED}`,
+                  color: customMode ? ACCENT : TEXT_MUTED,
                   fontFamily: "'Press Start 2P', monospace", fontSize: 9, cursor: "pointer",
                   borderRadius: 6,
                 }}
@@ -414,22 +414,22 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
             {customMode && (
               <div style={{
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                marginBottom: 16, padding: "12px", background: "#0b0d1e",
+                marginBottom: 16, padding: "12px", background: BG_DEEPEST,
                 border: `1px solid ${ACCENT}33`, borderRadius: 7,
               }}>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                  <span style={{ fontFamily: "'VT323', monospace", color: "#5a6080", fontSize: 14 }}>HOURS</span>
+                  <span style={{ fontFamily: "'VT323', monospace", color: TEXT_MUTED, fontSize: 14 }}>HOURS</span>
                   <input type="number" min={0} max={23} value={customHours}
                     onChange={(e) => { const h = Math.max(0, Math.min(23, parseInt(e.target.value) || 0)); setCustomHours(h); const t = h * 60 + customMinutes; if (t > 0) setDuration(t); }}
-                    style={{ width: 64, textAlign: "center", background: "#1b1e37", border: `1px solid ${ACCENT}`, color: ACCENT, padding: "8px 4px", fontFamily: "'Press Start 2P', monospace", fontSize: 18, outline: "none", borderRadius: 5 }}
+                    style={{ width: 64, textAlign: "center", background: BG_PAGE, border: `1px solid ${ACCENT}`, color: ACCENT, padding: "8px 4px", fontFamily: "'Press Start 2P', monospace", fontSize: 18, outline: "none", borderRadius: 5 }}
                   />
                 </div>
                 <span style={{ fontFamily: "'Press Start 2P', monospace", color: ACCENT, fontSize: 24, marginTop: 18 }}>:</span>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                  <span style={{ fontFamily: "'VT323', monospace", color: "#5a6080", fontSize: 14 }}>MINUTES</span>
+                  <span style={{ fontFamily: "'VT323', monospace", color: TEXT_MUTED, fontSize: 14 }}>MINUTES</span>
                   <input type="number" min={0} max={59} value={customMinutes}
                     onChange={(e) => { const m = Math.max(0, Math.min(59, parseInt(e.target.value) || 0)); setCustomMinutes(m); const t = customHours * 60 + m; if (t > 0) setDuration(t); }}
-                    style={{ width: 64, textAlign: "center", background: "#1b1e37", border: `1px solid ${ACCENT}`, color: ACCENT, padding: "8px 4px", fontFamily: "'Press Start 2P', monospace", fontSize: 18, outline: "none", borderRadius: 5 }}
+                    style={{ width: 64, textAlign: "center", background: BG_PAGE, border: `1px solid ${ACCENT}`, color: ACCENT, padding: "8px 4px", fontFamily: "'Press Start 2P', monospace", fontSize: 18, outline: "none", borderRadius: 5 }}
                   />
                 </div>
                 <span style={{ fontFamily: "'VT323', monospace", color: ACCENT, fontSize: 16, marginTop: 18 }}>
@@ -440,7 +440,7 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
 
             {!customMode && <div style={{ marginBottom: 16 }} />}
 
-            <div style={{ borderTop: "1px solid #1a1e37", marginBottom: 12 }} />
+            <div style={{ borderTop: `1px solid ${BORDER_SUBTLE}`, marginBottom: 12 }} />
 
             {/* Bonus info */}
             <div style={{
@@ -459,10 +459,10 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
                 {newTasks.map((t) => (
                   <div key={t.id} style={{
                     display: "flex", alignItems: "center", gap: 8,
-                    padding: "8px 0", borderBottom: "1px solid #1a1e37",
+                    padding: "8px 0", borderBottom: `1px solid ${BORDER_SUBTLE}`,
                   }}>
                     <Timer size={12} color={ACCENT} style={{ flexShrink: 0 }} />
-                    <span style={{ flex: 1, color: "#fff", fontSize: 18, fontFamily: "'VT323', monospace" }}>{t.text}</span>
+                    <span style={{ flex: 1, color: TEXT_LIGHT, fontSize: 18, fontFamily: "'VT323', monospace" }}>{t.text}</span>
                     <span style={{
                       padding: "1px 6px", fontSize: 13, fontFamily: "'VT323', monospace",
                       color: DIFFICULTY_INFO[t.difficulty].color,
@@ -472,7 +472,7 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
                       {DIFFICULTY_INFO[t.difficulty].short}
                     </span>
                     <button onClick={() => setNewTasks(newTasks.filter((x) => x.id !== t.id))}
-                      style={{ background: "none", border: "none", color: "#5a6080", cursor: "pointer", padding: 2 }}>
+                      style={{ background: "none", border: "none", color: TEXT_MUTED, cursor: "pointer", padding: 2 }}>
                       <X size={13} />
                     </button>
                   </div>
@@ -488,12 +488,12 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
                   onKeyDown={(e) => { if (e.key === "Enter") addNewTask(); }}
                   placeholder="Add temporal task..."
                   style={{
-                    flex: 1, background: "#1b1e37", border: "1px solid #2a2e50",
-                    color: "#fff", padding: "8px 12px", fontSize: 18,
+                    flex: 1, background: BG_PAGE, border: `1px solid ${BORDER_ELEVATED}`,
+                    color: TEXT_LIGHT, padding: "8px 12px", fontSize: 18,
                     fontFamily: "'VT323', monospace", outline: "none", borderRadius: 6,
                   }}
                   onFocus={(e) => (e.target.style.borderColor = ACCENT)}
-                  onBlur={(e) => (e.target.style.borderColor = "#2a2e50")}
+                  onBlur={(e) => (e.target.style.borderColor = BORDER_ELEVATED)}
                 />
                 <button onClick={addNewTask} style={{
                   background: `${ACCENT}18`, border: `2px dashed ${ACCENT}`, color: ACCENT,
@@ -508,7 +508,7 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
             {/* Start */}
             <button onClick={startChallenge} disabled={newTasks.length === 0}
               style={{
-                width: "100%", background: newTasks.length > 0 ? ACCENT : "#333",
+                width: "100%", background: newTasks.length > 0 ? ACCENT : BORDER_ELEVATED,
                 border: "none", color: "#0d1024", padding: "14px",
                 fontFamily: "'Press Start 2P', monospace", fontSize: 11,
                 cursor: newTasks.length > 0 ? "pointer" : "not-allowed",
@@ -559,10 +559,10 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
       `}</style>
 
       <div style={{
-        background: "#0d1024",
-        border: isDesktop ? `1px solid ${borderColor === ACCENT ? "#2a2e50" : borderColor}` : "none",
+        background: BG_CARD,
+        border: isDesktop ? `1px solid ${borderColor === ACCENT ? BORDER_ELEVATED : borderColor}` : "none",
         borderTop: `2px solid ${borderColor}`,
-        borderBottom: `1px solid ${borderColor === ACCENT ? "#1a1e37" : borderColor + "55"}`,
+        borderBottom: `1px solid ${borderColor === ACCENT ? BORDER_SUBTLE : borderColor + "55"}`,
         borderRadius: isDesktop ? 10 : 0,
         overflow: "hidden",
         position: "relative", display: "flex", flexDirection: "column",
@@ -597,8 +597,8 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
               onClick={() => { isPaused ? resumeChallenge() : pauseChallenge(); }}
               style={{
                 background: isPaused ? "#FFD700" : "transparent",
-                border: `1px solid ${isPaused ? "#FFD700" : "#3a4060"}`,
-                color: isPaused ? "#0d1024" : "#5a6080",
+                border: `1px solid ${isPaused ? "#FFD700" : TEXT_INACTIVE}`,
+                color: isPaused ? "#0d1024" : TEXT_MUTED,
                 boxShadow: isPaused ? "0 0 10px #FFD70044" : "none",
                 padding: "4px 10px", cursor: "pointer",
                 fontFamily: "'VT323', monospace", fontSize: 16,
@@ -606,7 +606,7 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
                 transition: "all 0.2s",
               }}
               onMouseEnter={(e) => { if (!isPaused) { e.currentTarget.style.borderColor = "#FFD700"; e.currentTarget.style.color = "#FFD700"; } }}
-              onMouseLeave={(e) => { if (!isPaused) { e.currentTarget.style.borderColor = "#3a4060"; e.currentTarget.style.color = "#5a6080"; } }}
+              onMouseLeave={(e) => { if (!isPaused) { e.currentTarget.style.borderColor = TEXT_INACTIVE; e.currentTarget.style.color = TEXT_MUTED; } }}
             >
               {isPaused ? <><Play size={13} /> RESUME</> : <><Pause size={13} /> PAUSE</>}
             </button>
@@ -614,16 +614,16 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
 
           {/* Delete */}
           <button onClick={handleDeleteChallenge}
-            style={{ background: "none", border: "none", color: "#5a6080", cursor: "pointer", padding: 4 }}
+            style={{ background: "none", border: "none", color: TEXT_MUTED, cursor: "pointer", padding: 4 }}
             onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#E63946")}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#5a6080")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = TEXT_MUTED)}
           >
             <Trash2 size={14} />
           </button>
         </div>
 
         {/* ── Progress bar ── */}
-        <div style={{ height: 4, background: "#0a0c1a" }}>
+        <div style={{ height: 4, background: BG_DEEPEST }}>
           <div style={{
             height: "100%",
             width: `${tasks.length > 0 ? (completedCount / tasks.length) * 100 : 0}%`,
@@ -634,15 +634,15 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
 
         {/* ── Toolbar (mirrors TaskList) ── */}
         <div style={{
-          background: "#0b0d1e", borderBottom: "1px solid #1f254f",
+          background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`,
           padding: "8px 14px", display: "flex", alignItems: "center", gap: 10,
           flexShrink: 0, flexWrap: "wrap",
         }}>
           {canInteract && (
             <button onClick={() => { audioManager.playClick("tap"); handleSelectAll(); }}
-              style={{ background: "none", border: "none", color: "#5a6080", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, fontSize: 15, fontFamily: "'VT323', monospace", transition: "color 0.15s" }}
+              style={{ background: "none", border: "none", color: TEXT_MUTED, cursor: "pointer", display: "flex", alignItems: "center", gap: 5, fontSize: 15, fontFamily: "'VT323', monospace", transition: "color 0.15s" }}
               onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = ACCENT)}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#5a6080")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = TEXT_MUTED)}
             >
               <CheckSquare size={14} />
               {selected.size === uncompletedCount && uncompletedCount > 0 ? "Deselect All" : "Select All"}
@@ -662,7 +662,7 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
             <Zap size={11} /> 1.0x~1.5x
           </span>
 
-          <span style={{ color: "#5a6080", fontSize: 15, fontFamily: "'VT323', monospace" }}>{completedCount}/{tasks.length}</span>
+          <span style={{ color: TEXT_MUTED, fontSize: 15, fontFamily: "'VT323', monospace" }}>{completedCount}/{tasks.length}</span>
 
           {canInteract && (
             <button
@@ -687,7 +687,7 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
         {showAddInput && canInteract && isDesktop && (
           <div style={{ flexShrink: 0, borderLeft: `3px solid ${ACCENT}` }}>
             <div style={{
-              background: "#0b0d1e", borderBottom: "1px solid #1f254f",
+              background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`,
               padding: "10px 14px",
               display: "flex", alignItems: "center", gap: 10,
             }}>
@@ -698,19 +698,19 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
                   if (e.key === "Escape") { setShowAddInput(false); setNewText(""); }
                 }}
                 placeholder="Temporal task name..."
-                style={{ flex: 1, background: "#1b1e37", border: `1px solid ${ACCENT}55`, color: "#fff", padding: "6px 10px", fontSize: 19, fontFamily: "'VT323', monospace", outline: "none", borderRadius: 5 }}
+                style={{ flex: 1, background: BG_PAGE, border: `1px solid ${ACCENT}55`, color: TEXT_LIGHT, padding: "6px 10px", fontSize: 19, fontFamily: "'VT323', monospace", outline: "none", borderRadius: 5 }}
               />
               <button onClick={() => { if (newText.trim()) { addTaskToActive(newText.trim(), newDiff); setNewText(""); } }}
                 style={{ background: `${ACCENT}18`, border: `2px dashed ${ACCENT}`, color: ACCENT, padding: "6px 14px", fontFamily: "'VT323', monospace", fontSize: 17, cursor: "pointer", borderRadius: 5 }}>
                 +
               </button>
               <button onClick={() => { setShowAddInput(false); setNewText(""); }}
-                style={{ background: "none", border: "none", color: "#5a6080", cursor: "pointer", padding: 4 }}>
+                style={{ background: "none", border: "none", color: TEXT_MUTED, cursor: "pointer", padding: 4 }}>
                 <X size={14} />
               </button>
             </div>
-            <div style={{ background: "#0b0d1e", borderBottom: "1px solid #1f254f", padding: "6px 14px 10px" }}>
-              <div style={{ color: "#5a6080", fontSize: 13, fontFamily: "'VT323', monospace", marginBottom: 5 }}>DIFFICULTY</div>
+            <div style={{ background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`, padding: "6px 14px 10px" }}>
+              <div style={{ color: TEXT_MUTED, fontSize: 13, fontFamily: "'VT323', monospace", marginBottom: 5 }}>DIFFICULTY</div>
               <DiffPicker value={newDiff} onChange={setNewDiff} />
             </div>
           </div>
@@ -719,7 +719,7 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
         {/* ── Task items ── */}
         <div style={{ overflowY: "auto", flex: 1 }}>
           {tasks.length === 0 && (
-            <div style={{ color: "#5a6080", textAlign: "center", padding: "30px 20px", fontSize: 20, fontFamily: "'VT323', monospace" }}>
+            <div style={{ color: TEXT_MUTED, textAlign: "center", padding: "30px 20px", fontSize: 20, fontFamily: "'VT323', monospace" }}>
               Add tasks to the temporal challenge!
             </div>
           )}
@@ -750,7 +750,7 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
                   <div style={{
                     flexShrink: 0, width: 22, height: 22,
                     background: isSelected ? ACCENT + "25" : "transparent",
-                    border: `1px solid ${isSelected ? ACCENT : "#2a2e50"}`,
+                    border: `1px solid ${isSelected ? ACCENT : BORDER_ELEVATED}`,
                     borderRadius: 5,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     transition: "all 0.15s",
@@ -760,7 +760,7 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
 
                   {/* Text */}
                   <div style={{ flex: 1, paddingTop: 6, paddingBottom: 6 }}>
-                    <span style={{ color: "#fff", fontSize: 19, fontFamily: "'VT323', monospace" }}>{task.text}</span>
+                    <span style={{ color: TEXT_LIGHT, fontSize: 19, fontFamily: "'VT323', monospace" }}>{task.text}</span>
                   </div>
 
                   {/* Diff badge */}
@@ -785,12 +785,12 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
 
           {/* Separator */}
           {completedCount > 0 && uncompletedCount > 0 && (
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 14px", background: "#0a0c1a" }}>
-              <div style={{ flex: 1, height: 1, background: "#1f254f" }} />
-              <span style={{ color: "#3a4060", fontSize: 13, fontFamily: "'VT323', monospace", whiteSpace: "nowrap" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 14px", background: BG_DEEPEST }}>
+              <div style={{ flex: 1, height: 1, background: BORDER_SUBTLE }} />
+              <span style={{ color: TEXT_INACTIVE, fontSize: 13, fontFamily: "'VT323', monospace", whiteSpace: "nowrap" }}>
                 COMPLETED ({completedCount})
               </span>
-              <div style={{ flex: 1, height: 1, background: "#1f254f" }} />
+              <div style={{ flex: 1, height: 1, background: BORDER_SUBTLE }} />
             </div>
           )}
 
@@ -822,7 +822,7 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
         {/* ── End state buttons ── */}
         {(challengeComplete || challengeFailed) && (
           <div style={{
-            padding: "12px 14px", borderTop: "1px solid #1f254f",
+            padding: "12px 14px", borderTop: `1px solid ${BORDER_SUBTLE}`,
             background: challengeComplete ? "rgba(6,255,165,0.04)" : "rgba(230,57,70,0.04)",
           }}>
             {challengeFailed && (

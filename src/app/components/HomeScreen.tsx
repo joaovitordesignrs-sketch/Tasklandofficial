@@ -237,9 +237,9 @@ function MobileArenaSection() {
   if (!mission || campaignDone) return null;
 
   return (
-    <div style={{ width: "100%", background: "#0a0c1a", borderBottom: `2px solid ${BORDER_SUBTLE}` }}>
+    <div style={{ width: "100%", background: BG_DEEPEST, borderBottom: `2px solid ${BORDER_SUBTLE}` }}>
       {/* Mission toolbar */}
-      <div style={{ background: BG_DEEPEST, borderBottom: `1px solid #1a1e37`, padding: "5px 14px", display: "flex", alignItems: "center", gap: SP_SM }}>
+      <div style={{ background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`, padding: "5px 14px", display: "flex", alignItems: "center", gap: SP_SM }}>
         <div style={{ flexShrink: 0, minWidth: 22, height: 22, background: "#1a1e37", border: `1px solid ${BORDER_ELEVATED}`, borderRadius: RADIUS_SM + 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: PX_2XS, lineHeight: 1 }}>
             #{(mission.campaignOrder ?? 0) + 1}
@@ -307,7 +307,7 @@ function MobileArenaSection() {
 
           {/* HP bar */}
           <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-end" }}>
-            <div style={{ flex: 1, maxWidth: 160, height: 8, background: "rgba(0,0,0,0.6)", border: `1px solid ${hpColor}55`, borderRadius: RADIUS_SM, overflow: "hidden" }}>
+            <div style={{ flex: 1, maxWidth: 160, height: 8, background: BG_DEEPEST, border: `1px solid ${hpColor}55`, borderRadius: RADIUS_SM, overflow: "hidden" }}>
               <div style={{ width: `${hpInfo.percent}%`, height: "100%", background: hpColor, transition: "width 0.6s ease" }} />
             </div>
             <span style={{ fontFamily: FONT_BODY, color: hpColor, fontSize: VT_SM, whiteSpace: "nowrap", minWidth: 48, textAlign: "right" }}>{hpInfo.label}</span>
@@ -392,12 +392,12 @@ function MobileAttackModal() {
     : `FOCUS! ${focusSelectedCount} TASK${focusSelectedCount > 1 ? "S" : ""}`;
 
   const shadow = mixed
-    ? `0 0 18px ${alpha(COLOR_MAGE, "66")}, 0 8px 32px rgba(0,0,0,0.6)`
+    ? `0 0 18px ${alpha(COLOR_MAGE, "66")}, 0 8px 32px rgba(0,0,0,0.15)`
     : hasCampaign
-    ? `${getAttackShadow(mission.monsterType, selectedTaskCount, tk)}, 0 8px 32px rgba(0,0,0,0.6)`
+    ? `${getAttackShadow(mission.monsterType, selectedTaskCount, tk)}, 0 8px 32px rgba(0,0,0,0.15)`
     : hasTemporal
-    ? `0 0 14px ${alpha(COLOR_ORANGE, "66")}, 0 8px 32px rgba(0,0,0,0.6)`
-    : `0 0 14px ${alpha(COLOR_MAGE, "73")}, 0 8px 32px rgba(0,0,0,0.6)`;
+    ? `0 0 14px ${alpha(COLOR_ORANGE, "66")}, 0 8px 32px rgba(0,0,0,0.15)`
+    : `0 0 14px ${alpha(COLOR_MAGE, "73")}, 0 8px 32px rgba(0,0,0,0.15)`;
 
   function handleUnifiedAttack() {
     audioManager.playClick("press");

@@ -60,7 +60,7 @@ export default function AdminWipeScreen() {
   const canExecute = confirmation === CONFIRM_PHRASE && secret.trim().length > 0 && status !== "loading";
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col items-center justify-center p-4">
       {/* Header */}
       <div className="text-center mb-8">
         <div className="text-6xl mb-4">⚔️</div>
@@ -127,7 +127,7 @@ export default function AdminWipeScreen() {
         <div className="w-full max-w-lg space-y-4">
           {/* Secret input */}
           <div>
-            <label className="block text-xs text-gray-400 font-mono mb-1 uppercase tracking-widest">
+            <label className="block text-xs text-gray-600 font-mono mb-1 uppercase tracking-widest">
               Segredo de Admin (ADMIN_WIPE_SECRET)
             </label>
             <input
@@ -135,16 +135,16 @@ export default function AdminWipeScreen() {
               value={secret}
               onChange={(e) => setSecret(e.target.value)}
               placeholder="Digite o segredo de admin..."
-              className="w-full bg-gray-900 border border-gray-700 text-white font-mono text-sm rounded-lg px-4 py-3 focus:outline-none focus:border-red-500 placeholder-gray-600"
+              className="w-full bg-white border border-gray-300 text-gray-900 font-mono text-sm rounded-lg px-4 py-3 focus:outline-none focus:border-red-500 placeholder-gray-400"
             />
           </div>
 
           {/* Confirmation phrase */}
           <div>
-            <label className="block text-xs text-gray-400 font-mono mb-1 uppercase tracking-widest">
+            <label className="block text-xs text-gray-600 font-mono mb-1 uppercase tracking-widest">
               Digite exatamente para confirmar:
             </label>
-            <div className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 mb-2 font-mono text-yellow-400 text-sm select-all">
+            <div className="bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 mb-2 font-mono text-yellow-600 text-sm select-all">
               {CONFIRM_PHRASE}
             </div>
             <input
@@ -152,7 +152,7 @@ export default function AdminWipeScreen() {
               value={confirmation}
               onChange={(e) => setConfirmation(e.target.value)}
               placeholder={`Digite: ${CONFIRM_PHRASE}`}
-              className="w-full bg-gray-900 border border-gray-700 text-white font-mono text-sm rounded-lg px-4 py-3 focus:outline-none focus:border-red-500 placeholder-gray-600"
+              className="w-full bg-white border border-gray-300 text-gray-900 font-mono text-sm rounded-lg px-4 py-3 focus:outline-none focus:border-red-500 placeholder-gray-400"
             />
             {confirmation.length > 0 && confirmation !== CONFIRM_PHRASE && (
               <p className="text-red-500 text-xs font-mono mt-1">
@@ -173,7 +173,7 @@ export default function AdminWipeScreen() {
             className={`w-full font-mono font-bold py-4 rounded-lg border text-lg transition-all ${
               canExecute
                 ? "bg-red-700 hover:bg-red-600 border-red-500 text-white cursor-pointer"
-                : "bg-gray-800 border-gray-700 text-gray-600 cursor-not-allowed"
+                : "bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed"
             }`}
           >
             {status === "loading" ? (
@@ -188,7 +188,7 @@ export default function AdminWipeScreen() {
 
           <button
             onClick={() => { setShowForm(false); setStatus("idle"); setResult(null); setSecret(""); setConfirmation(""); }}
-            className="w-full text-gray-500 hover:text-gray-300 font-mono text-sm py-2 transition-colors"
+            className="w-full text-gray-500 hover:text-gray-700 font-mono text-sm py-2 transition-colors"
           >
             Cancelar
           </button>
@@ -196,7 +196,7 @@ export default function AdminWipeScreen() {
       ) : status === "success" ? (
         <button
           onClick={() => { setStatus("idle"); setResult(null); setShowForm(false); }}
-          className="bg-gray-800 hover:bg-gray-700 text-white font-mono px-6 py-2 rounded-lg border border-gray-600 transition-colors text-sm"
+          className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-mono px-6 py-2 rounded-lg border border-gray-300 transition-colors text-sm"
         >
           ← Voltar
         </button>
@@ -204,7 +204,7 @@ export default function AdminWipeScreen() {
 
       {/* Footer */}
       <div className="mt-12 text-center">
-        <p className="text-gray-700 font-mono text-xs">
+        <p className="text-gray-500 font-mono text-xs">
           TaskLand Admin Panel · Acesso Restrito ao Administrador
         </p>
       </div>

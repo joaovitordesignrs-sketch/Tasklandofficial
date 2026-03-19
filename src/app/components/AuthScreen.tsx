@@ -5,6 +5,7 @@ import { useState, useCallback } from "react";
 import { useAuth } from "../hooks/useAuth";
 import TasklandLogotipo from "../../imports/TasklandLogotipo";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
+import { useTheme } from "../contexts/PreferencesContext";
 
 type AuthMode = "login" | "signup";
 
@@ -12,6 +13,7 @@ const SERVER_URL = `https://${projectId}.supabase.co/functions/v1/make-server-8f
 
 export default function AuthScreen() {
   const { signIn, signUp, signInWithGoogle } = useAuth();
+  const { BG_CARD, BG_DEEPEST, BG_PAGE, BORDER_ELEVATED, TEXT_LIGHT, TEXT_MUTED, TEXT_INACTIVE, alpha } = useTheme();
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,6 +23,27 @@ export default function AuthScreen() {
   const [error, setError] = useState<string | null>(null);
   const [nickAvailable, setNickAvailable] = useState<boolean | null>(null);
   const [nickChecking, setNickChecking] = useState(false);
+
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontFamily: "'Press Start 2P', monospace",
+    fontSize: 8,
+    color: TEXT_MUTED,
+    marginBottom: 6,
+    letterSpacing: "0.1em",
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "10px 12px",
+    fontFamily: "'VT323', monospace",
+    fontSize: 18,
+    color: TEXT_LIGHT,
+    background: BG_DEEPEST,
+    border: `2px solid ${BORDER_ELEVATED}`,
+    outline: "none",
+    boxSizing: "border-box",
+  };
 
   // Check nick availability
   const checkNick = useCallback(async (value: string) => {
@@ -102,7 +125,7 @@ export default function AuthScreen() {
         style={{
           position: "fixed",
           inset: 0,
-          background: "#080c1a",
+          background: BG_DEEPEST,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -145,15 +168,15 @@ export default function AuthScreen() {
         <div
           style={{
             width: "min(420px, 90vw)",
-            background: "#0d1024",
-            border: "1px solid rgba(42,46,80,0.8)",
+            background: BG_CARD,
+            border: `1px solid ${alpha(BORDER_ELEVATED, "cc")}`,
             borderRadius: 12,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03) inset",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.03) inset",
             animation: "authFadeIn 0.6s ease-out 0.1s both",
           }}
         >
           {/* Tab Header */}
-          <div style={{ display: "flex", borderBottom: "1px solid #2a2e50" }}>
+          <div style={{ display: "flex", borderBottom: `1px solid ${BORDER_ELEVATED}` }}>
             {(["login", "signup"] as AuthMode[]).map(m => (
               <button
                 key={m}
@@ -163,8 +186,8 @@ export default function AuthScreen() {
                   padding: "12px 0",
                   fontFamily: "'Press Start 2P', monospace",
                   fontSize: 10,
-                  color: mode === m ? "#f0c040" : "#5a6080",
-                  background: mode === m ? "#0b0d1e" : "#0d1024",
+                  color: mode === m ? "#f0c040" : TEXT_MUTED,
+                  background: mode === m ? BG_DEEPEST : BG_CARD,
                   border: "none",
                   cursor: "pointer",
                   borderBottom: mode === m ? "2px solid #f0c040" : "2px solid transparent",
@@ -206,7 +229,7 @@ export default function AuthScreen() {
                         transform: "translateY(-50%)",
                         fontFamily: "'Press Start 2P', monospace",
                         fontSize: 8,
-                        color: nickChecking ? "#5a6080" : nickAvailable ? "#06FFA5" : "#E63946",
+                        color: nickChecking ? TEXT_MUTED : nickAvailable ? "#06FFA5" : "#E63946",
                       }}
                     >
                       {nickChecking ? "..." : nickAvailable ? "OK" : "IN USE"}
@@ -287,7 +310,7 @@ export default function AuthScreen() {
                 fontFamily: "'Press Start 2P', monospace",
                 fontSize: 11,
                 color: "#0d1024",
-                background: loading ? "#5a6080" : "#f0c040",
+                background: loading ? TEXT_MUTED : "#f0c040",
                 border: "none",
                 borderRadius: 8,
                 boxShadow: "none",
@@ -306,11 +329,11 @@ export default function AuthScreen() {
 
             {/* Divider */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "18px 0" }}>
-              <div style={{ flex: 1, height: 1, background: "#2a2e50" }} />
-              <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: "#5a6080" }}>
+              <div style={{ flex: 1, height: 1, background: BORDER_ELEVATED }} />
+              <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: TEXT_MUTED }}>
                 OU
               </span>
-              <div style={{ flex: 1, height: 1, background: "#2a2e50" }} />
+              <div style={{ flex: 1, height: 1, background: BORDER_ELEVATED }} />
             </div>
 
             {/* Google OAuth */}
@@ -322,10 +345,10 @@ export default function AuthScreen() {
                 padding: "12px 0",
                 fontFamily: "'Press Start 2P', monospace",
                 fontSize: 9,
-                color: "#d0d4e8",
-                background: "#1a1d35",
-                border: "2px solid #2a2e50",
-                boxShadow: "3px 3px 0 #000",
+                color: TEXT_LIGHT,
+                background: BG_PAGE,
+                border: `2px solid ${BORDER_ELEVATED}`,
+                boxShadow: "3px 3px 0 rgba(0,0,0,0.1)",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -350,7 +373,7 @@ export default function AuthScreen() {
           style={{
             marginTop: 20,
             fontFamily: "'VT323', monospace",
-            color: "#232840",
+            color: TEXT_INACTIVE,
             fontSize: 15,
           }}
         >
@@ -360,26 +383,3 @@ export default function AuthScreen() {
     </>
   );
 }
-
-// ── Shared Styles ────────────────────────────────────────────────────────────
-
-const labelStyle: React.CSSProperties = {
-  display: "block",
-  fontFamily: "'Press Start 2P', monospace",
-  fontSize: 8,
-  color: "#5a6080",
-  marginBottom: 6,
-  letterSpacing: "0.1em",
-};
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "10px 12px",
-  fontFamily: "'VT323', monospace",
-  fontSize: 18,
-  color: "#d0d4e8",
-  background: "#0b0d1e",
-  border: "2px solid #2a2e50",
-  outline: "none",
-  boxSizing: "border-box",
-};

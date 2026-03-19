@@ -8,6 +8,7 @@ import { audioManager } from '../hooks/audioManager';
 import { Lock } from 'lucide-react';
 import imgAvatarWarrior from '../../assets/profile_pic/profile_pic_warrior.png';
 import imgAvatarMage    from '../../assets/profile_pic/profile_pic_mage.png';
+import { useTheme } from '../contexts/PreferencesContext';
 
 const SKIN_ORDER: SkinId[] = ['warrior_base', 'warrior_aventureiro', 'mage'];
 
@@ -57,9 +58,10 @@ function SkinCard({
 }: {
   skinId: SkinId; isSelected: boolean; onSelect: () => void; unlocked: boolean;
 }) {
+  const { BG_CARD, BG_DEEPEST, BORDER_ELEVATED, TEXT_INACTIVE, TEXT_LIGHT, alpha } = useTheme();
   const info = SKIN_INFO[skinId];
   const locked = info.locked;
-  const color = locked ? '#3a4060' : info.color;
+  const color = locked ? TEXT_INACTIVE : info.color;
   const canClick = !locked;
 
   return (
@@ -70,8 +72,8 @@ function SkinCard({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        background: isSelected ? `${color}14` : '#0a0c1a',
-        border: `1px solid ${isSelected ? color : locked ? '#1a1e30' : '#2a2e50'}`,
+        background: isSelected ? `${color}14` : BG_DEEPEST,
+        border: `1px solid ${isSelected ? color : locked ? BG_CARD : BORDER_ELEVATED}`,
         boxShadow: isSelected ? `0 0 20px ${color}44` : 'none',
         cursor: canClick ? 'pointer' : 'not-allowed',
         padding: '0 0 12px',
@@ -83,7 +85,7 @@ function SkinCard({
       }}
     >
       {/* Animation area */}
-      <div style={{ width: '100%', aspectRatio: '1 / 1', background: '#060818', position: 'relative' }}>
+      <div style={{ width: '100%', aspectRatio: '1 / 1', background: BG_DEEPEST, position: 'relative' }}>
         <SkinRivePreview skinId={skinId} />
 
         {/* Lock overlay */}
@@ -91,11 +93,11 @@ function SkinCard({
           <div style={{
             position: 'absolute', inset: 0,
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(4,6,18,0.55)',
+            background: alpha(BG_DEEPEST, '8c'),
             gap: 6,
           }}>
-            <Lock size={22} color="#3a4060" />
-            <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 6, color: '#3a4060', letterSpacing: 1 }}>
+            <Lock size={22} color={TEXT_INACTIVE} />
+            <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 6, color: TEXT_INACTIVE, letterSpacing: 1 }}>
               COMING SOON
             </span>
           </div>
@@ -117,7 +119,7 @@ function SkinCard({
         {!locked && !unlocked && info.cost > 0 && (
           <div style={{
             position: 'absolute', bottom: 6, right: 6,
-            background: '#0d1024', border: `1px solid ${info.color}`,
+            background: BG_CARD, border: `1px solid ${info.color}`,
             padding: '2px 6px', borderRadius: 4,
             fontFamily: "'VT323', monospace", fontSize: 13, color: info.color,
           }}>
@@ -129,7 +131,7 @@ function SkinCard({
         {!locked && unlocked && skinId !== 'warrior_base' && (
           <div style={{
             position: 'absolute', bottom: 6, right: 6,
-            background: '#0d1024', border: `1px solid #06FFA5`,
+            background: BG_CARD, border: `1px solid #06FFA5`,
             padding: '2px 6px', borderRadius: 4,
             fontFamily: "'VT323', monospace", fontSize: 13, color: '#06FFA5',
           }}>
@@ -142,7 +144,7 @@ function SkinCard({
       <div style={{
         fontFamily: "'Press Start 2P', monospace",
         fontSize: 'clamp(7px, 2vw, 9px)',
-        color: isSelected && !locked ? color : locked ? '#2a3050' : '#d0d4e8',
+        color: isSelected && !locked ? color : locked ? TEXT_INACTIVE : TEXT_LIGHT,
         marginTop: 10, marginBottom: 4, letterSpacing: 1,
       }}>
         {info.label.toUpperCase()}
@@ -152,7 +154,7 @@ function SkinCard({
       <div style={{
         fontFamily: "'VT323', monospace",
         fontSize: 14,
-        color: locked ? '#2a3050' : unlocked ? '#06FFA5' : info.color,
+        color: locked ? TEXT_INACTIVE : unlocked ? '#06FFA5' : info.color,
         letterSpacing: 0.5,
       }}>
         {locked ? 'LOCKED' : unlocked ? (skinId === 'warrior_base' ? 'DEFAULT' : 'UNLOCKED') : `${info.cost} coins`}
@@ -167,6 +169,7 @@ interface ClassPickerOverlayProps {
 }
 
 export function ClassPickerOverlay({ onConfirm }: ClassPickerOverlayProps) {
+  const { BG_DEEPEST, TEXT_INACTIVE, alpha } = useTheme();
   const econ = getEconomy();
   const [selected,  setSelected]  = useState<SkinId>('warrior_base');
   const [confirmed, setConfirmed] = useState(false);
@@ -203,10 +206,12 @@ export function ClassPickerOverlay({ onConfirm }: ClassPickerOverlayProps) {
     setTimeout(() => onConfirm(selected), 800);
   }
 
+  void coins;
+
   const economy = getEconomy();
   const selInfo = SKIN_INFO[selected];
   const canAfford = selInfo.locked ? false : (economy.unlockedSkins.includes(selected) || economy.coins >= selInfo.cost);
-  const selColor = selInfo.locked ? '#3a4060' : selInfo.color;
+  const selColor = selInfo.locked ? TEXT_INACTIVE : selInfo.color;
 
   return (
     <div
@@ -214,7 +219,7 @@ export function ClassPickerOverlay({ onConfirm }: ClassPickerOverlayProps) {
         position: 'fixed', inset: 0, zIndex: 9999,
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
-        background: 'rgba(4,6,18,0.97)',
+        background: alpha(BG_DEEPEST, 'f7'),
         opacity: visible ? 1 : 0,
         transition: 'opacity 0.35s ease',
         fontFamily: "'VT323', monospace",
@@ -248,7 +253,7 @@ export function ClassPickerOverlay({ onConfirm }: ClassPickerOverlayProps) {
           }}>
             CHOOSE YOUR SKIN
           </h1>
-          <p style={{ color: '#3a4060', fontSize: 17, margin: '4px 0 0', fontFamily: "'VT323', monospace" }}>
+          <p style={{ color: TEXT_INACTIVE, fontSize: 17, margin: '4px 0 0', fontFamily: "'VT323', monospace" }}>
             Your hero's appearance. More skins coming soon.
           </p>
         </div>
@@ -276,15 +281,15 @@ export function ClassPickerOverlay({ onConfirm }: ClassPickerOverlayProps) {
             fontFamily: "'Press Start 2P', monospace",
             fontSize: 'clamp(9px, 2.5vw, 11px)',
             letterSpacing: 1,
-            color: confirmed ? '#06FFA5' : SKIN_INFO[selected].locked ? '#2a3050' : !canAfford ? '#E63946' : '#0d1024',
+            color: confirmed ? '#06FFA5' : SKIN_INFO[selected].locked ? TEXT_INACTIVE : !canAfford ? '#E63946' : '#0d1024',
             background: confirmed
               ? 'rgba(6,255,165,0.1)'
-              : SKIN_INFO[selected].locked ? '#0a0c1a'
+              : SKIN_INFO[selected].locked ? BG_DEEPEST
               : !canAfford ? 'rgba(230,57,70,0.08)'
               : selColor,
             border: confirmed
               ? '3px solid #06FFA5'
-              : SKIN_INFO[selected].locked ? '1px solid #1a1e30'
+              : SKIN_INFO[selected].locked ? `1px solid ${BG_DEEPEST}`
               : !canAfford ? '1px solid #E63946'
               : `1px solid ${selColor}`,
             boxShadow: !SKIN_INFO[selected].locked && canAfford && !confirmed ? `0 0 18px ${selColor}44` : 'none',

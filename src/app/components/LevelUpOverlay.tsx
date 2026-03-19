@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import imgHero from "figma:asset/88db16de6cc4fac02e41af10e16775e8930dedaf.png";
 import { audioManager } from "../hooks/audioManager";
 import { Star } from "lucide-react";
+import { useTheme } from "../contexts/PreferencesContext";
 
 interface LevelUpOverlayProps {
   level: number;
@@ -26,6 +27,7 @@ const STARS = [
 ];
 
 export function LevelUpOverlay({ level, rank, rankColor, onClose }: LevelUpOverlayProps) {
+  const { BG_CARD, BG_DEEPEST, TEXT_LIGHT, TEXT_MUTED, alpha } = useTheme();
   const [phase, setPhase] = useState<"in" | "hold" | "out">("in");
 
   useEffect(() => {
@@ -76,7 +78,7 @@ export function LevelUpOverlay({ level, rank, rankColor, onClose }: LevelUpOverl
           position: "fixed",
           inset: 0,
           zIndex: 99999,
-          background: "rgba(0,0,0,0.88)",
+          background: alpha(BG_DEEPEST, "e0"),
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -137,7 +139,7 @@ export function LevelUpOverlay({ level, rank, rankColor, onClose }: LevelUpOverl
         <div
           style={{
             position: "relative",
-            background: "#0d1024",
+            background: BG_CARD,
             border: `4px solid ${rankColor}`,
             boxShadow: `6px 6px 0 #000`,
             padding: "40px 52px",
@@ -190,7 +192,7 @@ export function LevelUpOverlay({ level, rank, rankColor, onClose }: LevelUpOverl
             style={{
               fontFamily: "'Press Start 2P', monospace",
               fontSize: "11px",
-              color: "#fff",
+              color: TEXT_LIGHT,
               letterSpacing: "4px",
               marginBottom: 8,
               textShadow: "2px 2px 0 #000",
@@ -220,7 +222,7 @@ export function LevelUpOverlay({ level, rank, rankColor, onClose }: LevelUpOverl
               display: "inline-flex",
               alignItems: "center",
               gap: 8,
-              background: "#0b0d1e",
+              background: BG_DEEPEST,
               border: `2px solid ${rankColor}`,
               boxShadow: `0 0 40px ${rankColor}44, 0 0 80px ${rankColor}22`,
               padding: "6px 20px",
@@ -247,7 +249,7 @@ export function LevelUpOverlay({ level, rank, rankColor, onClose }: LevelUpOverl
             <div
               style={{
                 height: 12,
-                background: "#0b0d1e",
+                background: BG_DEEPEST,
                 border: `2px solid ${rankColor}`,
                 overflow: "hidden",
                 position: "relative",
@@ -278,7 +280,7 @@ export function LevelUpOverlay({ level, rank, rankColor, onClose }: LevelUpOverl
             style={{
               marginTop: 20,
               fontFamily: "'VT323', monospace",
-              color: "#4a5070",
+              color: TEXT_MUTED,
               fontSize: 16,
               animation: "lvlBlink 1.2s step-end infinite",
             }}

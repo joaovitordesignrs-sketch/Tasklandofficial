@@ -7,6 +7,7 @@ import { getEconomy, buySkin, selectSkin, SKIN_INFO, type SkinId } from "../data
 import { useCampaign } from "../hooks/useCampaign";
 import imgAvatarWarrior from "../../assets/profile_pic/profile_pic_warrior.png";
 import imgAvatarMage    from "../../assets/profile_pic/profile_pic_mage.png";
+import { useTheme } from "../contexts/PreferencesContext";
 
 const SKIN_ORDER: SkinId[] = ["warrior_base", "warrior_aventureiro", "mage"];
 
@@ -51,6 +52,7 @@ function RivePreview({ skinId }: { skinId: SkinId }) {
 
 export default function ClassSelectionScreen() {
   const navigate = useNavigate();
+  const { BG_PAGE, BG_CARD, BG_DEEPEST, BORDER_SUBTLE, BORDER_ELEVATED, TEXT_LIGHT, TEXT_MUTED, TEXT_INACTIVE, TEXT_BODY, alpha } = useTheme();
   const { activeSkin: contextActiveSkin, setActiveSkin: ctxSetSkin, setNeedsClassPick } = useCampaign();
   const economy = getEconomy();
 
@@ -86,12 +88,12 @@ export default function ClassSelectionScreen() {
   const selInfo   = SKIN_INFO[selected];
   const economy2  = getEconomy();
   const canAfford = selInfo.locked ? false : (economy2.unlockedSkins.includes(selected) || economy2.coins >= selInfo.cost);
-  const selColor  = selInfo.locked ? "#3a4060" : selInfo.color;
+  const selColor  = selInfo.locked ? TEXT_INACTIVE : selInfo.color;
 
   return (
     <div style={{
       minHeight: "100vh",
-      background: "#07090f",
+      background: BG_PAGE,
       display: "flex",
       flexDirection: "column",
       paddingBottom: 80,
@@ -104,13 +106,13 @@ export default function ClassSelectionScreen() {
       <div style={{
         display: "flex", alignItems: "center", gap: 12,
         padding: "14px 16px",
-        borderBottom: "1px solid #1a1e37",
+        borderBottom: `1px solid ${BORDER_SUBTLE}`,
       }}>
         <button
           onClick={() => { audioManager.playClick("navigate"); navigate(-1); }}
           style={{
-            background: "transparent", border: "1px solid #2a2e50",
-            borderRadius: 8, color: "#5a6080", cursor: "pointer",
+            background: "transparent", border: `1px solid ${BORDER_ELEVATED}`,
+            borderRadius: 8, color: TEXT_MUTED, cursor: "pointer",
             padding: "6px 8px", display: "flex",
           }}
         >
@@ -118,7 +120,7 @@ export default function ClassSelectionScreen() {
         </button>
         <span style={{
           fontFamily: "'Press Start 2P', monospace",
-          fontSize: 10, color: "#c0c8e0", letterSpacing: 1,
+          fontSize: 10, color: TEXT_LIGHT, letterSpacing: 1,
         }}>
           CHOOSE YOUR SKIN
         </span>
@@ -137,7 +139,7 @@ export default function ClassSelectionScreen() {
         {SKIN_ORDER.map(skinId => {
           const info    = SKIN_INFO[skinId];
           const locked  = info.locked;
-          const color   = locked ? "#2a3060" : info.color;
+          const color   = locked ? TEXT_INACTIVE : info.color;
           const active  = contextActiveSkin === skinId;
           const picked  = selected === skinId;
           const owned   = economy.unlockedSkins.includes(skinId);
@@ -153,8 +155,8 @@ export default function ClassSelectionScreen() {
                 flexDirection: "column",
                 alignItems: "center",
                 padding: 0,
-                background: picked && !locked ? `${color}0e` : "#0d1024",
-                border: `2px solid ${picked && !locked ? color : locked ? "#131628" : "#1f254f"}`,
+                background: picked && !locked ? `${color}0e` : BG_CARD,
+                border: `2px solid ${picked && !locked ? color : locked ? BG_DEEPEST : BORDER_SUBTLE}`,
                 borderRadius: 12,
                 cursor: locked ? "not-allowed" : "pointer",
                 outline: "none",
@@ -167,7 +169,7 @@ export default function ClassSelectionScreen() {
               <div style={{
                 width: "100%",
                 aspectRatio: "1 / 1",
-                background: "#060818",
+                background: BG_DEEPEST,
                 position: "relative",
               }}>
                 <RivePreview skinId={skinId} />
@@ -177,10 +179,10 @@ export default function ClassSelectionScreen() {
                   <div style={{
                     position: "absolute", inset: 0,
                     display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                    background: "rgba(4,6,18,0.55)", gap: 4,
+                    background: alpha(BG_DEEPEST, "8c"), gap: 4,
                   }}>
-                    <Lock size={18} color="#2a3060" />
-                    <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 5, color: "#2a3060" }}>
+                    <Lock size={18} color={TEXT_INACTIVE} />
+                    <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 5, color: TEXT_INACTIVE }}>
                       COMING SOON
                     </span>
                   </div>
@@ -203,7 +205,7 @@ export default function ClassSelectionScreen() {
                 {!locked && !owned && info.cost > 0 && (
                   <div style={{
                     position: "absolute", bottom: 6, right: 6,
-                    background: "#0d1024", border: `1px solid ${color}`,
+                    background: BG_CARD, border: `1px solid ${color}`,
                     padding: "2px 5px", borderRadius: 4,
                     fontFamily: "'VT323', monospace", fontSize: 12, color,
                   }}>
@@ -217,7 +219,7 @@ export default function ClassSelectionScreen() {
                 <div style={{
                   fontFamily: "'Press Start 2P', monospace",
                   fontSize: 8,
-                  color: picked && !locked ? color : locked ? "#2a3060" : "#8a9fba",
+                  color: picked && !locked ? color : locked ? TEXT_INACTIVE : TEXT_BODY,
                   marginBottom: 4,
                   transition: "color 0.18s",
                 }}>
@@ -226,7 +228,7 @@ export default function ClassSelectionScreen() {
                 <div style={{
                   fontFamily: "'VT323', monospace",
                   fontSize: 14,
-                  color: locked ? "#2a3060" : owned ? "#06FFA5" : color,
+                  color: locked ? TEXT_INACTIVE : owned ? "#06FFA5" : color,
                 }}>
                   {locked ? "LOCKED" : owned ? (skinId === "warrior_base" ? "DEFAULT" : "OWNED") : `${info.cost} coins`}
                 </div>
@@ -252,15 +254,15 @@ export default function ClassSelectionScreen() {
             padding: "14px 0",
             fontFamily: "'Press Start 2P', monospace",
             fontSize: 10,
-            color: confirmed ? "#06FFA5" : selInfo.locked ? "#2a3060" : !canAfford ? "#E63946" : "#0d1024",
+            color: confirmed ? "#06FFA5" : selInfo.locked ? TEXT_INACTIVE : !canAfford ? "#E63946" : "#0d1024",
             background: confirmed
               ? "rgba(6,255,165,0.08)"
-              : selInfo.locked ? "#0a0c1a"
+              : selInfo.locked ? BG_DEEPEST
               : !canAfford ? "rgba(230,57,70,0.08)"
               : selColor,
             border: confirmed
               ? "2px solid #06FFA5"
-              : selInfo.locked ? "1px solid #131628"
+              : selInfo.locked ? `1px solid ${BG_DEEPEST}`
               : !canAfford ? "1px solid #E63946"
               : `1px solid ${selColor}`,
             borderRadius: 10,
@@ -284,7 +286,7 @@ export default function ClassSelectionScreen() {
         <p style={{
           textAlign: "center",
           fontFamily: "'VT323', monospace",
-          color: "#2a3050", fontSize: 15, marginTop: 10,
+          color: TEXT_INACTIVE, fontSize: 15, marginTop: 10,
         }}>
           You can change your skin at any time
         </p>

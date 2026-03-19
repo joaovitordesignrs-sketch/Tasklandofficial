@@ -725,16 +725,6 @@ app.post("/make-server-8f0246f6/admin/wipe", async (c) => {
       focusDamageBonus: 0,
     };
 
-    const defaultRebirth = {
-      runNumber: 1,
-      totalRebirths: 0,
-      permanentDamageBonus: 0,
-      permanentAchievements: [],
-      highestLevelEver: 0,
-      totalMonstersEver: 0,
-      totalTasksEver: 0,
-    };
-
     // Use postgres direct connection for the mass update (bypasses RLS)
     const pg = postgres(dbUrl, { max: 1 });
     let affectedGameData = 0;
@@ -752,7 +742,6 @@ app.post("/make-server-8f0246f6/admin/wipe", async (c) => {
           challenges            = '[]'::jsonb,
           habits                = '[]'::jsonb,
           economy               = ${JSON.stringify(defaultEconomy)}::jsonb,
-          rebirth               = ${JSON.stringify(defaultRebirth)}::jsonb,
           combat_power          = 75,
           cp_rank_tier          = 'F',
           level                 = 1,

@@ -12,7 +12,7 @@ export function BottomNav() {
   const feedback = useInteractionFeedback();
   const isDesktop = useIsDesktop();
   const notifs = useNotifications();
-  const { ACCENT_GOLD, ACCENT_GOLD_DIM, TEXT_INACTIVE, COLOR_DANGER } = useTheme();
+  const { ACCENT_GOLD, ACCENT_GOLD_DIM, TEXT_INACTIVE, COLOR_DANGER, BG_CARD, BG_DEEPEST, BORDER_SUBTLE, alpha } = useTheme();
   const t = useLanguage();
 
   const tabs = [
@@ -46,10 +46,10 @@ export function BottomNav() {
         zIndex:       200,
         width:        "calc(100% - 24px)",
         maxWidth:     520,
-        background:   "rgba(8, 10, 24, 0.92)",
-        border:       "2px solid #1f254f",
+        background:   alpha(BG_CARD, "eb"),
+        border:       `2px solid ${BORDER_SUBTLE}`,
         borderRadius: 40,
-        boxShadow:    "0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04) inset",
+        boxShadow:    "0 8px 32px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06) inset",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
         padding:      "0 8px",
@@ -103,7 +103,7 @@ export function BottomNav() {
                     minWidth:  14,
                     height:    14,
                     background: COLOR_DANGER,
-                    border:    "1.5px solid #0a0c1a",
+                    border:    `1.5px solid ${BG_DEEPEST}`,
                     borderRadius: 8,
                     display:   "flex",
                     alignItems:"center",

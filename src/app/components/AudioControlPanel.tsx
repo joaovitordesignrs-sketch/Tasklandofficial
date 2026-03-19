@@ -6,8 +6,10 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Music, Volume2, VolumeX, Settings } from "lucide-react";
 import { useAudioSettings } from "../hooks/useAudioSettings";
 import { audioManager } from "../hooks/audioManager";
+import { useTheme } from "../contexts/PreferencesContext";
 
 export function AudioControlPanel() {
+  const { BG_CARD, BG_PAGE, BORDER_ELEVATED, TEXT_LIGHT, TEXT_MUTED, TEXT_INACTIVE, alpha } = useTheme();
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const sfxPreviewTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -53,8 +55,8 @@ export function AudioControlPanel() {
         title="Audio Settings"
         style={{
           background: "none",
-          border: `2px solid ${open ? "#e39f64" : "#333"}`,
-          color: hasAudio ? "#06FFA5" : "#5a6080",
+          border: `2px solid ${open ? "#e39f64" : BORDER_ELEVATED}`,
+          color: hasAudio ? "#06FFA5" : TEXT_MUTED,
           padding: "6px 8px",
           cursor: "pointer",
           display: "flex",
@@ -80,17 +82,17 @@ export function AudioControlPanel() {
           right: 0,
           zIndex: 999,
           width: 252,
-          background: "#0d1024",
-          border: "1px solid rgba(42,46,80,0.8)",
+          background: BG_CARD,
+          border: `1px solid ${alpha(BORDER_ELEVATED, "cc")}`,
           borderRadius: 10,
-          boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
           fontFamily: "'VT323', monospace",
           padding: 0,
         }}>
           {/* Header */}
           <div style={{
-            background: "#1b1e37",
-            borderBottom: "1px solid #2a2e50",
+            background: BG_PAGE,
+            borderBottom: `1px solid ${BORDER_ELEVATED}`,
             padding: "8px 12px",
             display: "flex",
             alignItems: "center",
@@ -99,7 +101,7 @@ export function AudioControlPanel() {
             <Settings size={12} color="#e39f64" />
             <span style={{
               fontFamily: "'Press Start 2P', monospace",
-              color: "#e39f64", fontSize: 8, textShadow: "1px 1px 0 #000",
+              color: "#e39f64", fontSize: 8, textShadow: "1px 1px 0 rgba(0,0,0,0.2)",
             }}>
               AUDIO
             </span>
@@ -111,15 +113,15 @@ export function AudioControlPanel() {
             <div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <Music size={13} color={musicOn ? "#c084fc" : "#5a6080"} />
-                  <span style={{ color: "#fff", fontSize: 17 }}>Music</span>
+                  <Music size={13} color={musicOn ? "#c084fc" : TEXT_MUTED} />
+                  <span style={{ color: TEXT_LIGHT, fontSize: 17 }}>Music</span>
                 </div>
                 <button
                   onClick={() => setMusicOn(!musicOn)}
                   style={{
-                    background: musicOn ? "#06FFA5" : "#2a2e50",
-                    border: "2px solid " + (musicOn ? "#06FFA5" : "#5a6080"),
-                    color: musicOn ? "#0d1024" : "#5a6080",
+                    background: musicOn ? "#06FFA5" : BORDER_ELEVATED,
+                    border: "2px solid " + (musicOn ? "#06FFA5" : TEXT_MUTED),
+                    color: musicOn ? "#0d1024" : TEXT_MUTED,
                     fontFamily: "'Press Start 2P', monospace",
                     fontSize: 7, padding: "3px 8px", cursor: "pointer", minWidth: 38,
                   }}
@@ -128,10 +130,10 @@ export function AudioControlPanel() {
                 </button>
               </div>
 
-              {/* Now playing ambient indicator — no prev/next buttons */}
+              {/* Now playing ambient indicator */}
               <div style={{
                 display: "flex", alignItems: "center", gap: 7,
-                background: "#15182d", border: "1px solid #2a2e50",
+                background: BG_PAGE, border: `1px solid ${BORDER_ELEVATED}`,
                 padding: "6px 10px", marginBottom: 8, borderRadius: 4,
                 opacity: musicOn ? 1 : 0.35,
               }}>
@@ -142,7 +144,7 @@ export function AudioControlPanel() {
                       key={i}
                       style={{
                         width: 3,
-                        background: musicOn ? "#c084fc" : "#3a4060",
+                        background: musicOn ? "#c084fc" : TEXT_INACTIVE,
                         borderRadius: 1,
                         animation: musicOn ? `bgmBar${i} ${0.6 + i * 0.15}s ease-in-out infinite alternate` : "none",
                         height: musicOn ? undefined : 4,
@@ -152,7 +154,7 @@ export function AudioControlPanel() {
                 </div>
                 <span style={{
                   fontFamily: "'VT323', monospace",
-                  fontSize: 15, color: musicOn ? "#c084fc" : "#3a4060",
+                  fontSize: 15, color: musicOn ? "#c084fc" : TEXT_INACTIVE,
                   flex: 1, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis",
                 }}>
                   {musicOn ? trackName : "—"}
@@ -165,10 +167,13 @@ export function AudioControlPanel() {
                 disabled={!musicOn}
                 color="#c084fc"
                 label="Vol"
+                bgColor={BG_PAGE}
+                borderColor={BORDER_ELEVATED}
+                mutedColor={TEXT_MUTED}
               />
             </div>
 
-            <div style={{ height: 2, background: "#2a2e50" }} />
+            <div style={{ height: 2, background: BORDER_ELEVATED }} />
 
             {/* ── SFX SECTION ── */}
             <div>
@@ -176,16 +181,16 @@ export function AudioControlPanel() {
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   {sfxOn
                     ? <Volume2 size={13} color="#FF6B35" />
-                    : <VolumeX size={13} color="#5a6080" />
+                    : <VolumeX size={13} color={TEXT_MUTED} />
                   }
-                  <span style={{ color: "#fff", fontSize: 17 }}>Sound Effects</span>
+                  <span style={{ color: TEXT_LIGHT, fontSize: 17 }}>Sound Effects</span>
                 </div>
                 <button
                   onClick={() => setSfxOn(!sfxOn)}
                   style={{
-                    background: sfxOn ? "#06FFA5" : "#2a2e50",
-                    border: "2px solid " + (sfxOn ? "#06FFA5" : "#5a6080"),
-                    color: sfxOn ? "#0d1024" : "#5a6080",
+                    background: sfxOn ? "#06FFA5" : BORDER_ELEVATED,
+                    border: "2px solid " + (sfxOn ? "#06FFA5" : TEXT_MUTED),
+                    color: sfxOn ? "#0d1024" : TEXT_MUTED,
                     fontFamily: "'Press Start 2P', monospace",
                     fontSize: 7, padding: "3px 8px", cursor: "pointer", minWidth: 38,
                   }}
@@ -199,12 +204,15 @@ export function AudioControlPanel() {
                 disabled={!sfxOn}
                 color="#FF6B35"
                 label="Vol"
+                bgColor={BG_PAGE}
+                borderColor={BORDER_ELEVATED}
+                mutedColor={TEXT_MUTED}
               />
             </div>
           </div>
 
-          <div style={{ borderTop: "1px solid #2a2e50", padding: "6px 14px", textAlign: "center" }}>
-            <span style={{ color: "#5a6080", fontSize: 13 }}>Click outside to close</span>
+          <div style={{ borderTop: `1px solid ${BORDER_ELEVATED}`, padding: "6px 14px", textAlign: "center" }}>
+            <span style={{ color: TEXT_MUTED, fontSize: 13 }}>Click outside to close</span>
           </div>
 
           {/* Keyframes for animated bars */}
@@ -221,24 +229,27 @@ export function AudioControlPanel() {
 
 // ── Pixel-art Volume Slider ──────────────────────────────────────────────────
 function VolumeSlider({
-  value, onChange, disabled, color, label,
+  value, onChange, disabled, color, label, bgColor, borderColor, mutedColor,
 }: {
   value: number;
   onChange: (v: number) => void;
   disabled: boolean;
   color: string;
   label: string;
+  bgColor: string;
+  borderColor: string;
+  mutedColor: string;
 }) {
   const pct = Math.round(value * 100);
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, opacity: disabled ? 0.35 : 1 }}>
-      <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: "#5a6080", minWidth: 22 }}>
+      <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: mutedColor, minWidth: 22 }}>
         {label}
       </span>
       <div style={{ flex: 1, position: "relative", height: 18, display: "flex", alignItems: "center" }}>
         <div style={{
           position: "absolute", width: "100%", height: 8,
-          background: "#1b1e37", border: "1px solid #2a2e50",
+          background: bgColor, border: `1px solid ${borderColor}`,
         }}>
           <div style={{ width: `${pct}%`, height: "100%", background: color, transition: "width 0.1s" }} />
         </div>
@@ -253,7 +264,7 @@ function VolumeSlider({
       </div>
       <span style={{
         fontFamily: "'VT323', monospace", fontSize: 15,
-        color: disabled ? "#5a6080" : color, minWidth: 30, textAlign: "right",
+        color: disabled ? mutedColor : color, minWidth: 30, textAlign: "right",
       }}>
         {pct}%
       </span>

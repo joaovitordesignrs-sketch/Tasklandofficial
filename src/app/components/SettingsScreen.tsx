@@ -10,7 +10,7 @@ import { useNavigate } from "react-router";
 import { PageShell } from "./ui/PageShell";
 import { PixelTabs, PixelTabDef } from "./ui/PixelTabs";
 import { RpgButton } from "./ui/RpgButton";
-import { setTheme, getPreferences } from "../data/preferences";
+import { getPreferences } from "../data/preferences";
 import { useTheme } from "../contexts/PreferencesContext";
 import { useLanguage } from "../contexts/PreferencesContext";
 
@@ -278,37 +278,6 @@ function PreferencesSettings() {
           </span>
         </div>
 
-        {/* Theme row */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontFamily: FONT_BODY, color: TEXT_LIGHT, fontSize: 18 }}>
-            {t("settings.theme")}
-          </span>
-          <div style={{ display: "flex", gap: 8 }}>
-            {(["dark", "light"] as const).map((theme) => {
-              const active = prefs.theme === theme;
-              const label = theme === "dark" ? t("settings.theme.dark") : t("settings.theme.light");
-              return (
-                <button
-                  key={theme}
-                  onClick={() => { setTheme(theme); audioManager.playClick("tap"); }}
-                  style={{
-                    padding: "6px 16px",
-                    background: active ? ACCENT_GOLD + "22" : "transparent",
-                    border: `1.5px solid ${active ? ACCENT_GOLD : BORDER_ELEVATED}`,
-                    color: active ? ACCENT_GOLD : TEXT_MUTED,
-                    fontFamily: FONT_PIXEL,
-                    fontSize: 8,
-                    cursor: "pointer",
-                    borderRadius: RADIUS_MD,
-                    transition: "all 0.15s",
-                  }}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
       </div>
     </div>
   );
