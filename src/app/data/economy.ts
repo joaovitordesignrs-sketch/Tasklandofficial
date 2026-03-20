@@ -295,14 +295,6 @@ export function recordOnePunchBoss(): void {
   saveEconomy(econ);
 }
 
-/** @deprecated focusDamageBonus removed — always returns 0 */
-export function getFocusDamageBonus(): number { return 0; }
-
-/** @deprecated focusDamageBonus removed — no-op kept for call-site compatibility */
-export function addFocusDamageBonus(_amount = 0.01): void {
-  // focusDamageBonus removed — this is intentionally a no-op
-}
-
 /** Check and unlock new achievements, returns newly unlocked ones */
 export function checkAchievements(stats: PlayerStats): AchievementDef[] {
   const newlyUnlocked: AchievementDef[] = [];

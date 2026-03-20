@@ -17,9 +17,6 @@ import {
   Challenge, ChallengeTask,
   getChallenges, createChallenge, updateChallenge, deleteChallenge,
 } from "../data/challenges";
-import {
-  addFocusDamageBonus, getFocusDamageBonus,
-} from "../data/economy";
 import { addChallengeTaskToHistory } from "../data/missions";
 import { audioManager } from "../hooks/audioManager";
 import { useIsDesktop } from "../hooks/useIsDesktop";
@@ -230,7 +227,6 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
     }
 
     const gainedBonus = FOCUS_BONUS * ids.length;
-    addFocusDamageBonus(gainedBonus);
     setBonusGained(gainedBonus);
     setTimeout(() => setBonusGained(null), 2000);
 
@@ -251,7 +247,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
     onFocusStrike({
       damage:     totalDamage,
       count:      ids.length,
-      focusBonus: getFocusDamageBonus(),
+      focusBonus: 0,
     });
     audioManager.playClick("press");
   }, [activeChallenge, selected, playerLevel, monsterAlive, onFocusStrike]);
@@ -513,7 +509,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
   const sessionRemaining = sessionMs - sessionElapsed;
   const sessionsDone     = Math.floor(elapsed / sessionMs);
 
-  const currentFocusBonus = getFocusDamageBonus();
+  const currentFocusBonus = 0;
   const allUncomplSelected = uncompletedCount > 0 && uncompletedTasks.every(t => selected.has(t.id));
 
   return (

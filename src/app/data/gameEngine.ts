@@ -39,14 +39,14 @@ export const DIFFICULTY_INFO: Record<string, { label: string; color: string; sho
  *
  * @param mode  - "temporal" (Guerreiro +15%), "focus" (Mago +20%), ou "none"
  */
-export function calcTaskDamage(task: Task, level: number, isLastTaskOfDay = false, mode: PowerMode = "none"): number {
+export function calcTaskDamage(task: Task, level: number, mode: PowerMode = "none"): number {
   const base  = DIFFICULTY_DAMAGE[task.difficulty ?? "easy"] ?? 30;
   const power = getPower(level, mode);
   return Math.max(1, Math.round(base * power.total));
 }
 
 export function calcBatchDamage(tasks: Task[], level: number, mode: PowerMode = "none"): number {
-  return tasks.reduce((acc, t) => acc + calcTaskDamage(t, level, false, mode), 0);
+  return tasks.reduce((acc, t) => acc + calcTaskDamage(t, level, mode), 0);
 }
 
 // ── XP System ─────────────────────────────────────────────────────────────────

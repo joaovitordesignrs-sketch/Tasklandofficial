@@ -105,6 +105,7 @@ let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let realtimeChannel: any = null;
 let focusHandler: (() => void) | null = null;
 let unloadHandler: (() => void) | null = null;
+let tagsChangedHandler: (() => void) | null = null;
 let lastPushTime = 0;
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -739,7 +740,8 @@ export function setSyncUser(uid: string | null): void {
   window.addEventListener("beforeunload", unloadHandler);
 
   // 5. Push when tags change (tags are embedded in economy for sync)
-  window.addEventListener("rpg:tags-changed", () => schedulePush(3000));
+  tagsChangedHandler = () => schedulePush(3000);
+  window.addEventListener("rpg:tags-changed", tagsChangedHandler);
 
   // 4. Push when page becomes hidden (mobile tab switch)
   const visibilityHandler = () => {
@@ -757,6 +759,7 @@ export function stopSync(isLogout = false): void {
   if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
   if (focusHandler) { window.removeEventListener("focus", focusHandler); focusHandler = null; }
   if (unloadHandler) { window.removeEventListener("beforeunload", unloadHandler); unloadHandler = null; }
+  if (tagsChangedHandler) { window.removeEventListener("rpg:tags-changed", tagsChangedHandler); tagsChangedHandler = null; }
   if ((window as any).__syncVisHandler) {
     document.removeEventListener("visibilitychange", (window as any).__syncVisHandler);
     delete (window as any).__syncVisHandler;

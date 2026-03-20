@@ -5,7 +5,7 @@
  */
 import {
   createContext, useContext,
-  useState, useCallback, useEffect, useRef,
+  useState, useCallback, useEffect, useRef, useMemo,
   ReactNode,
 } from "react";
 import { useSound }               from "./useSound";
@@ -114,9 +114,7 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
   const [screenShake,      setScreenShake]      = useState(false);
   const [screenFlash,      setScreenFlash]      = useState(false);
   const [showVictory,      setShowVictory]      = useState(false);
-  const [victoryXP,        setVictoryXP]        = useState(0);
-  const [victoryGold,      setVictoryGold]      = useState(0);
-  const [victoryEssence,   setVictoryEssence]   = useState(0);
+  const [victoryRewards,   setVictoryRewards]   = useState({ xp: 0, gold: 0, essence: 0 });
   const [nextMission,      setNextMission]      = useState<Mission | null>(null);
   const [campaignDone,     setCampaignDone]     = useState(false);
   const [playerName]                            = useState(loadPlayerName);
@@ -138,6 +136,22 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
   const [damageNumbers,            setDamageNumbers]            = useState<DamageNumber[]>([]);
 
   const playHit = useSound("https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/sound_hit.mp3");
+
+  // ── shared monster-defeat sequence ─────────────────────────────────────────
+  const processVictory = useCallback((updatedMission: Mission) => {
+    const xpGained      = calcMonsterXP({ ...updatedMission });
+    const monType       = updatedMission.monsterType ?? "normal";
+    const goldEarned    = getMonsterCoinReward(monType);
+    const essenceEarned = getEssenceDrop(monType);
+    addBonusXP(xpGained);
+    addCoins(goldEarned);
+    addEssences(essenceEarned);
+    setVictoryRewards({ xp: xpGained, gold: goldEarned, essence: essenceEarned });
+    const next = unlockNext(updatedMission);
+    setNextMission(next);
+    setCampaignDone(!next && isCampaignComplete());
+    setTimeout(() => { feedback.victory(); audioManager.playVictory(); setShowVictory(true); }, 800);
+  }, [feedback]);
 
   // Add a floating damage number that auto-removes after animation
   const addDamageNumber = useCallback((amount: number) => {
@@ -219,17 +233,22 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
     setPrevHpPct(hp);
   }, [mission]);
 
-  // ── derived ───────────────────────────────────────────────────────────────────
-  const totalXP       = calcTotalXP(allMissions);
-  const lvInfo        = getLevelInfo(totalXP);
+  // ── derived (memoized to avoid expensive recomputation every render) ────────
+  const totalXP       = useMemo(() => calcTotalXP(allMissions), [allMissions]);
+  const lvInfo        = useMemo(() => getLevelInfo(totalXP), [totalXP]);
   const xpPct         = Math.round((lvInfo.currentXP / lvInfo.neededXP) * 100);
-  const rank          = getRank(lvInfo.level);
-  const cpData        = getCombatPower(lvInfo.level);
+  const rank          = useMemo(() => getRank(lvInfo.level), [lvInfo.level]);
+  const cpData        = useMemo(() => getCombatPower(lvInfo.level), [lvInfo.level]);
   const hpInfo        = mission ? getMonsterHpInfo(mission) : { current: 0, max: 0, percent: 0, label: "0/0" };
   const defeated      = mission ? isMonsterDefeated(mission) : false;
   const hpColor       = hpInfo.percent > 50 ? "#E63946" : hpInfo.percent > 25 ? "#ed8549" : "#f0c040";
-  const totalCampaign = allMissions.filter(m => m.mode === "campaign").length;
-  const doneCampaign  = allMissions.filter(m => m.mode === "campaign" && (m.monsterCurrentHp ?? 1) <= 0).length;
+  const { totalCampaign, doneCampaign } = useMemo(() => {
+    let total = 0, done = 0;
+    for (const m of allMissions) {
+      if (m.mode === "campaign") { total++; if ((m.monsterCurrentHp ?? 1) <= 0) done++; }
+    }
+    return { totalCampaign: total, doneCampaign: done };
+  }, [allMissions]);
 
   // ── handlers ──────────────────────────────────────────────────────────────────
   const handleComplete = useCallback((count: number, completedIds: string[]) => {
@@ -269,24 +288,11 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
       setTimeout(() => setAttackBanner(null), count >= 5 ? 2000 : 1400);
       addDamageNumber(damage);
       if (newHp <= 0) {
-        const xpGained  = calcMonsterXP({ ...updated });
-        const monType   = updated.monsterType ?? "normal";
-        const goldEarned    = getMonsterCoinReward(monType);
-        const essenceEarned = getEssenceDrop(monType);
-        addBonusXP(xpGained);
-        addCoins(goldEarned);
-        addEssences(essenceEarned);
-        setVictoryXP(xpGained);
-        setVictoryGold(goldEarned);
-        setVictoryEssence(essenceEarned);
         if (updated.monsterType === "boss" && completedIds.length === 1) {
           const theTask = justDone[0];
           if (theTask?.difficulty === "hard") recordOnePunchBoss();
         }
-        const next = unlockNext(updated);
-        setNextMission(next);
-        setCampaignDone(!next && isCampaignComplete());
-        setTimeout(() => { feedback.victory(); audioManager.playVictory(); setShowVictory(true); }, 800);
+        processVictory(updated);
       }
     });
   }, [mission, scheduleFeedback]);
@@ -378,24 +384,9 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
       setTimeout(() => setScreenShake(false), strike.isCritical ? 600 : 380);
       setTimeout(() => setAttackBanner(null), strike.isCritical ? 2000 : 1400);
       addDamageNumber(strike.damage);
-      if (newHp <= 0) {
-        const xpGained      = calcMonsterXP({ ...updated });
-        const monType       = updated.monsterType ?? "normal";
-        const goldEarned    = getMonsterCoinReward(monType);
-        const essenceEarned = getEssenceDrop(monType);
-        addBonusXP(xpGained);
-        addCoins(goldEarned);
-        addEssences(essenceEarned);
-        setVictoryXP(xpGained);
-        setVictoryGold(goldEarned);
-        setVictoryEssence(essenceEarned);
-        const next = unlockNext(updated);
-        setNextMission(next);
-        setCampaignDone(!next && isCampaignComplete());
-        setTimeout(() => { feedback.victory(); audioManager.playVictory(); setShowVictory(true); }, 800);
-      }
+      if (newHp <= 0) processVictory(updated);
     });
-  }, [mission, scheduleFeedback]);
+  }, [mission, scheduleFeedback, processVictory]);
 
   const handleFocusStrike = useCallback((strike: FocusStrike) => {
     if (!mission || isMonsterDefeated(mission)) return;
@@ -425,24 +416,9 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
       setTimeout(() => setScreenShake(false), 380);
       setTimeout(() => setAttackBanner(null), 1600);
       addDamageNumber(strike.damage);
-      if (newHp <= 0) {
-        const xpGained      = calcMonsterXP({ ...updated });
-        const monType       = updated.monsterType ?? "normal";
-        const goldEarned    = getMonsterCoinReward(monType);
-        const essenceEarned = getEssenceDrop(monType);
-        addBonusXP(xpGained);
-        addCoins(goldEarned);
-        addEssences(essenceEarned);
-        setVictoryXP(xpGained);
-        setVictoryGold(goldEarned);
-        setVictoryEssence(essenceEarned);
-        const next = unlockNext(updated);
-        setNextMission(next);
-        setCampaignDone(!next && isCampaignComplete());
-        setTimeout(() => { feedback.victory(); audioManager.playVictory(); setShowVictory(true); }, 800);
-      }
+      if (newHp <= 0) processVictory(updated);
     });
-  }, [mission, scheduleFeedback]);
+  }, [mission, scheduleFeedback, processVictory]);
 
   const handleChallengeFailed = useCallback(() => {
     const missions = getMissions();
@@ -487,7 +463,8 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value: CampaignContextValue = {
-    mission, allMissions, monsterShake, taskCompleted, showVictory, victoryXP, victoryGold, victoryEssence,
+    mission, allMissions, monsterShake, taskCompleted, showVictory,
+    victoryXP: victoryRewards.xp, victoryGold: victoryRewards.gold, victoryEssence: victoryRewards.essence,
     nextMission, campaignDone, levelUpInfo, attackBanner, screenShake, screenFlash,
     xpPenaltyBanner, hpInfo, hpColor, defeated, doneCampaign, totalCampaign,
     activeSkin, needsClassPick, damageNumbers,

@@ -3,7 +3,6 @@ import { Brain, Timer, Trash2 } from "lucide-react";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { audioManager } from "../hooks/audioManager";
 import { getChallenges, deleteChallenge } from "../data/challenges";
-import { getFocusDamageBonus } from "../data/economy";
 import { PageShell } from "./ui/PageShell";
 import { CardIn } from "./ui/CardIn";
 import { RpgButton } from "./ui/RpgButton";
@@ -27,7 +26,7 @@ export default function ChallengesScreen() {
   } = useTheme();
   const isDesktop = useIsDesktop();
   const [challenges, setChallenges] = useState(getChallenges());
-  const focusBonus = getFocusDamageBonus();
+  const focusBonus = 0;
 
   function refresh() { setChallenges([...getChallenges()]); }
   function handleDelete(id: string) { deleteChallenge(id); refresh(); }
