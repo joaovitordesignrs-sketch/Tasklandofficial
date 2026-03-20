@@ -11,6 +11,7 @@ import { HabitIcon, HABIT_ICON_CATEGORIES, PixelIcon } from "./ui/PixelIcon";
 import { CardIn } from "./ui/CardIn";
 import { RpgButton } from "./ui/RpgButton";
 import { useTheme } from "../contexts/PreferencesContext";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 const DEFAULT_ICON = HABIT_ICON_CATEGORIES[0].icons[0]; // "heart"
 
@@ -81,6 +82,16 @@ export default function HabitsScreen() {
   const streakingCount = activeHabits.filter(h => h.currentStreak > 0).length;
   const totalStreakBonus = streakingCount * 2;
 
+  // Build last-14-days chart data
+  const chartData = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (13 - i));
+    const dateStr = d.toISOString().slice(0, 10);
+    const count = activeHabits.filter(h => h.checkIns.includes(dateStr)).length;
+    const label = d.toLocaleDateString("en", { month: "numeric", day: "numeric" });
+    return { date: label, count };
+  });
+
   const currentCategory = HABIT_ICON_CATEGORIES.find(c => c.key === activeCategory)!;
 
   return (
@@ -105,6 +116,68 @@ export default function HabitsScreen() {
               <span style={{ color: COLOR_ORANGE, fontSize: 18, fontFamily: FONT_BODY }}>
                 +{totalStreakBonus}% damage from active habits ({streakingCount}/5 on streak)
               </span>
+            </div>
+          )}
+
+          {/* Completion chart */}
+          {activeHabits.length > 0 && (
+            <div style={{
+              background: BG_CARD,
+              border: `1px solid rgba(42,46,80,0.8)`,
+              borderTop: `2px solid ${COLOR_SUCCESS}`,
+              borderRadius: RADIUS_XL,
+              padding: "14px 16px 10px",
+            }}>
+              <div style={{ fontFamily: FONT_PIXEL, color: COLOR_SUCCESS, fontSize: 9, marginBottom: 12, letterSpacing: 1 }}>
+                HABITS COMPLETED · LAST 14 DAYS
+              </div>
+              <ResponsiveContainer width="100%" height={130}>
+                <AreaChart data={chartData} margin={{ top: 6, right: 4, left: -28, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="habitGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={COLOR_SUCCESS} stopOpacity={0.35} />
+                      <stop offset="100%" stopColor={COLOR_SUCCESS} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke={BORDER_SUBTLE} vertical={false} />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 10, fill: TEXT_INACTIVE, fontFamily: FONT_BODY }}
+                    tickLine={false}
+                    axisLine={false}
+                    interval={6}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    domain={[0, activeHabits.length]}
+                    tick={{ fontSize: 10, fill: TEXT_INACTIVE, fontFamily: FONT_BODY }}
+                    tickLine={false}
+                    axisLine={false}
+                    width={36}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: BG_DEEPEST,
+                      border: `1px solid ${BORDER_ELEVATED}`,
+                      borderRadius: 6,
+                      fontFamily: FONT_BODY,
+                      fontSize: 14,
+                    }}
+                    itemStyle={{ color: COLOR_SUCCESS }}
+                    labelStyle={{ color: TEXT_INACTIVE, fontSize: 12 }}
+                    formatter={(v: number) => [v, "habits"]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="count"
+                    stroke={COLOR_SUCCESS}
+                    strokeWidth={2}
+                    fill="url(#habitGrad)"
+                    dot={{ r: 3, fill: COLOR_SUCCESS, strokeWidth: 0 }}
+                    activeDot={{ r: 5, fill: COLOR_SUCCESS, strokeWidth: 0 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           )}
 

@@ -273,7 +273,7 @@ export function buySkin(skin: SkinId): boolean {
 
 export function selectSkin(skin: SkinId): void {
   if (!econ.unlockedSkins.includes(skin)) return;
-  econ = { ...econ, activeSkin: skin };
+  econ = { ...econ, activeSkin: skin, needsClassSelection: false };
   saveEconomy(econ);
 }
 
