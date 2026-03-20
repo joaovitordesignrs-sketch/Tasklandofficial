@@ -12,6 +12,9 @@ const SKIN_SCALE: Record<SkinId, number> = {
   mage:               1.22,
 };
 
+// Cache which skins have already been loaded so remounts skip the fallback flash
+const loadedSkins = new Set<string>();
+
 interface TaskCharacterProps {
   taskCompleted: boolean;
   activeSkin: SkinId | null;
@@ -22,18 +25,19 @@ interface TaskCharacterProps {
 export function TaskCharacter({ taskCompleted, activeSkin, onAttackStart }: TaskCharacterProps) {
   const hasFired        = useRef(false);
   const attackInputRef  = useRef<any>(null);
-  const [riveReady, setRiveReady] = useState(false);
+  const skin = activeSkin ?? "warrior_base";
+  const [riveReady, setRiveReady] = useState(() => loadedSkins.has(skin));
 
   // Keep a stable ref so the state-change listener never captures a stale closure
   const onAttackStartRef = useRef(onAttackStart);
   useEffect(() => { onAttackStartRef.current = onAttackStart; }, [onAttackStart]);
 
-  const skin = activeSkin ?? "warrior_base";
   const rivSrc = SKIN_INFO[skin].rivUrl;
 
   const onLoad = useCallback(() => {
+    loadedSkins.add(skin);
     setRiveReady(true);
-  }, []);
+  }, [skin]);
 
   const { RiveComponent, rive } = useRive({
     src: rivSrc,
@@ -138,7 +142,7 @@ export function TaskCharacter({ taskCompleted, activeSkin, onAttackStart }: Task
           alt=""
           style={{
             position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)',
-            height: '100%', width: 'auto', objectFit: 'contain', imageRendering: 'pixelated',
+            maxHeight: 200, width: 'auto', objectFit: 'contain', imageRendering: 'pixelated',
             opacity: 0.75, zIndex: 1,
           }}
         />
