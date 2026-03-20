@@ -42,12 +42,15 @@ interface SearchResult {
 
 export default function FriendsScreen() {
   const {
-    COLOR_WARRIOR, COLOR_SUCCESS, COLOR_LEGENDARY, TEXT_MUTED,
+    BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
+    COLOR_WARRIOR, COLOR_DANGER, COLOR_SUCCESS, COLOR_LEGENDARY, COLOR_MAGE, COLOR_ORANGE,
+    TEXT_INACTIVE, TEXT_MUTED, RANK_VETERANO,
+    FONT_PIXEL, FONT_BODY, RADIUS_XL, RADIUS_LG, PX_XS, alpha,
   } = useTheme();
 
   const RANK_COLORS: Record<string, string> = {
-    "S+": "#FF2D55", S: COLOR_LEGENDARY, A: "#FF6B35", B: "#c084fc",
-    C: COLOR_WARRIOR, D: COLOR_SUCCESS, E: "#8a9fba", F: TEXT_MUTED,
+    "S+": "#FF2D55", S: COLOR_LEGENDARY, A: COLOR_ORANGE, B: COLOR_MAGE,
+    C: COLOR_WARRIOR, D: COLOR_SUCCESS, E: RANK_VETERANO, F: TEXT_MUTED,
   };
 
   const { session } = useAuth();
@@ -218,11 +221,11 @@ export default function FriendsScreen() {
                 onClick={() => setTab(t.key)}
                 style={{
                   padding: "8px 14px",
-                  fontFamily: "'Press Start 2P', monospace",
-                  fontSize: 8,
-                  background: tab === t.key ? "rgba(96,165,250,0.12)" : "transparent",
-                  border: `1px solid ${tab === t.key ? "#60a5fa" : "#2a2e50"}`,
-                  color: tab === t.key ? "#60a5fa" : "#5a6080",
+                  fontFamily: FONT_PIXEL,
+                  fontSize: PX_XS,
+                  background: tab === t.key ? alpha(COLOR_WARRIOR, "1f") : "transparent",
+                  border: `1px solid ${tab === t.key ? COLOR_WARRIOR : BORDER_ELEVATED}`,
+                  color: tab === t.key ? COLOR_WARRIOR : TEXT_MUTED,
                   cursor: "pointer",
                   display: "flex", alignItems: "center", gap: 6,
                   borderRadius: 6, transition: "all 0.15s",
@@ -230,7 +233,7 @@ export default function FriendsScreen() {
               >
                 <t.icon size={11} /> {t.label}
                 {t.count > 0 && (
-                  <span style={{ background: "#60a5fa", color: "#000", borderRadius: 10, padding: "1px 6px", fontSize: 9, fontFamily: "'VT323', monospace" }}>
+                  <span style={{ background: COLOR_WARRIOR, color: "#000", borderRadius: RADIUS_XL, padding: "1px 6px", fontSize: 9, fontFamily: FONT_BODY }}>
                     {t.count}
                   </span>
                 )}
@@ -241,8 +244,8 @@ export default function FriendsScreen() {
           {/* ── SEARCH tab ────────────────────────────── */}
           {tab === "search" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, padding: "16px 18px" }}>
-                <div style={{ fontFamily: "'Press Start 2P', monospace", color: "#60a5fa", fontSize: 9, marginBottom: 12 }}>
+              <div style={{ background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "cc")}`, borderRadius: RADIUS_XL, padding: "16px 18px" }}>
+                <div style={{ fontFamily: FONT_PIXEL, color: COLOR_WARRIOR, fontSize: 9, marginBottom: 12 }}>
                   SEARCH ADVENTURER
                 </div>
                 <div style={{ display: "flex", gap: 8 }}>
@@ -251,39 +254,39 @@ export default function FriendsScreen() {
                     onChange={e => setSearchNick(e.target.value)}
                     onKeyDown={e => { if (e.key === "Enter") handleSearch(); }}
                     placeholder="@nome_do_jogador"
-                    style={{ flex: 1, background: "#0b0d1e", border: "1px solid #2a2e50", color: "#fff", padding: "10px 14px", fontFamily: "'VT323', monospace", fontSize: 18, outline: "none", borderRadius: 6 }}
+                    style={{ flex: 1, background: BG_DEEPEST, border: `1px solid ${BORDER_ELEVATED}`, color: "#fff", padding: "10px 14px", fontFamily: FONT_BODY, fontSize: 18, outline: "none", borderRadius: 6 }}
                   />
                   <button
                     onClick={handleSearch}
                     disabled={searching || !searchNick.trim()}
-                    style={{ background: "#60a5fa", border: "none", color: "#000", padding: "10px 16px", fontFamily: "'Press Start 2P', monospace", fontSize: 9, cursor: "pointer", borderRadius: 6 }}
+                    style={{ background: COLOR_WARRIOR, border: "none", color: "#000", padding: "10px 16px", fontFamily: FONT_PIXEL, fontSize: 9, cursor: "pointer", borderRadius: 6 }}
                   >
                     {searching ? "..." : <Search size={14} />}
                   </button>
                 </div>
-                {searchError && <div style={{ color: "#E63946", fontSize: 15, marginTop: 8 }}>{searchError}</div>}
+                {searchError && <div style={{ color: COLOR_DANGER, fontSize: 15, marginTop: 8 }}>{searchError}</div>}
               </div>
 
               {searchResult && (
-                <div style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, overflow: "hidden" }}>
-                  <div style={{ background: "#0b0d1e", borderBottom: "1px solid #1f254f", padding: "8px 14px" }}>
-                    <span style={{ fontFamily: "'Press Start 2P', monospace", color: "#60a5fa", fontSize: 8 }}>RESULT</span>
+                <div style={{ background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "cc")}`, borderRadius: RADIUS_XL, overflow: "hidden" }}>
+                  <div style={{ background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`, padding: "8px 14px" }}>
+                    <span style={{ fontFamily: FONT_PIXEL, color: COLOR_WARRIOR, fontSize: PX_XS }}>RESULT</span>
                   </div>
                   <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ width: 48, height: 48, flexShrink: 0, background: "#0b0d1e", border: "1px solid #1f254f", borderRadius: 8, overflow: "hidden", position: "relative" }}>
+                    <div style={{ width: 48, height: 48, flexShrink: 0, background: BG_DEEPEST, border: `1px solid ${BORDER_SUBTLE}`, borderRadius: RADIUS_LG, overflow: "hidden", position: "relative" }}>
                       <img src={imgAvatarWarrior} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", imageRendering: "pixelated" }} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontFamily: "'Press Start 2P', monospace", color: "#fff", fontSize: 10 }}>@{searchResult.nick}</div>
+                      <div style={{ fontFamily: FONT_PIXEL, color: "#fff", fontSize: 10 }}>@{searchResult.nick}</div>
                       <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
-                        <span style={{ color: "#FFD700", fontSize: 15 }}>LVL {searchResult.level}</span>
-                        <span style={{ color: RANK_COLORS[searchResult.cpRank] ?? "#5a6080", fontSize: 15 }}>{searchResult.cpRank} • {searchResult.combatPower.toLocaleString()} PWR</span>
+                        <span style={{ color: COLOR_LEGENDARY, fontSize: 15 }}>LVL {searchResult.level}</span>
+                        <span style={{ color: RANK_COLORS[searchResult.cpRank] ?? TEXT_MUTED, fontSize: 15 }}>{searchResult.cpRank} • {searchResult.combatPower.toLocaleString()} PWR</span>
                       </div>
                     </div>
                     <button
                       onClick={() => handleSendRequest(searchResult!.id)}
                       disabled={!!actionLoading}
-                      style={{ background: "#60a5fa", border: "none", color: "#000", padding: "8px 14px", fontFamily: "'Press Start 2P', monospace", fontSize: 8, cursor: "pointer", borderRadius: 6, display: "flex", alignItems: "center", gap: 6 }}
+                      style={{ background: COLOR_WARRIOR, border: "none", color: "#000", padding: "8px 14px", fontFamily: FONT_PIXEL, fontSize: PX_XS, cursor: "pointer", borderRadius: 6, display: "flex", alignItems: "center", gap: 6 }}
                     >
                       <UserPlus size={12} /> ADICIONAR
                     </button>
@@ -297,38 +300,38 @@ export default function FriendsScreen() {
           {tab === "pending" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {pendingRequests.length === 0 && (
-                <div style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, padding: "32px 20px", textAlign: "center", opacity: 0.5 }}>
-                  <UserPlus size={32} color="#3a4060" style={{ margin: "0 auto 10px" }} />
-                  <div style={{ fontFamily: "'Press Start 2P', monospace", color: "#3a4060", fontSize: 8 }}>NO INVITES</div>
+                <div style={{ background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "cc")}`, borderRadius: RADIUS_XL, padding: "32px 20px", textAlign: "center", opacity: 0.5 }}>
+                  <UserPlus size={32} color={TEXT_INACTIVE} style={{ margin: "0 auto 10px" }} />
+                  <div style={{ fontFamily: FONT_PIXEL, color: TEXT_INACTIVE, fontSize: PX_XS }}>NO INVITES</div>
                 </div>
               )}
               {pendingRequests.map(req => (
-                <div key={req.friendshipId} style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, overflow: "hidden" }}>
-                  <div style={{ background: "#0b0d1e", borderBottom: "1px solid #1f254f", padding: "7px 14px" }}>
-                    <span style={{ fontFamily: "'Press Start 2P', monospace", color: req.isIncoming ? "#FFD700" : "#5a6080", fontSize: 8 }}>
+                <div key={req.friendshipId} style={{ background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "cc")}`, borderRadius: RADIUS_XL, overflow: "hidden" }}>
+                  <div style={{ background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`, padding: "7px 14px" }}>
+                    <span style={{ fontFamily: FONT_PIXEL, color: req.isIncoming ? COLOR_LEGENDARY : TEXT_MUTED, fontSize: PX_XS }}>
                       {req.isIncoming ? "📨 RECEIVED" : "📤 SENT"}
                     </span>
                   </div>
                   <div style={{ padding: "12px 14px", display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ width: 44, height: 44, flexShrink: 0, background: "#0b0d1e", border: "1px solid #1f254f", borderRadius: 8, overflow: "hidden", position: "relative" }}>
+                    <div style={{ width: 44, height: 44, flexShrink: 0, background: BG_DEEPEST, border: `1px solid ${BORDER_SUBTLE}`, borderRadius: RADIUS_LG, overflow: "hidden", position: "relative" }}>
                       <img src={req.selectedClass === "mago" ? imgAvatarMage : imgAvatarWarrior} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", imageRendering: "pixelated" }} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontFamily: "'Press Start 2P', monospace", color: "#fff", fontSize: 10 }}>@{req.nick}</div>
-                      <div style={{ color: "#5a6080", fontSize: 15, marginTop: 3 }}>LVL {req.level}</div>
+                      <div style={{ fontFamily: FONT_PIXEL, color: "#fff", fontSize: 10 }}>@{req.nick}</div>
+                      <div style={{ color: TEXT_MUTED, fontSize: 15, marginTop: 3 }}>LVL {req.level}</div>
                     </div>
                     {req.isIncoming && (
                       <div style={{ display: "flex", gap: 8 }}>
-                        <button onClick={() => handleRespond(req.friendshipId, "accept")} disabled={actionLoading === req.friendshipId} style={{ background: "#06FFA5", border: "none", color: "#000", padding: "7px 12px", fontFamily: "'Press Start 2P', monospace", fontSize: 8, cursor: "pointer", borderRadius: 5, display: "flex", alignItems: "center", gap: 4 }}>
+                        <button onClick={() => handleRespond(req.friendshipId, "accept")} disabled={actionLoading === req.friendshipId} style={{ background: COLOR_SUCCESS, border: "none", color: "#000", padding: "7px 12px", fontFamily: FONT_PIXEL, fontSize: PX_XS, cursor: "pointer", borderRadius: 5, display: "flex", alignItems: "center", gap: 4 }}>
                           <Check size={12} /> OK
                         </button>
-                        <button onClick={() => handleRespond(req.friendshipId, "decline")} disabled={actionLoading === req.friendshipId} style={{ background: "#E63946", border: "none", color: "#fff", padding: "7px 12px", fontFamily: "'Press Start 2P', monospace", fontSize: 8, cursor: "pointer", borderRadius: 5, display: "flex", alignItems: "center", gap: 4 }}>
+                        <button onClick={() => handleRespond(req.friendshipId, "decline")} disabled={actionLoading === req.friendshipId} style={{ background: COLOR_DANGER, border: "none", color: "#fff", padding: "7px 12px", fontFamily: FONT_PIXEL, fontSize: PX_XS, cursor: "pointer", borderRadius: 5, display: "flex", alignItems: "center", gap: 4 }}>
                           <X size={12} /> NO
                         </button>
                       </div>
                     )}
                     {!req.isIncoming && (
-                      <span style={{ color: "#FFD700", fontSize: 14 }}>Waiting...</span>
+                      <span style={{ color: COLOR_LEGENDARY, fontSize: 14 }}>Waiting...</span>
                     )}
                   </div>
                 </div>
@@ -339,50 +342,50 @@ export default function FriendsScreen() {
           {/* ── FRIENDS tab ────────────────────────────── */}
           {tab === "friends" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {loading && <div style={{ color: "#5a6080", fontSize: 18, textAlign: "center", padding: 24 }}>Loading...</div>}
+              {loading && <div style={{ color: TEXT_MUTED, fontSize: 18, textAlign: "center", padding: 24 }}>Loading...</div>}
               {!loading && acceptedFriends.length === 0 && (
-                <div style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, padding: "32px 20px", textAlign: "center", opacity: 0.5 }}>
-                  <Users size={32} color="#3a4060" style={{ margin: "0 auto 10px" }} />
-                  <div style={{ fontFamily: "'Press Start 2P', monospace", color: "#3a4060", fontSize: 8 }}>NO FRIENDS YET</div>
-                  <div style={{ color: "#2a3050", fontSize: 16, marginTop: 8 }}>Use the "Search" tab to find players</div>
+                <div style={{ background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "cc")}`, borderRadius: RADIUS_XL, padding: "32px 20px", textAlign: "center", opacity: 0.5 }}>
+                  <Users size={32} color={TEXT_INACTIVE} style={{ margin: "0 auto 10px" }} />
+                  <div style={{ fontFamily: FONT_PIXEL, color: TEXT_INACTIVE, fontSize: PX_XS }}>NO FRIENDS YET</div>
+                  <div style={{ color: BORDER_ELEVATED, fontSize: 16, marginTop: 8 }}>Use the "Search" tab to find players</div>
                 </div>
               )}
               {acceptedFriends.map(f => (
-                <div key={f.friendshipId} style={{ background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, overflow: "hidden" }}>
+                <div key={f.friendshipId} style={{ background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "cc")}`, borderRadius: RADIUS_XL, overflow: "hidden" }}>
                   <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
                     <div
                       onClick={() => navigate(`/amigos/${f.friendUid}`)}
-                      style={{ width: 52, height: 52, flexShrink: 0, background: "#0b0d1e", border: "1px solid #1f254f", borderRadius: 10, overflow: "hidden", position: "relative", cursor: "pointer" }}
+                      style={{ width: 52, height: 52, flexShrink: 0, background: BG_DEEPEST, border: `1px solid ${BORDER_SUBTLE}`, borderRadius: RADIUS_XL, overflow: "hidden", position: "relative", cursor: "pointer" }}
                     >
                       <img src={f.selectedClass === "mago" ? imgAvatarMage : imgAvatarWarrior} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", imageRendering: "pixelated" }} />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div
                         onClick={() => navigate(`/amigos/${f.friendUid}`)}
-                        style={{ fontFamily: "'Press Start 2P', monospace", color: "#fff", fontSize: 10, cursor: "pointer", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+                        style={{ fontFamily: FONT_PIXEL, color: "#fff", fontSize: 10, cursor: "pointer", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
                       >
                         @{f.nick}
                       </div>
                       <div style={{ display: "flex", gap: 10, marginTop: 5, flexWrap: "wrap" }}>
-                        <span style={{ color: "#FFD700", fontSize: 15 }}>LVL {f.level}</span>
+                        <span style={{ color: COLOR_LEGENDARY, fontSize: 15 }}>LVL {f.level}</span>
                         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                          <Zap size={12} color={RANK_COLORS[f.cpRank] ?? "#5a6080"} />
-                          <span style={{ color: RANK_COLORS[f.cpRank] ?? "#5a6080", fontSize: 15 }}>{f.combatPower.toLocaleString()}</span>
-                          <span style={{ background: (RANK_COLORS[f.cpRank] ?? "#5a6080") + "22", color: RANK_COLORS[f.cpRank] ?? "#5a6080", padding: "1px 5px", fontSize: 11, borderRadius: 3 }}>{f.cpRank}</span>
+                          <Zap size={12} color={RANK_COLORS[f.cpRank] ?? TEXT_MUTED} />
+                          <span style={{ color: RANK_COLORS[f.cpRank] ?? TEXT_MUTED, fontSize: 15 }}>{f.combatPower.toLocaleString()}</span>
+                          <span style={{ background: alpha(RANK_COLORS[f.cpRank] ?? TEXT_MUTED, "22"), color: RANK_COLORS[f.cpRank] ?? TEXT_MUTED, padding: "1px 5px", fontSize: 11, borderRadius: 3 }}>{f.cpRank}</span>
                         </div>
                       </div>
                     </div>
                     <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                       <button
                         onClick={() => navigate(`/amigos/${f.friendUid}`)}
-                        style={{ background: "#1f254f", border: "1px solid #2a2e50", color: "#8a9fba", padding: "6px 10px", fontFamily: "'Press Start 2P', monospace", fontSize: 7, cursor: "pointer", borderRadius: 5 }}
+                        style={{ background: BORDER_SUBTLE, border: `1px solid ${BORDER_ELEVATED}`, color: RANK_VETERANO, padding: "6px 10px", fontFamily: FONT_PIXEL, fontSize: 7, cursor: "pointer", borderRadius: 5 }}
                       >
                         VER
                       </button>
                       <button
                         onClick={() => removeFriend(f.friendshipId)}
                         disabled={actionLoading === f.friendshipId}
-                        style={{ background: "rgba(230,57,70,0.08)", border: "1px solid #E6394644", color: "#E63946", padding: "6px 8px", cursor: "pointer", borderRadius: 5, display: "flex", alignItems: "center" }}
+                        style={{ background: alpha(COLOR_DANGER, "14"), border: `1px solid ${alpha(COLOR_DANGER, "44")}`, color: COLOR_DANGER, padding: "6px 8px", cursor: "pointer", borderRadius: 5, display: "flex", alignItems: "center" }}
                         title="Remove friend"
                       >
                         <Trash2 size={14} />

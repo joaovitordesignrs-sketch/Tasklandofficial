@@ -12,7 +12,7 @@ export function BottomNav() {
   const feedback = useInteractionFeedback();
   const isDesktop = useIsDesktop();
   const notifs = useNotifications();
-  const { ACCENT_GOLD, ACCENT_GOLD_DIM, TEXT_INACTIVE, COLOR_DANGER, BG_CARD, BG_DEEPEST, BORDER_SUBTLE, alpha } = useTheme();
+  const { ACCENT_GOLD, ACCENT_GOLD_DIM, TEXT_INACTIVE, COLOR_DANGER, BG_CARD, BG_DEEPEST, BORDER_SUBTLE, FONT_PIXEL, alpha } = useTheme();
   const t = useLanguage();
 
   const tabs = [
@@ -87,7 +87,7 @@ export function BottomNav() {
                   outline:       active ? `1.5px solid ${ACCENT_GOLD}` : "1.5px solid transparent",
                   color:         active ? ACCENT_GOLD : TEXT_INACTIVE,
                   cursor:        "pointer",
-                  fontFamily:    "'Press Start 2P', monospace",
+                  fontFamily:    FONT_PIXEL,
                   fontSize:      6,
                   whiteSpace:    "nowrap",
                   letterSpacing: active ? 0.5 : 0,
@@ -109,7 +109,7 @@ export function BottomNav() {
                     alignItems:"center",
                     justifyContent: "center",
                     fontSize:  8,
-                    fontFamily:"'Press Start 2P', monospace",
+                    fontFamily: FONT_PIXEL,
                     color:     "#fff",
                     lineHeight:1,
                     padding:   "0 3px",

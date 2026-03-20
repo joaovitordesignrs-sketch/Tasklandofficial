@@ -52,7 +52,7 @@ function RivePreview({ skinId }: { skinId: SkinId }) {
 
 export default function ClassSelectionScreen() {
   const navigate = useNavigate();
-  const { BG_PAGE, BG_CARD, BG_DEEPEST, BORDER_SUBTLE, BORDER_ELEVATED, TEXT_LIGHT, TEXT_MUTED, TEXT_INACTIVE, TEXT_BODY, alpha } = useTheme();
+  const { BG_PAGE, BG_CARD, BG_DEEPEST, BORDER_SUBTLE, BORDER_ELEVATED, COLOR_DANGER, COLOR_SUCCESS, TEXT_LIGHT, TEXT_MUTED, TEXT_INACTIVE, TEXT_BODY, FONT_PIXEL, FONT_BODY, alpha } = useTheme();
   const { activeSkin: contextActiveSkin, setActiveSkin: ctxSetSkin, setNeedsClassPick } = useCampaign();
   const economy = getEconomy();
 
@@ -119,7 +119,7 @@ export default function ClassSelectionScreen() {
           <ArrowLeft size={16} />
         </button>
         <span style={{
-          fontFamily: "'Press Start 2P', monospace",
+          fontFamily: FONT_PIXEL,
           fontSize: 10, color: TEXT_LIGHT, letterSpacing: 1,
         }}>
           CHOOSE YOUR SKIN
@@ -182,7 +182,7 @@ export default function ClassSelectionScreen() {
                     background: alpha(BG_DEEPEST, "8c"), gap: 4,
                   }}>
                     <Lock size={18} color={TEXT_INACTIVE} />
-                    <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 5, color: TEXT_INACTIVE }}>
+                    <span style={{ fontFamily: FONT_PIXEL, fontSize: 5, color: TEXT_INACTIVE }}>
                       COMING SOON
                     </span>
                   </div>
@@ -196,8 +196,8 @@ export default function ClassSelectionScreen() {
                     padding: "3px 7px",
                     display: "flex", alignItems: "center", gap: 4,
                   }}>
-                    <CheckCircle2 size={9} color="#0d1024" />
-                    <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 5, color: "#0d1024" }}>ACTIVE</span>
+                    <CheckCircle2 size={9} color={BG_CARD} />
+                    <span style={{ fontFamily: FONT_PIXEL, fontSize: 5, color: BG_CARD }}>ACTIVE</span>
                   </div>
                 )}
 
@@ -207,7 +207,7 @@ export default function ClassSelectionScreen() {
                     position: "absolute", bottom: 6, right: 6,
                     background: BG_CARD, border: `1px solid ${color}`,
                     padding: "2px 5px", borderRadius: 4,
-                    fontFamily: "'VT323', monospace", fontSize: 12, color,
+                    fontFamily: FONT_BODY, fontSize: 12, color,
                   }}>
                     🪙 {info.cost}
                   </div>
@@ -217,7 +217,7 @@ export default function ClassSelectionScreen() {
               {/* Label */}
               <div style={{ padding: "10px 10px 12px", width: "100%", textAlign: "center" }}>
                 <div style={{
-                  fontFamily: "'Press Start 2P', monospace",
+                  fontFamily: FONT_PIXEL,
                   fontSize: 8,
                   color: picked && !locked ? color : locked ? TEXT_INACTIVE : TEXT_BODY,
                   marginBottom: 4,
@@ -226,9 +226,9 @@ export default function ClassSelectionScreen() {
                   {info.label.toUpperCase()}
                 </div>
                 <div style={{
-                  fontFamily: "'VT323', monospace",
+                  fontFamily: FONT_BODY,
                   fontSize: 14,
-                  color: locked ? TEXT_INACTIVE : owned ? "#06FFA5" : color,
+                  color: locked ? TEXT_INACTIVE : owned ? COLOR_SUCCESS : color,
                 }}>
                   {locked ? "LOCKED" : owned ? (skinId === "warrior_base" ? "DEFAULT" : "OWNED") : `${info.cost} coins`}
                 </div>
@@ -252,18 +252,18 @@ export default function ClassSelectionScreen() {
           style={{
             width: "100%",
             padding: "14px 0",
-            fontFamily: "'Press Start 2P', monospace",
+            fontFamily: FONT_PIXEL,
             fontSize: 10,
-            color: confirmed ? "#06FFA5" : selInfo.locked ? TEXT_INACTIVE : !canAfford ? "#E63946" : "#0d1024",
+            color: confirmed ? COLOR_SUCCESS : selInfo.locked ? TEXT_INACTIVE : !canAfford ? COLOR_DANGER : BG_CARD,
             background: confirmed
-              ? "rgba(6,255,165,0.08)"
+              ? alpha(COLOR_SUCCESS, "14")
               : selInfo.locked ? BG_DEEPEST
-              : !canAfford ? "rgba(230,57,70,0.08)"
+              : !canAfford ? alpha(COLOR_DANGER, "14")
               : selColor,
             border: confirmed
-              ? "2px solid #06FFA5"
+              ? `2px solid ${COLOR_SUCCESS}`
               : selInfo.locked ? `1px solid ${BG_DEEPEST}`
-              : !canAfford ? "1px solid #E63946"
+              : !canAfford ? `1px solid ${COLOR_DANGER}`
               : `1px solid ${selColor}`,
             borderRadius: 10,
             cursor: !selInfo.locked && canAfford && !confirmed ? "pointer" : "default",
@@ -285,7 +285,7 @@ export default function ClassSelectionScreen() {
         </button>
         <p style={{
           textAlign: "center",
-          fontFamily: "'VT323', monospace",
+          fontFamily: FONT_BODY,
           color: TEXT_INACTIVE, fontSize: 15, marginTop: 10,
         }}>
           You can change your skin at any time

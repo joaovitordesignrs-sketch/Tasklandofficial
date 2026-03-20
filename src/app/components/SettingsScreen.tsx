@@ -67,7 +67,7 @@ function VolumeSlider({
 // ── Sound Settings Tab ───────────────────────────────────────────────────────
 function SoundSettings() {
   const t = useLanguage();
-  const { BG_CARD, BG_PAGE, BORDER_ELEVATED, COLOR_MAGE, COLOR_ORANGE, COLOR_SUCCESS, TEXT_MUTED, FONT_PIXEL, FONT_BODY, RADIUS_XL } = useTheme();
+  const { BG_CARD, BG_PAGE, BORDER_ELEVATED, COLOR_MAGE, COLOR_ORANGE, COLOR_SUCCESS, TEXT_MUTED, FONT_PIXEL, FONT_BODY, RADIUS_XL, alpha } = useTheme();
   const sfxPreviewTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const {
     musicOn, musicVolume,
@@ -94,7 +94,7 @@ function SoundSettings() {
 
       {/* ── MUSIC ── */}
       <div style={{
-        background: BG_CARD, border: `1px solid rgba(42,46,80,0.8)`,
+        background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "cc")}`,
         borderRadius: RADIUS_XL, padding: "18px 20px",
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
@@ -141,7 +141,7 @@ function SoundSettings() {
 
       {/* ── SFX ── */}
       <div style={{
-        background: BG_CARD, border: `1px solid rgba(42,46,80,0.8)`,
+        background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "cc")}`,
         borderRadius: RADIUS_XL, padding: "18px 20px",
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
@@ -173,7 +173,7 @@ function ProfileSettings() {
   const {
     BG_CARD, BG_PAGE, BORDER_ELEVATED, ACCENT_GOLD, ACCENT_SHADOW,
     COLOR_SUCCESS, TEXT_MUTED, RANK_NOVATO,
-    FONT_PIXEL, FONT_BODY, RADIUS_XL,
+    FONT_PIXEL, FONT_BODY, RADIUS_XL, alpha,
   } = useTheme();
   const [name, setName] = useState(loadPlayerName);
   const [saved, setSaved] = useState(false);
@@ -189,7 +189,7 @@ function ProfileSettings() {
 
   return (
     <div style={{
-      background: BG_CARD, border: `1px solid rgba(42,46,80,0.8)`,
+      background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "cc")}`,
       borderRadius: RADIUS_XL, padding: "24px 20px",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
@@ -254,7 +254,7 @@ function PreferencesSettings() {
     BG_CARD, ACCENT_GOLD, COLOR_SUCCESS,
     TEXT_MUTED, TEXT_LIGHT,
     FONT_PIXEL, FONT_BODY, RADIUS_XL, RADIUS_MD,
-    BORDER_ELEVATED,
+    BORDER_ELEVATED, alpha,
   } = useTheme();
   const [prefs, setPrefs] = useState(getPreferences);
 
@@ -267,7 +267,7 @@ function PreferencesSettings() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{
-        background: BG_CARD, border: `1px solid rgba(42,46,80,0.8)`,
+        background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "cc")}`,
         borderRadius: RADIUS_XL, padding: "24px 20px",
         display: "flex", flexDirection: "column", gap: 20,
       }}>
@@ -289,11 +289,11 @@ type SettingsTab = "sound" | "profile" | "account" | "prefs";
 export default function SettingsScreen() {
   const t = useLanguage();
   const {
-    BG_DEEPEST, BG_CARD, BORDER_SUBTLE,
-    ACCENT_GOLD, COLOR_MAGE, COLOR_WARRIOR, COLOR_SUCCESS, COLOR_WARNING,
+    BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
+    ACCENT_GOLD, COLOR_DANGER, COLOR_MAGE, COLOR_WARRIOR, COLOR_SUCCESS, COLOR_WARNING,
     TEXT_MUTED, TEXT_LIGHT,
     FONT_PIXEL, FONT_BODY,
-    RADIUS_XL,
+    RADIUS_XL, alpha,
   } = useTheme();
   const isDesktop = useIsDesktop();
   void isDesktop;
@@ -320,7 +320,7 @@ export default function SettingsScreen() {
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {/* Account Info */}
             <div style={{
-              background: BG_CARD, border: `1px solid rgba(42,46,80,0.8)`,
+              background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "cc")}`,
               borderRadius: RADIUS_XL, padding: "24px 20px",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
@@ -372,7 +372,7 @@ export default function SettingsScreen() {
             {/* Logout */}
             <RpgButton
               variant="dashed"
-              color="#E63946"
+              color={COLOR_DANGER}
               fullWidth
               onClick={async () => {
                 await signOut();

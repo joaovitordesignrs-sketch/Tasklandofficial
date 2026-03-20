@@ -61,11 +61,13 @@ function dateKey(ts: number): string {
   const d = new Date(ts);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
-const MODE_INFO: Record<string, { color: string; label: string; icon: React.ReactNode }> = {
-  campaign:      { color: "#e39f64", label: "CAMPAIGN", icon: <Swords size={10} /> },
-  "time-attack": { color: "#FF6B35", label: "TEMPORAL", icon: <Timer size={10} /> },
-  focus:         { color: "#c084fc", label: "FOCUS",    icon: <Brain size={10} /> },
-};
+function getModeInfo(tokens: { ACCENT_GOLD: string; COLOR_ORANGE: string; COLOR_MAGE: string }): Record<string, { color: string; label: string; icon: React.ReactNode }> {
+  return {
+    campaign:      { color: tokens.ACCENT_GOLD,  label: "CAMPAIGN", icon: <Swords size={10} /> },
+    "time-attack": { color: tokens.COLOR_ORANGE, label: "TEMPORAL", icon: <Timer size={10} /> },
+    focus:         { color: tokens.COLOR_MAGE,   label: "FOCUS",    icon: <Brain size={10} /> },
+  };
+}
 
 function DiffIcon({ difficulty }: { difficulty: string }) {
   const d = DIFFICULTY_INFO[difficulty ?? "medium"] ?? DIFFICULTY_INFO.medium;
@@ -82,12 +84,13 @@ function DiffIcon({ difficulty }: { difficulty: string }) {
 }
 
 function TaskCard({ entry, index }: { entry: TaskHistoryEntry; index: number }) {
-  const { COLOR_DANGER, TEXT_INACTIVE, TEXT_LIGHT, FONT_BODY } = useTheme();
+  const { BG_DEEPEST, ACCENT_GOLD, COLOR_ORANGE, COLOR_MAGE, COLOR_DANGER, TEXT_INACTIVE, TEXT_LIGHT, FONT_PIXEL, FONT_BODY } = useTheme();
+  const MODE_INFO = getModeInfo({ ACCENT_GOLD, COLOR_ORANGE, COLOR_MAGE });
   const diff   = DIFFICULTY_INFO[entry.difficulty ?? "medium"] ?? DIFFICULTY_INFO.medium;
   const source = entry.source ?? "campaign";
   const mode   = MODE_INFO[source] ?? MODE_INFO.campaign;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#0a0c1a", border: `1px solid ${mode.color}33`, borderLeft: `3px solid ${mode.color}`, borderRadius: 6, padding: "8px 10px", animation: `cardIn 200ms cubic-bezier(0.22,1,0.36,1) ${Math.min(index * 35, 300)}ms both` }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 10, background: BG_DEEPEST, border: `1px solid ${mode.color}33`, borderLeft: `3px solid ${mode.color}`, borderRadius: 6, padding: "8px 10px", animation: `cardIn 200ms cubic-bezier(0.22,1,0.36,1) ${Math.min(index * 35, 300)}ms both` }}>
       <DiffIcon difficulty={entry.difficulty ?? "medium"} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ color: TEXT_LIGHT, fontSize: 17, fontFamily: FONT_BODY, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 3 }}>{entry.text}</div>
@@ -99,7 +102,7 @@ function TaskCard({ entry, index }: { entry: TaskHistoryEntry; index: number }) 
       <div style={{ textAlign: "right", flexShrink: 0, display: "flex", flexDirection: "column", gap: 3, alignItems: "flex-end" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 4, background: mode.color + "18", border: `1px solid ${mode.color}44`, padding: "2px 7px", borderRadius: 4 }}>
           <span style={{ color: mode.color, lineHeight: 1 }}>{mode.icon}</span>
-          <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 6, color: mode.color }}>{mode.label}</span>
+          <span style={{ fontFamily: FONT_PIXEL, fontSize: 6, color: mode.color }}>{mode.label}</span>
         </div>
         {entry.damageDealt !== undefined && <div style={{ color: COLOR_DANGER, fontSize: 14, fontFamily: FONT_BODY }}>-{entry.damageDealt}HP</div>}
         <div style={{ color: TEXT_INACTIVE, fontSize: 13, fontFamily: FONT_BODY }}>{formatTime(entry.completedAt)}</div>
@@ -116,7 +119,7 @@ function DiarioTab() {
   const {
     BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
     ACCENT_GOLD, COLOR_MAGE, COLOR_ORANGE, COLOR_SUCCESS,
-    TEXT_INACTIVE, TEXT_MUTED, FONT_PIXEL, FONT_BODY, RADIUS_XL,
+    TEXT_INACTIVE, TEXT_MUTED, FONT_PIXEL, FONT_BODY, RADIUS_XL, alpha,
   } = useTheme();
   const history = useMemo(() => getTaskHistory(), []);
   const [collapsedDays, setCollapsedDays] = useState<Set<string>>(new Set());
@@ -147,7 +150,7 @@ function DiarioTab() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {/* Stats + filter */}
-      <CardIn style={{ background: BG_CARD, border: "1px solid rgba(42,46,80,0.8)", borderRadius: RADIUS_XL, padding: "12px 16px" }}>
+      <CardIn style={{ background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "cc")}`, borderRadius: RADIUS_XL, padding: "12px 16px" }}>
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ color: COLOR_SUCCESS, fontSize: 20, fontFamily: FONT_BODY }}>{totalTasks}</span>
@@ -189,7 +192,7 @@ function DiarioTab() {
       </CardIn>
 
       {groups.length === 0 && (
-        <CardIn index={1} style={{ background: BG_CARD, border: "1px solid rgba(42,46,80,0.8)", borderRadius: RADIUS_XL, padding: "40px 20px", textAlign: "center", opacity: 0.5 }}>
+        <CardIn index={1} style={{ background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "cc")}`, borderRadius: RADIUS_XL, padding: "40px 20px", textAlign: "center", opacity: 0.5 }}>
           <Scroll size={36} color={TEXT_INACTIVE} style={{ margin: "0 auto 12px" }} />
           <div style={{ fontFamily: FONT_PIXEL, color: TEXT_INACTIVE, fontSize: 8 }}>
             {filter === "all" ? "NO TASKS COMPLETED" : "NO TASKS IN THIS CATEGORY"}
@@ -200,7 +203,7 @@ function DiarioTab() {
       {groups.map((group, gIdx) => {
         const collapsed = collapsedDays.has(group.key);
         return (
-          <CardIn key={group.key} index={gIdx + 1} style={{ background: BG_CARD, border: "1px solid rgba(42,46,80,0.7)", borderRadius: RADIUS_XL, overflow: "hidden" }}>
+          <CardIn key={group.key} index={gIdx + 1} style={{ background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "b3")}`, borderRadius: RADIUS_XL, overflow: "hidden" }}>
             <button onClick={() => toggleDay(group.key)} style={{ width: "100%", background: BG_DEEPEST, borderTop: "none", borderLeft: "none", borderRight: "none", borderBottom: collapsed ? "none" : `1px solid ${BORDER_SUBTLE}`, padding: "10px 14px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
               <Calendar size={13} color={ACCENT_GOLD} />
               <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: 9, flex: 1, textAlign: "left", textShadow: "1px 1px 0 #000" }}>{group.label}</span>
@@ -286,7 +289,7 @@ function EvolucaoTab() {
 
         {/* Avatar + info row */}
         <div style={{ display: "flex", alignItems: "stretch" }}>
-          <div style={{ width: 100, flexShrink: 0, background: "#0a0c1a", borderRight: `2px solid ${BORDER_SUBTLE}`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}>
+          <div style={{ width: 100, flexShrink: 0, background: BG_DEEPEST, borderRight: `2px solid ${BORDER_SUBTLE}`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}>
             <img src={avatarSrc} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", imageRendering: "pixelated" }} />
           </div>
           <div style={{ flex: 1, padding: "14px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
@@ -319,13 +322,13 @@ function EvolucaoTab() {
               width: "100%",
               display: "flex", alignItems: "center", justifyContent: "space-between",
               padding: "12px 16px",
-              background: activeClassColors ? `${activeClassColors.color}0d` : "#09091f",
+              background: activeClassColors ? `${activeClassColors.color}0d` : BG_DEEPEST,
               border: `1px solid ${activeClassColors ? activeClassColors.color + "44" : BORDER_ELEVATED}`,
               borderRadius: 8, cursor: "pointer", transition: "all 0.18s",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 36, height: 36, background: activeClassColors ? `${activeClassColors.color}18` : "#1a1e37", border: `1px solid ${activeClassColors ? activeClassColors.color + "55" : BORDER_ELEVATED}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ width: 36, height: 36, background: activeClassColors ? `${activeClassColors.color}18` : BORDER_SUBTLE, border: `1px solid ${activeClassColors ? activeClassColors.color + "55" : BORDER_ELEVATED}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <Swords size={16} color={activeClassColors?.color ?? TEXT_MUTED} />
               </div>
               <div style={{ textAlign: "left" }}>
@@ -350,17 +353,17 @@ function EvolucaoTab() {
         <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at 30% 20%, ${cpData.rank.glow} 0%, transparent 60%)`, pointerEvents: "none", opacity: 0.15 }} />
         <div style={{ ...TOOLBAR, position: "relative", zIndex: 1 }}>
           <Zap size={14} color={cpData.rank.color} />
-          <span style={{ fontFamily: "'Press Start 2P', monospace", color: cpData.rank.color, fontSize: 9, flex: 1, textShadow: "1px 1px 0 #000" }}>POWER</span>
-          <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 8, color: cpData.rank.color, background: `${cpData.rank.color}22`, border: `1px solid ${cpData.rank.color}44`, padding: "2px 8px" }}>{cpData.rank.tier} - {cpData.rank.label}</span>
+          <span style={{ fontFamily: FONT_PIXEL, color: cpData.rank.color, fontSize: 9, flex: 1, textShadow: "1px 1px 0 #000" }}>POWER</span>
+          <span style={{ fontFamily: FONT_PIXEL, fontSize: 8, color: cpData.rank.color, background: `${cpData.rank.color}22`, border: `1px solid ${cpData.rank.color}44`, padding: "2px 8px" }}>{cpData.rank.tier} - {cpData.rank.label}</span>
         </div>
         <div style={{ padding: "16px 18px", position: "relative", zIndex: 1 }}>
           <div style={{ textAlign: "center", marginBottom: 16 }}>
-            <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 36, color: cpData.rank.color, textShadow: `3px 3px 0 #000, 0 0 20px ${cpData.rank.glow}`, letterSpacing: 3, lineHeight: 1 }}>{formatPower(cpData.total)}</div>
+            <div style={{ fontFamily: FONT_PIXEL, fontSize: 36, color: cpData.rank.color, textShadow: `3px 3px 0 #000, 0 0 20px ${cpData.rank.glow}`, letterSpacing: 3, lineHeight: 1 }}>{formatPower(cpData.total)}</div>
             <div style={{ fontFamily: FONT_BODY, fontSize: 16, color: TEXT_MUTED, marginTop: 4 }}>MH × MN × MC</div>
           </div>
           {cpProgress && nextRank && (
             <div style={{ marginBottom: 16 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, fontFamily: "'VT323', monospace" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, fontFamily: FONT_BODY }}>
                 <span style={{ color: cpData.rank.color, fontSize: 14 }}>{cpData.rank.tier}</span>
                 <span style={{ color: nextRank.color, fontSize: 14 }}>{nextRank.tier} — {nextRank.label}</span>
               </div>
@@ -383,20 +386,20 @@ function EvolucaoTab() {
           {/* Multiplicators breakdown */}
           <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 14 }}>
             {cpData.sources.map(src => (
-              <div key={src.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: src.active ? `${src.color}08` : "transparent", border: `1px solid ${src.active ? src.color + "33" : "#1a1e37"}`, borderRadius: 6, opacity: src.active ? 1 : 0.5 }}>
-                <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 6, color: src.color, width: 24, textAlign: "center", flexShrink: 0 }}>{src.icon}</span>
+              <div key={src.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: src.active ? `${src.color}08` : "transparent", border: `1px solid ${src.active ? src.color + "33" : BORDER_SUBTLE}`, borderRadius: 6, opacity: src.active ? 1 : 0.5 }}>
+                <span style={{ fontFamily: FONT_PIXEL, fontSize: 6, color: src.color, width: 24, textAlign: "center", flexShrink: 0 }}>{src.icon}</span>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 6, color: src.active ? src.color : "#3a4060", marginBottom: 1 }}>{src.label}</div>
+                  <div style={{ fontFamily: FONT_PIXEL, fontSize: 6, color: src.active ? src.color : TEXT_INACTIVE, marginBottom: 1 }}>{src.label}</div>
                   <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: TEXT_INACTIVE }}>{src.desc}</div>
                 </div>
-                <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, color: src.color, flexShrink: 0 }}>{src.value.toFixed(2)}×</span>
+                <span style={{ fontFamily: FONT_PIXEL, fontSize: 9, color: src.color, flexShrink: 0 }}>{src.value.toFixed(2)}×</span>
               </div>
             ))}
             {/* Total row */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", background: `${cpData.rank.color}12`, border: `2px solid ${cpData.rank.color}55`, borderRadius: 6, marginTop: 4 }}>
               <Zap size={12} color={cpData.rank.color} />
-              <span style={{ flex: 1, fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: cpData.rank.color }}>POWER TOTAL</span>
-              <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 11, color: cpData.rank.color, textShadow: `0 0 8px ${cpData.rank.color}` }}>{formatPower(cpData.total)}</span>
+              <span style={{ flex: 1, fontFamily: FONT_PIXEL, fontSize: 7, color: cpData.rank.color }}>POWER TOTAL</span>
+              <span style={{ fontFamily: FONT_PIXEL, fontSize: 11, color: cpData.rank.color, textShadow: `0 0 8px ${cpData.rank.color}` }}>{formatPower(cpData.total)}</span>
             </div>
           </div>
           <div style={{ borderTop: `1px solid ${BORDER_SUBTLE}`, paddingTop: 12 }}>
@@ -466,6 +469,7 @@ function CampanhaTab() {
   const {
     BG_CARD, BORDER_ELEVATED, ACCENT_GOLD, TEXT_INACTIVE, TEXT_MUTED,
     FONT_PIXEL, FONT_BODY, RADIUS_XL, BG_DEEPEST, BORDER_SUBTLE,
+    COLOR_SUCCESS, COLOR_DANGER, COLOR_WARNING,
   } = useTheme();
   const CARD    = { background: BG_CARD, border: `1px solid ${BORDER_ELEVATED}88`, borderRadius: RADIUS_XL, overflow: "hidden" } as const;
   const TOOLBAR = { background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`, padding: "8px 14px", display: "flex" as const, alignItems: "center" as const, gap: 8 } as const;
@@ -497,32 +501,32 @@ function CampanhaTab() {
               const active = !done && m.unlocked;
               const hpPct  = done ? 0 : m.monsterMaxHp ? Math.round(((m.monsterCurrentHp ?? m.monsterMaxHp) / m.monsterMaxHp) * 100) : 100;
               return (
-                <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: done ? "rgba(6,255,165,0.06)" : active ? "rgba(227,159,100,0.08)" : "transparent", borderBottom: "1px solid #1f254f" }}>
+                <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: done ? `${COLOR_SUCCESS}0f` : active ? `${ACCENT_GOLD}14` : "transparent", borderBottom: `1px solid ${BORDER_SUBTLE}` }}>
                   {/* Number/status badge */}
-                  <div style={{ width: 28, height: 28, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: done ? "#06FFA5" : active ? "#e39f64" : "#1f254f", borderRadius: 4 }}>
-                    <span style={{ fontFamily: "'VT323', monospace", color: "#000", fontSize: 18, lineHeight: 1 }}>
+                  <div style={{ width: 28, height: 28, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: done ? COLOR_SUCCESS : active ? ACCENT_GOLD : BORDER_SUBTLE, borderRadius: 4 }}>
+                    <span style={{ fontFamily: FONT_BODY, color: "#000", fontSize: 18, lineHeight: 1 }}>
                       {done ? "✓" : !m.unlocked ? "🔒" : `${i + 1}`}
                     </span>
                   </div>
                   {/* Info */}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ color: done ? "#06FFA5" : active ? "#fff" : "#3a4060", fontSize: 18, fontFamily: "'VT323', monospace", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    <div style={{ color: done ? COLOR_SUCCESS : active ? "#fff" : TEXT_INACTIVE, fontSize: 18, fontFamily: FONT_BODY, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {m.name}
                     </div>
                     {active && m.monsterMaxHp && (
                       <div style={{ marginTop: 4 }}>
-                        <div style={{ height: 5, background: "#0b0d1e", border: "1px solid #2a2e50", borderRadius: 3, overflow: "hidden", marginBottom: 2 }}>
-                          <div style={{ width: `${hpPct}%`, height: "100%", background: hpPct > 50 ? "#06FFA5" : hpPct > 25 ? "#f0c040" : "#E63946", transition: "width 0.5s" }} />
+                        <div style={{ height: 5, background: BG_DEEPEST, border: `1px solid ${BORDER_ELEVATED}`, borderRadius: 3, overflow: "hidden", marginBottom: 2 }}>
+                          <div style={{ width: `${hpPct}%`, height: "100%", background: hpPct > 50 ? COLOR_SUCCESS : hpPct > 25 ? COLOR_WARNING : COLOR_DANGER, transition: "width 0.5s" }} />
                         </div>
-                        <div style={{ color: "#3a4060", fontSize: 13, fontFamily: "'VT323', monospace" }}>
+                        <div style={{ color: TEXT_INACTIVE, fontSize: 13, fontFamily: FONT_BODY }}>
                           {m.monsterCurrentHp}/{m.monsterMaxHp} HP remaining
                         </div>
                       </div>
                     )}
-                    {done && <div style={{ color: "#3a4060", fontSize: 13, fontFamily: "'VT323', monospace" }}>Defeated — {m.monsterMaxHp}HP</div>}
-                    {!m.unlocked && <div style={{ color: "#3a4060", fontSize: 13, fontFamily: "'VT323', monospace" }}>Locked</div>}
+                    {done && <div style={{ color: TEXT_INACTIVE, fontSize: 13, fontFamily: FONT_BODY }}>Defeated — {m.monsterMaxHp}HP</div>}
+                    {!m.unlocked && <div style={{ color: TEXT_INACTIVE, fontSize: 13, fontFamily: FONT_BODY }}>Locked</div>}
                   </div>
-                  <Shield size={13} color={done ? "#06FFA5" : active ? "#E63946" : "#3a4060"} />
+                  <Shield size={13} color={done ? COLOR_SUCCESS : active ? COLOR_DANGER : TEXT_INACTIVE} />
                 </div>
               );
             })}
@@ -530,8 +534,8 @@ function CampanhaTab() {
         )}
 
         {/* Progress dots footer */}
-        <div style={{ background: "#0b0d1e", borderTop: "1px solid #1f254f", padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontFamily: "'VT323', monospace", color: "#5a6080", fontSize: 16 }}>
+        <div style={{ background: BG_DEEPEST, borderTop: `1px solid ${BORDER_SUBTLE}`, padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontFamily: FONT_BODY, color: TEXT_MUTED, fontSize: 16 }}>
             {defeated} of {campaignMissions.length} defeated
           </span>
           <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}>
@@ -543,8 +547,8 @@ function CampanhaTab() {
                   key={m.id}
                   style={{
                     width: 14, height: 7,
-                    background: done ? "#06FFA5" : active ? "#e39f6455" : "#1f254f",
-                    border: `1px solid ${done ? "#06FFA5" : active ? "#e39f64" : "#2a2e50"}`,
+                    background: done ? COLOR_SUCCESS : active ? ACCENT_GOLD + "55" : BORDER_SUBTLE,
+                    border: `1px solid ${done ? COLOR_SUCCESS : active ? ACCENT_GOLD : BORDER_ELEVATED}`,
                     borderRadius: 2,
                   }}
                 />
@@ -561,20 +565,21 @@ function CampanhaTab() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Tab definitions
 // ─────────────────────────────────────────────────────────────────────────────
-const TABS: PixelTabDef<ProfileTab>[] = [
-  { key: "evolucao", label: "EVOLUTION", Icon: BarChart3, color: "#06FFA5" },
-  { key: "diario",   label: "JOURNAL",   Icon: Scroll,    color: "#e39f64" },
-  { key: "campanha", label: "CAMPAIGN",  Icon: Castle,    color: "#e39f64" },
-  { key: "itens",    label: "ITEMS",     Icon: Backpack,  color: "#e39f64" },
-];
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Main ProfileScreen
 // ─────────────────────────────────────────────────────────────────────────────
 export default function ProfileScreen() {
+  const { ACCENT_GOLD, COLOR_SUCCESS } = useTheme();
   const [activeTab, setActiveTab] = useState<ProfileTab>("evolucao");
 
-  const activeColor = TABS.find(t => t.key === activeTab)?.color ?? "#e39f64";
+  const TABS: PixelTabDef<ProfileTab>[] = [
+    { key: "evolucao", label: "EVOLUTION", Icon: BarChart3, color: COLOR_SUCCESS },
+    { key: "diario",   label: "JOURNAL",   Icon: Scroll,    color: ACCENT_GOLD },
+    { key: "campanha", label: "CAMPAIGN",  Icon: Castle,    color: ACCENT_GOLD },
+    { key: "itens",    label: "ITEMS",     Icon: Backpack,  color: ACCENT_GOLD },
+  ];
+
+  const activeColor = TABS.find(t => t.key === activeTab)?.color ?? ACCENT_GOLD;
 
   return (
     <>

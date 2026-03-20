@@ -440,7 +440,7 @@ export default function HabitsScreen() {
                     display: "flex", alignItems: "center", gap: 8,
                   }}>
                     <PixelIcon name={newIcon} size={16} color={currentCategory.color} />
-                    <span style={{ fontFamily: "'VT323', monospace", color: currentCategory.color, fontSize: 16 }}>
+                    <span style={{ fontFamily: FONT_BODY, color: currentCategory.color, fontSize: 16 }}>
                       {currentCategory.label}
                     </span>
                     <span style={{ fontFamily: FONT_BODY, color: TEXT_MUTED, fontSize: 14 }}>

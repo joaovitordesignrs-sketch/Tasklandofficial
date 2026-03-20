@@ -1,4 +1,5 @@
 import { getLevelInfo, getRank, calcTotalXP } from "../data/gameEngine";
+import { useTheme } from "../contexts/PreferencesContext";
 import imgHero from "figma:asset/88db16de6cc4fac02e41af10e16775e8930dedaf.png";
 
 const AVG_XP_PER_TASK = 15; // average XP per task (mix of difficulties)
@@ -30,6 +31,7 @@ interface PlayerCardProps {
 }
 
 export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardProps) {
+  const { ACCENT_GOLD, ACCENT_SHADOW, BG_CARD, BG_DEEPEST, BORDER_SUBTLE, BORDER_ELEVATED, COLOR_SUCCESS, COLOR_DANGER, COLOR_LEGENDARY, FONT_PIXEL, FONT_BODY, TEXT_MUTED, TEXT_INACTIVE, RANK_NOVATO, PX_XL, VT_LG, alpha } = useTheme();
   const [editing, setEditing] = useState(false);
   const [draft,   setDraft]   = useState(playerName);
 
@@ -54,7 +56,7 @@ export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardPro
     /* Shadow wrapper — drop-shadow follows the clipped shape */
     <div
       style={{
-        filter: "drop-shadow(6px 6px 0 #7a5010)",
+        filter: `drop-shadow(6px 6px 0 ${ACCENT_SHADOW})`,
         marginBottom: "8px",
       }}
     >
@@ -62,14 +64,14 @@ export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardPro
       <div
         style={{
           clipPath: PIXEL_CLIP,
-          background: "#e39f64",
+          background: ACCENT_GOLD,
           padding: "3px",
         }}
       >
         {/* Card body */}
         <div
           style={{
-            background: "#0d1024",
+            background: BG_CARD,
             display: "flex",
             flexDirection: "column",
             gap: 0,
@@ -83,8 +85,8 @@ export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardPro
               style={{
                 width: 110,
                 flexShrink: 0,
-                background: "linear-gradient(135deg, #1a0f2e 0%, #0d1024 60%, #1a2040 100%)",
-                borderRight: "1px solid #e39f6430",
+                background: `linear-gradient(135deg, #1a0f2e 0%, ${BG_CARD} 60%, #1a2040 100%)`,
+                borderRight: `1px solid ${alpha(ACCENT_GOLD, "30")}`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -98,7 +100,7 @@ export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardPro
                 style={{
                   position: "absolute",
                   inset: 0,
-                  background: "radial-gradient(ellipse at center, rgba(227,159,100,0.15) 0%, transparent 70%)",
+                  background: `radial-gradient(ellipse at center, ${alpha(ACCENT_GOLD, "26")} 0%, transparent 70%)`,
                   pointerEvents: "none",
                 }}
               />
@@ -140,25 +142,25 @@ export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardPro
                       }}
                       style={{
                         flex: 1,
-                        background: "#1b1e37",
-                        border: "2px solid #e39f64",
+                        background: BG_CARD,
+                        border: `2px solid ${ACCENT_GOLD}`,
                         color: "#fff",
                         padding: "4px 10px",
                         fontSize: "20px",
-                        fontFamily: "'VT323', monospace",
+                        fontFamily: FONT_BODY,
                         outline: "none",
                         minWidth: 0,
                       }}
                     />
                     <button
                       onClick={confirmEdit}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "#06FFA5", padding: "2px" }}
+                      style={{ background: "none", border: "none", cursor: "pointer", color: COLOR_SUCCESS, padding: "2px" }}
                     >
                       <Check size={16} />
                     </button>
                     <button
                       onClick={cancelEdit}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "#E63946", padding: "2px" }}
+                      style={{ background: "none", border: "none", cursor: "pointer", color: COLOR_DANGER, padding: "2px" }}
                     >
                       <X size={16} />
                     </button>
@@ -167,9 +169,9 @@ export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardPro
                   <>
                     <span
                       style={{
-                        fontFamily: "'Press Start 2P', monospace",
+                        fontFamily: FONT_PIXEL,
                         color: "#fff",
-                        fontSize: "13px",
+                        fontSize: PX_XL,
                         textShadow: "2px 2px 0 #000",
                         lineHeight: 1.4,
                         overflow: "hidden",
@@ -183,9 +185,9 @@ export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardPro
                     </span>
                     <button
                       onClick={() => { setDraft(playerName); setEditing(true); }}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "#5a6080", padding: "2px", flexShrink: 0, transition: "color 0.15s" }}
-                      onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#e39f64")}
-                      onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#5a6080")}
+                      style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: "2px", flexShrink: 0, transition: "color 0.15s" }}
+                      onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = ACCENT_GOLD)}
+                      onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = TEXT_MUTED)}
                       title="Editar nome"
                     >
                       <Pencil size={14} />
@@ -199,9 +201,9 @@ export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardPro
                 <Star size={12} style={{ color: rank.color, flexShrink: 0 }} />
                 <span
                   style={{
-                    fontFamily: "'VT323', monospace",
+                    fontFamily: FONT_BODY,
                     color: rank.color,
-                    fontSize: "18px",
+                    fontSize: VT_LG,
                     letterSpacing: "1px",
                     textShadow: "1px 1px 0 #000",
                   }}
@@ -213,33 +215,33 @@ export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardPro
               {/* Stats row */}
               <div style={{ display: "flex", gap: "18px", flexWrap: "wrap" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
-                  <span style={{ color: "#5a6080", fontSize: "13px", fontFamily: "'VT323', monospace" }}>MISSÕES</span>
+                  <span style={{ color: TEXT_MUTED, fontSize: "13px", fontFamily: FONT_BODY }}>MISSÕES</span>
                   <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
-                    <Swords size={13} style={{ color: "#e39f64" }} />
-                    <span style={{ fontFamily: "'VT323', monospace", color: "#e39f64", fontSize: "22px", lineHeight: 1 }}>
+                    <Swords size={13} style={{ color: ACCENT_GOLD }} />
+                    <span style={{ fontFamily: FONT_BODY, color: ACCENT_GOLD, fontSize: "22px", lineHeight: 1 }}>
                       {stats.completedMissions}
                     </span>
-                    <span style={{ color: "#3a4060", fontSize: "16px", fontFamily: "'VT323', monospace" }}>
+                    <span style={{ color: TEXT_INACTIVE, fontSize: "16px", fontFamily: FONT_BODY }}>
                       /{stats.totalMissions}
                     </span>
                   </div>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
-                  <span style={{ color: "#5a6080", fontSize: "13px", fontFamily: "'VT323', monospace" }}>TASKS</span>
+                  <span style={{ color: TEXT_MUTED, fontSize: "13px", fontFamily: FONT_BODY }}>TASKS</span>
                   <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
-                    <span style={{ fontFamily: "'VT323', monospace", color: "#06FFA5", fontSize: "22px", lineHeight: 1 }}>
+                    <span style={{ fontFamily: FONT_BODY, color: COLOR_SUCCESS, fontSize: "22px", lineHeight: 1 }}>
                       {stats.totalTasksDone}
                     </span>
-                    <span style={{ color: "#3a4060", fontSize: "16px", fontFamily: "'VT323', monospace" }}>
+                    <span style={{ color: TEXT_INACTIVE, fontSize: "16px", fontFamily: FONT_BODY }}>
                       /{stats.totalTasks}
                     </span>
                   </div>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
-                  <span style={{ color: "#5a6080", fontSize: "13px", fontFamily: "'VT323', monospace" }}>XP TOTAL</span>
-                  <span style={{ fontFamily: "'VT323', monospace", color: "#FFD700", fontSize: "22px", lineHeight: 1, textShadow: "1px 1px 0 #000" }}>
+                  <span style={{ color: TEXT_MUTED, fontSize: "13px", fontFamily: FONT_BODY }}>XP TOTAL</span>
+                  <span style={{ fontFamily: FONT_BODY, color: COLOR_LEGENDARY, fontSize: "22px", lineHeight: 1, textShadow: "1px 1px 0 #000" }}>
                     {totalXP}
                   </span>
                 </div>
@@ -250,7 +252,7 @@ export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardPro
           {/* ── XP Bar section ──────────────────────────── */}
           <div
             style={{
-              borderTop: "2px solid #1f254f",
+              borderTop: `2px solid ${BORDER_SUBTLE}`,
               padding: "10px 18px 14px 18px",
               display: "flex",
               flexDirection: "column",
@@ -261,19 +263,19 @@ export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardPro
               <div style={{ display: "flex", alignItems: "baseline", gap: "6px" }}>
                 <span
                   style={{
-                    fontFamily: "'Press Start 2P', monospace",
-                    color: "#FFD700",
+                    fontFamily: FONT_PIXEL,
+                    color: COLOR_LEGENDARY,
                     fontSize: "11px",
                     textShadow: "2px 2px 0 #000",
                   }}
                 >
                   LVL {lvInfo.level}
                 </span>
-                <span style={{ fontFamily: "'VT323', monospace", color: "#8a7a6a", fontSize: "16px" }}>
+                <span style={{ fontFamily: FONT_BODY, color: RANK_NOVATO, fontSize: "16px" }}>
                   ({lvInfo.currentXP}/{lvInfo.neededXP} XP)
                 </span>
               </div>
-              <span style={{ fontFamily: "'VT323', monospace", color: xpPct >= 80 ? "#06FFA5" : "#FFD700", fontSize: "16px" }}>
+              <span style={{ fontFamily: FONT_BODY, color: xpPct >= 80 ? COLOR_SUCCESS : COLOR_LEGENDARY, fontSize: "16px" }}>
                 {xpPct}%
               </span>
             </div>
@@ -281,8 +283,8 @@ export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardPro
             <div
               style={{
                 height: 14,
-                background: "#0b0d1e",
-                border: "2px solid #2a2e50",
+                background: BG_DEEPEST,
+                border: `2px solid ${BORDER_ELEVATED}`,
                 position: "relative",
                 overflow: "hidden",
               }}
@@ -293,7 +295,7 @@ export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardPro
                   position: "absolute",
                   inset: 0,
                   width: `${xpPct}%`,
-                  background: "#FFD700",
+                  background: COLOR_LEGENDARY,
                   transition: "width 0.8s ease",
                 }}
               />
@@ -310,8 +312,8 @@ export function PlayerCard({ missions, playerName, onNameChange }: PlayerCardPro
 
             {lvInfo.currentXP < lvInfo.neededXP && (
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <div style={{ width: 4, height: 4, background: "#FFD70066", transform: "rotate(45deg)" }} />
-                <span style={{ fontFamily: "'VT323', monospace", color: "#4a5070", fontSize: "14px" }}>
+                <div style={{ width: 4, height: 4, background: alpha(COLOR_LEGENDARY, "66"), transform: "rotate(45deg)" }} />
+                <span style={{ fontFamily: FONT_BODY, color: "#4a5070", fontSize: "14px" }}>
                   {lvInfo.neededXP - lvInfo.currentXP} XP to LVL {lvInfo.level + 1} —&nbsp;
                   {Math.ceil((lvInfo.neededXP - lvInfo.currentXP) / AVG_XP_PER_TASK)} task{Math.ceil((lvInfo.neededXP - lvInfo.currentXP) / AVG_XP_PER_TASK) !== 1 ? "s" : ""} remaining
                 </span>

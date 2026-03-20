@@ -13,7 +13,7 @@ const SERVER_URL = `https://${projectId}.supabase.co/functions/v1/make-server-8f
 
 export default function AuthScreen() {
   const { signIn, signUp, signInWithGoogle } = useAuth();
-  const { BG_CARD, BG_DEEPEST, BG_PAGE, BORDER_ELEVATED, TEXT_LIGHT, TEXT_MUTED, TEXT_INACTIVE, alpha } = useTheme();
+  const { ACCENT_GOLD, BG_CARD, BG_DEEPEST, BG_PAGE, BORDER_ELEVATED, COLOR_WARNING, COLOR_SUCCESS, COLOR_DANGER, TEXT_LIGHT, TEXT_MUTED, TEXT_INACTIVE, FONT_PIXEL, FONT_BODY, alpha } = useTheme();
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,7 +26,7 @@ export default function AuthScreen() {
 
   const labelStyle: React.CSSProperties = {
     display: "block",
-    fontFamily: "'Press Start 2P', monospace",
+    fontFamily: FONT_PIXEL,
     fontSize: 8,
     color: TEXT_MUTED,
     marginBottom: 6,
@@ -36,7 +36,7 @@ export default function AuthScreen() {
   const inputStyle: React.CSSProperties = {
     width: "100%",
     padding: "10px 12px",
-    fontFamily: "'VT323', monospace",
+    fontFamily: FONT_BODY,
     fontSize: 18,
     color: TEXT_LIGHT,
     background: BG_DEEPEST,
@@ -130,7 +130,7 @@ export default function AuthScreen() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          fontFamily: "'VT323', monospace",
+          fontFamily: FONT_BODY,
           overflow: "auto",
           padding: "20px",
         }}
@@ -145,7 +145,7 @@ export default function AuthScreen() {
               top: `${(i * 97.3 + 31) % 100}%`,
               width: (i % 3) === 0 ? 2 : 1,
               height: (i % 3) === 0 ? 2 : 1,
-              background: "#e39f64",
+              background: ACCENT_GOLD,
               pointerEvents: "none",
               animation: `starTwinkle ${1.8 + (i % 7) * 0.3}s ease-in-out ${(i % 9) * 0.2}s infinite`,
             }}
@@ -184,13 +184,13 @@ export default function AuthScreen() {
                 style={{
                   flex: 1,
                   padding: "12px 0",
-                  fontFamily: "'Press Start 2P', monospace",
+                  fontFamily: FONT_PIXEL,
                   fontSize: 10,
-                  color: mode === m ? "#f0c040" : TEXT_MUTED,
+                  color: mode === m ? COLOR_WARNING : TEXT_MUTED,
                   background: mode === m ? BG_DEEPEST : BG_CARD,
                   border: "none",
                   cursor: "pointer",
-                  borderBottom: mode === m ? "2px solid #f0c040" : "2px solid transparent",
+                  borderBottom: mode === m ? `2px solid ${COLOR_WARNING}` : "2px solid transparent",
                   transition: "all 0.2s",
                 }}
               >
@@ -227,9 +227,9 @@ export default function AuthScreen() {
                         right: 10,
                         top: "50%",
                         transform: "translateY(-50%)",
-                        fontFamily: "'Press Start 2P', monospace",
+                        fontFamily: FONT_PIXEL,
                         fontSize: 8,
-                        color: nickChecking ? TEXT_MUTED : nickAvailable ? "#06FFA5" : "#E63946",
+                        color: nickChecking ? TEXT_MUTED : nickAvailable ? COLOR_SUCCESS : COLOR_DANGER,
                       }}
                     >
                       {nickChecking ? "..." : nickAvailable ? "OK" : "IN USE"}
@@ -288,9 +288,9 @@ export default function AuthScreen() {
                 style={{
                   padding: "8px 12px",
                   background: "rgba(230,57,70,0.15)",
-                  border: "1px solid #E63946",
-                  color: "#E63946",
-                  fontFamily: "'VT323', monospace",
+                  border: `1px solid ${COLOR_DANGER}`,
+                  color: COLOR_DANGER,
+                  fontFamily: FONT_BODY,
                   fontSize: 16,
                   marginBottom: 16,
                   textAlign: "center",
@@ -307,10 +307,10 @@ export default function AuthScreen() {
               style={{
                 width: "100%",
                 padding: "14px 0",
-                fontFamily: "'Press Start 2P', monospace",
+                fontFamily: FONT_PIXEL,
                 fontSize: 11,
-                color: "#0d1024",
-                background: loading ? TEXT_MUTED : "#f0c040",
+                color: BG_CARD,
+                background: loading ? TEXT_MUTED : COLOR_WARNING,
                 border: "none",
                 borderRadius: 8,
                 boxShadow: "none",
@@ -330,7 +330,7 @@ export default function AuthScreen() {
             {/* Divider */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "18px 0" }}>
               <div style={{ flex: 1, height: 1, background: BORDER_ELEVATED }} />
-              <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: TEXT_MUTED }}>
+              <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: TEXT_MUTED }}>
                 OU
               </span>
               <div style={{ flex: 1, height: 1, background: BORDER_ELEVATED }} />
@@ -343,7 +343,7 @@ export default function AuthScreen() {
               style={{
                 width: "100%",
                 padding: "12px 0",
-                fontFamily: "'Press Start 2P', monospace",
+                fontFamily: FONT_PIXEL,
                 fontSize: 9,
                 color: TEXT_LIGHT,
                 background: BG_PAGE,
@@ -372,7 +372,7 @@ export default function AuthScreen() {
         <div
           style={{
             marginTop: 20,
-            fontFamily: "'VT323', monospace",
+            fontFamily: FONT_BODY,
             color: TEXT_INACTIVE,
             fontSize: 15,
           }}

@@ -7,6 +7,7 @@ import { resetAllProgress, getMissions, loadPlayerName } from "../data/missions"
 import { resetEconomy, resetBonusXP } from "../data/economy";
 import { resetHabits } from "../data/habits";
 import { useIsDesktop } from "../hooks/useIsDesktop";
+import { useTheme } from "../contexts/PreferencesContext";
 import { getPower, formatCP, getCPProgress, getNextPowerRank, formatMultiplier } from "../data/combatPower";
 import { calcTotalXP, getLevelInfo, getRank, DIFFICULTY_INFO } from "../data/gameEngine";
 import { getEconomy, CLASS_INFO } from "../data/economy";
@@ -17,13 +18,14 @@ import { PowerSpiderChart } from "./ui/PowerSpiderChart";
 import { PageShell } from "./ui/PageShell";
 import { CardIn } from "./ui/CardIn";
 
-const CARD = { background: "#0d1024", border: "1px solid rgba(42,46,80,0.8)", borderRadius: 10, overflow: "hidden" } as const;
-const TOOLBAR = { background: "#0b0d1e", borderBottom: "1px solid #1f254f", padding: "8px 14px", display: "flex" as const, alignItems: "center" as const, gap: 8 } as const;
-
 export default function ProgressScreen() {
   const navigate = useNavigate();
   const isDesktop = useIsDesktop();
   const { nick } = useAuth();
+  const { BG_CARD, BG_DEEPEST, BORDER_SUBTLE, ACCENT_GOLD, COLOR_LEGENDARY, RANK_NOVATO, BORDER_ELEVATED, alpha, FONT_PIXEL, FONT_BODY, COLOR_SUCCESS, COLOR_DANGER, COLOR_WARNING, COLOR_ORANGE, COLOR_MAGE, TEXT_MUTED, TEXT_BODY, TEXT_LIGHT, TEXT_INACTIVE, ACCENT_SHADOW, RANK_VETERANO, PX_SM, PX_XS, PX_2XS, PX_MD, VT_XL, VT_LG, VT_MD, VT_SM, VT_XS } = useTheme();
+
+  const CARD = { background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "cc")}`, borderRadius: 10, overflow: "hidden" } as const;
+  const TOOLBAR = { background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`, padding: "8px 14px", display: "flex" as const, alignItems: "center" as const, gap: 8 } as const;
   const { selectedClass } = useCampaign();
   const missions = getMissions();
   const player   = loadPlayerName();
@@ -63,17 +65,17 @@ export default function ProgressScreen() {
   return (
     <>
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.75}}`}</style>
-      <PageShell icon={<BarChart3 size={16} />} title="EVOLUÇÃO" accentColor="#06FFA5">
+      <PageShell icon={<BarChart3 size={16} />} title="EVOLUÇÃO" accentColor={COLOR_SUCCESS}>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {/* ── Character card (Task 2: standard card) ──────────────────────── */}
           <CardIn style={{ ...CARD, marginBottom: 16, overflow: "hidden" }}>
             <div style={{ ...TOOLBAR }}>
-              <Star size={14} color="#e39f64" />
-              <span style={{ fontFamily: "'Press Start 2P', monospace", color: "#e39f64", fontSize: 9, flex: 1, textShadow: "1px 1px 0 #000" }}>PERSONAGEM</span>
-              <span style={{ fontFamily: "'Press Start 2P', monospace", color: "#FFD700", fontSize: 9, textShadow: "1px 1px 0 #000" }}>LVL {lvInfo.level}</span>
+              <Star size={14} color={ACCENT_GOLD} />
+              <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: PX_SM, flex: 1, textShadow: "1px 1px 0 #000" }}>PERSONAGEM</span>
+              <span style={{ fontFamily: FONT_PIXEL, color: COLOR_LEGENDARY, fontSize: PX_SM, textShadow: "1px 1px 0 #000" }}>LVL {lvInfo.level}</span>
             </div>
             <div style={{ display: "flex", alignItems: "stretch" }}>
-              <div style={{ width: 100, flexShrink: 0, background: "#0a0c1a", borderRight: "2px solid #1f254f", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}>
+              <div style={{ width: 100, flexShrink: 0, background: BG_DEEPEST, borderRight: `2px solid ${BORDER_SUBTLE}`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" }}>
                 <img
                   src={avatarSrc}
                   alt=""
@@ -86,23 +88,23 @@ export default function ProgressScreen() {
                 />
               </div>
               <div style={{ flex: 1, padding: "14px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
-                <div style={{ fontFamily: "'Press Start 2P', monospace", color: "#fff", fontSize: 12, textShadow: "1px 1px 0 #000" }}>{displayName}</div>
+                <div style={{ fontFamily: FONT_PIXEL, color: "#fff", fontSize: 12, textShadow: "1px 1px 0 #000" }}>{displayName}</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <Star size={13} color={rank.color} />
-                  <span style={{ fontFamily: "'VT323', monospace", color: rank.color, fontSize: 20 }}>{rank.label}</span>
+                  <span style={{ fontFamily: FONT_BODY, color: rank.color, fontSize: VT_XL }}>{rank.label}</span>
                 </div>
               </div>
             </div>
-            <div style={{ borderTop: "1px solid #1f254f", padding: "10px 18px" }}>
+            <div style={{ borderTop: `1px solid ${BORDER_SUBTLE}`, padding: "10px 18px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                <span style={{ color: "#8a7a6a", fontSize: 16 }}>{lvInfo.currentXP}/{lvInfo.neededXP} XP</span>
-                <span style={{ color: "#FFD700", fontSize: 16 }}>{xpPct}%</span>
+                <span style={{ color: RANK_NOVATO, fontSize: VT_MD }}>{lvInfo.currentXP}/{lvInfo.neededXP} XP</span>
+                <span style={{ color: COLOR_LEGENDARY, fontSize: VT_MD }}>{xpPct}%</span>
               </div>
-              <div style={{ height: 16, background: "#0b0d1e", border: "2px solid #2a2e50", position: "relative", overflow: "hidden" }}>
-                <div style={{ position: "absolute", inset: 0, width: `${xpPct}%`, background: "#FFD700", transition: "width 0.8s ease" }} />
+              <div style={{ height: 16, background: BG_DEEPEST, border: `2px solid ${BORDER_ELEVATED}`, position: "relative", overflow: "hidden" }}>
+                <div style={{ position: "absolute", inset: 0, width: `${xpPct}%`, background: COLOR_LEGENDARY, transition: "width 0.8s ease" }} />
                 <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(90deg,transparent 0px,transparent 10px,rgba(0,0,0,0.2) 10px,rgba(0,0,0,0.2) 11px)", pointerEvents: "none" }} />
               </div>
-              <div style={{ color: "#4a5070", fontSize: 14, marginTop: 4 }}>
+              <div style={{ color: TEXT_MUTED, fontSize: VT_SM, marginTop: 4 }}>
                 {lvInfo.neededXP - lvInfo.currentXP} XP para Nível {nextLevel}
               </div>
             </div>
@@ -115,18 +117,18 @@ export default function ProgressScreen() {
             {/* Toolbar */}
             <div style={{ ...TOOLBAR, position: "relative", zIndex: 1 }}>
               <Zap size={14} color={cpData.rank.color} />
-              <span style={{ fontFamily: "'Press Start 2P', monospace", color: cpData.rank.color, fontSize: 9, flex: 1, textShadow: "1px 1px 0 #000" }}>POWER</span>
-              <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 8, color: cpData.rank.color, background: `${cpData.rank.color}22`, border: `1px solid ${cpData.rank.color}44`, padding: "2px 8px" }}>
+              <span style={{ fontFamily: FONT_PIXEL, color: cpData.rank.color, fontSize: PX_SM, flex: 1, textShadow: "1px 1px 0 #000" }}>POWER</span>
+              <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_XS, color: cpData.rank.color, background: `${cpData.rank.color}22`, border: `1px solid ${cpData.rank.color}44`, padding: "2px 8px" }}>
                 {cpData.rank.tier} — {cpData.rank.label}
               </span>
             </div>
             <div style={{ padding: "16px 18px", position: "relative", zIndex: 1 }}>
               {/* Big multiplier */}
               <div style={{ textAlign: "center", marginBottom: 12 }}>
-                <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 36, color: cpData.rank.color, textShadow: `3px 3px 0 #000, 0 0 20px ${cpData.rank.glow}`, letterSpacing: 3, lineHeight: 1 }}>
+                <div style={{ fontFamily: FONT_PIXEL, fontSize: 36, color: cpData.rank.color, textShadow: `3px 3px 0 #000, 0 0 20px ${cpData.rank.glow}`, letterSpacing: 3, lineHeight: 1 }}>
                   {formatCP(cpData.total)}
                 </div>
-                <div style={{ fontFamily: "'VT323', monospace", fontSize: 16, color: "#5a6080", marginTop: 4 }}>
+                <div style={{ fontFamily: FONT_BODY, fontSize: VT_MD, color: TEXT_MUTED, marginTop: 4 }}>
                   MH × MN × MC × MR
                 </div>
               </div>
@@ -135,14 +137,14 @@ export default function ProgressScreen() {
               {cpProgress && nextRank && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                    <span style={{ color: cpData.rank.color, fontSize: 14 }}>{cpData.rank.tier}</span>
-                    <span style={{ color: nextRank.color, fontSize: 14 }}>{nextRank.tier} — {nextRank.label}</span>
+                    <span style={{ color: cpData.rank.color, fontSize: VT_SM }}>{cpData.rank.tier}</span>
+                    <span style={{ color: nextRank.color, fontSize: VT_SM }}>{nextRank.tier} — {nextRank.label}</span>
                   </div>
-                  <div style={{ height: 10, background: "#0b0d1e", border: "2px solid #2a2e50", position: "relative", overflow: "hidden" }}>
+                  <div style={{ height: 10, background: BG_DEEPEST, border: `2px solid ${BORDER_ELEVATED}`, position: "relative", overflow: "hidden" }}>
                     <div style={{ position: "absolute", inset: 0, width: `${cpProgress.percent}%`, background: `linear-gradient(90deg, ${cpData.rank.color}, ${nextRank.color})`, transition: "width 0.8s ease" }} />
                     <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(90deg,transparent 0px,transparent 10px,rgba(0,0,0,0.2) 10px,rgba(0,0,0,0.2) 11px)", pointerEvents: "none" }} />
                   </div>
-                  <div style={{ fontFamily: "'VT323', monospace", color: "#4a5070", fontSize: 14, marginTop: 3 }}>
+                  <div style={{ fontFamily: FONT_BODY, color: TEXT_MUTED, fontSize: VT_SM, marginTop: 3 }}>
                     Faltam {cpProgress.remainingCP} Power para rank {nextRank.tier}
                   </div>
                 </div>
@@ -161,23 +163,23 @@ export default function ProgressScreen() {
               <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 14 }}>
                 {cpData.sources.map((src) => (
                   <div key={src.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: src.active ? `${src.color}08` : "transparent", border: `1px solid ${src.active ? src.color + "33" : "#1a1e37"}`, borderRadius: 6, opacity: src.active ? 1 : 0.5 }}>
-                    <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: src.color, width: 50, flexShrink: 0 }}>{src.label}</span>
-                    <span style={{ fontFamily: "'VT323', monospace", color: "#8a9fba", fontSize: 14, flex: 1 }}>{src.desc}</span>
-                    <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, color: src.active ? src.color : "#3a4060" }}>{formatMultiplier(src.value)}</span>
+                    <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: src.color, width: 50, flexShrink: 0 }}>{src.label}</span>
+                    <span style={{ fontFamily: FONT_BODY, color: RANK_VETERANO, fontSize: VT_SM, flex: 1 }}>{src.desc}</span>
+                    <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_SM, color: src.active ? src.color : TEXT_INACTIVE }}>{formatMultiplier(src.value)}</span>
                   </div>
                 ))}
                 {/* Total */}
                 <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", background: `${cpData.rank.color}12`, border: `2px solid ${cpData.rank.color}55`, borderRadius: 6, marginTop: 4 }}>
                   <Zap size={12} color={cpData.rank.color} />
-                  <span style={{ flex: 1, fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: cpData.rank.color }}>COMBAT POWER</span>
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 11, color: cpData.rank.color, textShadow: `0 0 8px ${cpData.rank.color}` }}>{cpData.combatPower}</span>
+                  <span style={{ flex: 1, fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: cpData.rank.color }}>COMBAT POWER</span>
+                  <span style={{ fontFamily: FONT_PIXEL, fontSize: 11, color: cpData.rank.color, textShadow: `0 0 8px ${cpData.rank.color}` }}>{cpData.combatPower}</span>
                 </div>
               </div>
 
 
               {/* Damage per difficulty */}
-              <div style={{ borderTop: "1px solid #1f254f", paddingTop: 12 }}>
-                <div style={{ color: "#5a6080", fontSize: 14, marginBottom: 6 }}>
+              <div style={{ borderTop: `1px solid ${BORDER_SUBTLE}`, paddingTop: 12 }}>
+                <div style={{ color: TEXT_MUTED, fontSize: VT_SM, marginBottom: 6 }}>
                   Dano por Dificuldade (Power ×{damageMultiplier})
                 </div>
                 <div style={{ display: "flex", gap: 8 }}>
@@ -185,9 +187,9 @@ export default function ProgressScreen() {
                     const info = DIFFICULTY_INFO[d];
                     const dmg  = diffDamage[d];
                     return (
-                      <div key={d} style={{ flex: 1, background: "#0b0d1e", border: `1px solid ${info.color}44`, padding: "6px 8px", textAlign: "center" }}>
-                        <div style={{ color: info.color, fontSize: 14 }}>{info.label}</div>
-                        <div style={{ fontFamily: "'Press Start 2P', monospace", color: info.color, fontSize: 12, textShadow: "1px 1px 0 #000" }}>{dmg}</div>
+                      <div key={d} style={{ flex: 1, background: BG_DEEPEST, border: `1px solid ${info.color}44`, padding: "6px 8px", textAlign: "center" }}>
+                        <div style={{ color: info.color, fontSize: VT_SM }}>{info.label}</div>
+                        <div style={{ fontFamily: FONT_PIXEL, color: info.color, fontSize: 12, textShadow: "1px 1px 0 #000" }}>{dmg}</div>
                       </div>
                     );
                   })}
@@ -199,21 +201,21 @@ export default function ProgressScreen() {
           {/* ── Stats (Task 2: standard card) ─────────────────────────────── */}
           <CardIn index={2} style={{ ...CARD, marginBottom: 16 }}>
             <div style={{ ...TOOLBAR }}>
-              <span style={{ fontSize: 14 }}>📊</span>
-              <span style={{ fontFamily: "'Press Start 2P', monospace", color: "#5a6080", fontSize: 9 }}>ESTATÍSTICAS</span>
+              <span style={{ fontSize: VT_SM }}>📊</span>
+              <span style={{ fontFamily: FONT_PIXEL, color: TEXT_MUTED, fontSize: PX_SM }}>ESTATÍSTICAS</span>
             </div>
             <div style={{ padding: "12px 14px" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 {[
-                  { label: "XP Total",   val: totalXP,           color: "#FFD700" },
-                  { label: "Nível",      val: lvInfo.level,       color: "#f0c040" },
-                  { label: "Tarefas",    val: `${completedTasks}/${totalTasks}`, color: "#06FFA5" },
-                  { label: "Monstros",   val: `${defeatedBosses.length}/${campaignMissions.length}`, color: "#E63946" },
-                  { label: "Hábitos",    val: `${activeHabits.length}/5`, color: "#FF6B35" },
+                  { label: "XP Total",   val: totalXP,           color: COLOR_LEGENDARY },
+                  { label: "Nível",      val: lvInfo.level,       color: COLOR_WARNING },
+                  { label: "Tarefas",    val: `${completedTasks}/${totalTasks}`, color: COLOR_SUCCESS },
+                  { label: "Monstros",   val: `${defeatedBosses.length}/${campaignMissions.length}`, color: COLOR_DANGER },
+                  { label: "Hábitos",    val: `${activeHabits.length}/5`, color: COLOR_ORANGE },
                   { label: "Power",      val: formatCP(cpData.total), color: cpData.rank.color },
                 ].map(({ label, val, color }) => (
-                  <div key={label} style={{ background: "#0b0d1e", border: "1px solid #1f254f", padding: "10px 14px" }}>
-                    <div style={{ color: "#5a6080", fontSize: 14 }}>{label}</div>
+                  <div key={label} style={{ background: BG_DEEPEST, border: `1px solid ${BORDER_SUBTLE}`, padding: "10px 14px" }}>
+                    <div style={{ color: TEXT_MUTED, fontSize: VT_SM }}>{label}</div>
                     <div style={{ color, fontSize: 26, textShadow: "1px 1px 0 #000" }}>{val}</div>
                   </div>
                 ))}
@@ -224,8 +226,8 @@ export default function ProgressScreen() {
           {/* ── Campaign history (Task 2: standard card) ──────────────────── */}
           <CardIn>
             <div style={{ ...TOOLBAR }}>
-              <Castle size={14} color="#5a6080" />
-              <span style={{ fontFamily: "'Press Start 2P', monospace", color: "#5a6080", fontSize: 9 }}>CAMPAIGN</span>
+              <Castle size={14} color={TEXT_MUTED} />
+              <span style={{ fontFamily: FONT_PIXEL, color: TEXT_MUTED, fontSize: PX_SM }}>CAMPAIGN</span>
             </div>
             <div style={{ padding: "8px 0" }}>
               {campaignMissions.map((m, i) => {
@@ -233,19 +235,19 @@ export default function ProgressScreen() {
                 const active  = !done && m.unlocked;
                 const locked  = !m.unlocked;
                 return (
-                  <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 14px", background: done ? "rgba(6,255,165,0.06)" : active ? "rgba(227,159,100,0.08)" : "transparent", borderBottom: "1px solid #1f254f" }}>
-                    <div style={{ width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", background: done ? "#06FFA5" : active ? "#e39f64" : "#1f254f", flexShrink: 0 }}>
-                      <span style={{ fontFamily: "'VT323', monospace", color: "#000", fontSize: 16 }}>
+                  <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 14px", background: done ? "rgba(6,255,165,0.06)" : active ? "rgba(227,159,100,0.08)" : "transparent", borderBottom: `1px solid ${BORDER_SUBTLE}` }}>
+                    <div style={{ width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", background: done ? COLOR_SUCCESS : active ? ACCENT_GOLD : BORDER_SUBTLE, flexShrink: 0 }}>
+                      <span style={{ fontFamily: FONT_BODY, color: "#000", fontSize: VT_MD }}>
                         {done ? "✓" : locked ? "🔒" : `${i+1}`}
                       </span>
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ color: done ? "#06FFA5" : active ? "#fff" : "#3a4060", fontSize: 18 }}>{m.name}</div>
-                      <div style={{ color: "#3a4060", fontSize: 13 }}>
+                      <div style={{ color: done ? COLOR_SUCCESS : active ? "#fff" : TEXT_INACTIVE, fontSize: VT_LG }}>{m.name}</div>
+                      <div style={{ color: TEXT_INACTIVE, fontSize: VT_XS }}>
                         {done ? `Defeated — ${m.monsterMaxHp}HP` : locked ? "Locked" : `${m.monsterCurrentHp}/${m.monsterMaxHp} HP remaining`}
                       </div>
                     </div>
-                    <Shield size={13} color={done ? "#06FFA5" : active ? "#E63946" : "#3a4060"} />
+                    <Shield size={13} color={done ? COLOR_SUCCESS : active ? COLOR_DANGER : TEXT_INACTIVE} />
                   </div>
                 );
               })}
@@ -256,7 +258,7 @@ export default function ProgressScreen() {
           <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
             <button
               onClick={() => { audioManager.playClick("navigate"); navigate("/conquistas"); }}
-              style={{ flex: 1, padding: "14px 0", ...CARD, border: "1px solid #c084fc55", color: "#c084fc", fontFamily: "'Press Start 2P', monospace", fontSize: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+              style={{ flex: 1, padding: "14px 0", ...CARD, border: `1px solid ${alpha(COLOR_MAGE, "55")}`, color: COLOR_MAGE, fontFamily: FONT_PIXEL, fontSize: PX_MD, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
             >
               <Trophy size={12} /> CONQUISTAS
             </button>
@@ -264,9 +266,9 @@ export default function ProgressScreen() {
               onClick={() => { audioManager.playClick("navigate"); navigate("/classe"); }}
               style={{
                 flex: 1, padding: "14px 0", ...CARD,
-                border: `1px solid ${activeClass ? activeClass.color + "55" : "#e39f6455"}`,
-                color: activeClass ? activeClass.color : "#e39f64",
-                fontFamily: "'Press Start 2P', monospace", fontSize: 9, cursor: "pointer",
+                border: `1px solid ${activeClass ? activeClass.color + "55" : alpha(ACCENT_GOLD, "55")}`,
+                color: activeClass ? activeClass.color : ACCENT_GOLD,
+                fontFamily: FONT_PIXEL, fontSize: PX_SM, cursor: "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
               }}
             >
@@ -289,7 +291,7 @@ export default function ProgressScreen() {
                 setTimeout(() => window.location.reload(), 100);
               }
             }}
-            style={{ width: "100%", padding: "12px 0", background: "#0d1024", border: "2px solid #E63946", color: "#E63946", fontFamily: "'VT323', monospace", fontSize: 18, cursor: "pointer", marginBottom: 24, opacity: 0.6 }}
+            style={{ width: "100%", padding: "12px 0", background: BG_CARD, border: `2px solid ${COLOR_DANGER}`, color: COLOR_DANGER, fontFamily: FONT_BODY, fontSize: VT_LG, cursor: "pointer", marginBottom: 24, opacity: 0.6 }}
           >
             RESETAR PROGRESSO
           </button>

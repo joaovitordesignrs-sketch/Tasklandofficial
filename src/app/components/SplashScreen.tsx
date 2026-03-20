@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import TasklandLogotipo from "../../imports/TasklandLogotipo";
+import { useTheme } from "../contexts/PreferencesContext";
 
 interface SplashScreenProps {
   onFinish: () => void;
 }
 
 export function SplashScreen({ onFinish }: SplashScreenProps) {
+  const { ACCENT_GOLD, COLOR_WARNING, BG_DEEPEST, FONT_PIXEL, FONT_BODY, alpha } = useTheme();
+
   const [ready, setReady] = useState(false);   // logo fully visible → show CTA
   const [leaving, setLeaving] = useState(false); // fade-out started
 
@@ -68,12 +71,12 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
           position: "fixed",
           inset: 0,
           zIndex: 9999,
-          background: "#080c1a",
+          background: BG_DEEPEST,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          fontFamily: "'VT323', monospace",
+          fontFamily: FONT_BODY,
           cursor: ready ? "pointer" : "default",
           animation: leaving ? "splashFadeOut 0.6s ease forwards" : "splashFadeIn 0.5s ease forwards",
           overflow: "hidden",
@@ -85,8 +88,8 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
             position: "absolute",
             inset: 0,
             backgroundImage: `
-              repeating-linear-gradient(0deg,  rgba(227,159,100,0.03) 0px, transparent 1px, transparent 52px),
-              repeating-linear-gradient(90deg, rgba(227,159,100,0.03) 0px, transparent 1px, transparent 52px)
+              repeating-linear-gradient(0deg,  ${alpha(ACCENT_GOLD, "08")} 0px, transparent 1px, transparent 52px),
+              repeating-linear-gradient(90deg, ${alpha(ACCENT_GOLD, "08")} 0px, transparent 1px, transparent 52px)
             `,
             pointerEvents: "none",
           }}
@@ -102,7 +105,7 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
               top: `${(i * 97.3 + 31) % 100}%`,
               width: (i % 3) === 0 ? 2 : 1,
               height: (i % 3) === 0 ? 2 : 1,
-              background: "#e39f64",
+              background: ACCENT_GOLD,
               pointerEvents: "none",
               animation: `starTwinkle ${1.8 + (i % 7) * 0.3}s ease-in-out ${(i % 9) * 0.2}s infinite`,
             }}
@@ -122,7 +125,7 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
               position: "absolute",
               width: 20,
               height: 20,
-              border: "2px solid #e39f64",
+              border: `2px solid ${ACCENT_GOLD}`,
               opacity: 0.35,
               pointerEvents: "none",
               clipPath:
@@ -160,16 +163,16 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
         >
           {/* Divider */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, width: 320, maxWidth: "70vw" }}>
-            <div style={{ flex: 1, height: 1, background: "#e39f6466" }} />
-            <div style={{ width: 6, height: 6, background: "#e39f64", transform: "rotate(45deg)" }} />
-            <div style={{ flex: 1, height: 1, background: "#e39f6466" }} />
+            <div style={{ flex: 1, height: 1, background: alpha(ACCENT_GOLD, "66") }} />
+            <div style={{ width: 6, height: 6, background: ACCENT_GOLD, transform: "rotate(45deg)" }} />
+            <div style={{ flex: 1, height: 1, background: alpha(ACCENT_GOLD, "66") }} />
           </div>
 
           {/* Tagline */}
           <div
             style={{
-              fontFamily: "'Press Start 2P', monospace",
-              color: "#e39f64",
+              fontFamily: FONT_PIXEL,
+              color: ACCENT_GOLD,
               fontSize: "clamp(6px, 1.2vw, 10px)",
               letterSpacing: "0.2em",
               textShadow: "1px 1px 0 #000",
@@ -183,8 +186,8 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
           {/* CTA */}
           <div
             style={{
-              fontFamily: "'Press Start 2P', monospace",
-              color: "#f0c040",
+              fontFamily: FONT_PIXEL,
+              color: COLOR_WARNING,
               fontSize: "clamp(8px, 1.5vw, 12px)",
               textShadow: "2px 2px 0 #000",
               letterSpacing: "0.12em",
@@ -201,7 +204,7 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
             position: "absolute",
             bottom: 14,
             right: 18,
-            fontFamily: "'VT323', monospace",
+            fontFamily: FONT_BODY,
             color: "#232840",
             fontSize: 15,
             pointerEvents: "none",

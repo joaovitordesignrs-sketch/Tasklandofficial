@@ -343,7 +343,7 @@ function CharacterCard() {
     COLOR_DANGER, COLOR_MAGE, COLOR_LEGENDARY, COLOR_WARRIOR,
     FONT_PIXEL, FONT_BODY, PX_MD, PX_SM,
     VT_LG, VT_XS, RADIUS_SM, RADIUS_MD, RADIUS_XL,
-    SP_SM, alpha,
+    SP_SM, RANK_NOVATO, alpha,
   } = useTheme();
 
   const { lvInfo, xpPct, rank, cpData, activeSkin, levelUpInfo, playerName } = useCampaign();
@@ -382,7 +382,7 @@ function CharacterCard() {
       {/* XP bar */}
       <div style={{ marginBottom: 10 }}>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-          <span style={{ fontFamily: FONT_BODY, color: "#8a7a6a", fontSize: 15 }}>{lvInfo.currentXP} / {lvInfo.neededXP} XP</span>
+          <span style={{ fontFamily: FONT_BODY, color: RANK_NOVATO, fontSize: 15 }}>{lvInfo.currentXP} / {lvInfo.neededXP} XP</span>
           <span style={{ fontFamily: FONT_BODY, color: COLOR_LEGENDARY, fontSize: 15 }}>{Math.round(xpPct)}%</span>
         </div>
         <div style={{ height: 10, background: BG_DEEPEST, border: `1px solid ${BORDER_ELEVATED}`, borderRadius: RADIUS_SM + 1, position: "relative", overflow: "hidden" }}>

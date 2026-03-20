@@ -10,11 +10,7 @@ import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { cardInStyle } from "./ui/CardIn";
 import { MobileAddTaskModal } from "./ui/MobileAddTaskModal";
 import { DifficultyPicker } from "./ui/DifficultyPicker";
-import {
-  BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
-  ACCENT_GOLD, COLOR_DANGER, TEXT_INACTIVE, TEXT_MUTED, TEXT_LIGHT,
-  FONT_PIXEL, FONT_BODY, RADIUS_MD, RADIUS_LG,
-} from "../data/tokens";
+import { useTheme } from "../contexts/PreferencesContext";
 
 const ITEM_TYPE = "TASK";
 
@@ -29,6 +25,7 @@ function DifficultyPickerLocal({ value, onChange }: { value: TaskDifficulty; onC
 function TagInput({
   value, onChange, availableTags, onTagCreated,
 }: { value: string; onChange: (t: string) => void; availableTags: string[]; onTagCreated?: () => void }) {
+  const { BORDER_ELEVATED, TEXT_LIGHT, TEXT_MUTED, TEXT_INACTIVE, BG_CARD, FONT_BODY, alpha } = useTheme();
   const [showNew, setShowNew]       = useState(false);
   const [newVal, setNewVal]         = useState("");
   const [pickedColor, setPickedColor] = useState<string>(TAG_PALETTE[0]);
@@ -53,10 +50,10 @@ function TagInput({
           onClick={() => { onChange(""); setShowNew(false); }}
           style={{
             padding: "2px 10px", borderRadius: 20, fontSize: 13,
-            fontFamily: "'VT323', monospace", cursor: "pointer",
-            background: !value ? "#2a2e5044" : "transparent",
-            border: `1px solid ${!value ? "#5a6080" : "#2a2e50"}`,
-            color: !value ? "#c8d0f0" : "#4a5070",
+            fontFamily: FONT_BODY, cursor: "pointer",
+            background: !value ? alpha(BORDER_ELEVATED, "44") : "transparent",
+            border: `1px solid ${!value ? TEXT_MUTED : BORDER_ELEVATED}`,
+            color: !value ? TEXT_LIGHT : TEXT_INACTIVE,
           }}
         >
           —
@@ -71,10 +68,10 @@ function TagInput({
               onClick={() => { onChange(active ? "" : tag); setShowNew(false); }}
               style={{
                 padding: "2px 10px", borderRadius: 20, fontSize: 13,
-                fontFamily: "'VT323', monospace", cursor: "pointer",
+                fontFamily: FONT_BODY, cursor: "pointer",
                 background: active ? `${c}22` : "transparent",
-                border: `1px solid ${active ? c : "#2a2e50"}`,
-                color: active ? c : "#5a6070",
+                border: `1px solid ${active ? c : BORDER_ELEVATED}`,
+                color: active ? c : TEXT_INACTIVE,
               }}
             >
               {tag}
@@ -88,7 +85,7 @@ function TagInput({
           return (
             <span style={{
               padding: "2px 10px", borderRadius: 20, fontSize: 13,
-              fontFamily: "'VT323', monospace",
+              fontFamily: FONT_BODY,
               background: `${c}22`, border: `1px solid ${c}`, color: c,
             }}>
               {value}
@@ -101,8 +98,8 @@ function TagInput({
             onClick={() => setShowNew(true)}
             style={{
               padding: "2px 8px", borderRadius: 20, fontSize: 13,
-              fontFamily: "'VT323', monospace", cursor: "pointer",
-              background: "transparent", border: "1px dashed #2a2e50", color: "#3a4060",
+              fontFamily: FONT_BODY, cursor: "pointer",
+              background: "transparent", border: `1px dashed ${BORDER_ELEVATED}`, color: TEXT_INACTIVE,
             }}
           >
             + new
@@ -122,21 +119,21 @@ function TagInput({
                   if (e.key === "Escape") { setShowNew(false); setNewVal(""); }
                 }}
                 style={{
-                  background: "#1b1e37", border: `1px solid ${pickedColor}66`,
+                  background: BG_CARD, border: `1px solid ${pickedColor}66`,
                   color: "#fff", padding: "2px 8px", fontSize: 14,
-                  fontFamily: "'VT323', monospace", outline: "none",
+                  fontFamily: FONT_BODY, outline: "none",
                   borderRadius: 6, width: 110,
                 }}
               />
               <button
                 onClick={commitNewTag}
-                style={{ background: `${pickedColor}22`, border: `1px solid ${pickedColor}66`, color: pickedColor, padding: "2px 8px", borderRadius: 6, cursor: "pointer", fontSize: 13, fontFamily: "'VT323', monospace" }}
+                style={{ background: `${pickedColor}22`, border: `1px solid ${pickedColor}66`, color: pickedColor, padding: "2px 8px", borderRadius: 6, cursor: "pointer", fontSize: 13, fontFamily: FONT_BODY }}
               >
                 OK
               </button>
               <button
                 onClick={() => { setShowNew(false); setNewVal(""); }}
-                style={{ background: "none", border: "1px solid #2a2e50", color: "#5a6080", padding: "2px 6px", borderRadius: 6, cursor: "pointer" }}
+                style={{ background: "none", border: `1px solid ${BORDER_ELEVATED}`, color: TEXT_MUTED, padding: "2px 6px", borderRadius: 6, cursor: "pointer" }}
               >
                 <X size={12} />
               </button>
@@ -160,7 +157,7 @@ function TagInput({
             {newVal.trim() && (
               <span style={{
                 alignSelf: "flex-start", padding: "1px 8px", borderRadius: 20, fontSize: 12,
-                fontFamily: "'VT323', monospace", color: pickedColor,
+                fontFamily: FONT_BODY, color: pickedColor,
                 background: `${pickedColor}18`, border: `1px solid ${pickedColor}55`,
               }}>
                 {newVal.trim()}
@@ -195,6 +192,7 @@ function TaskItem({
   task, index, isSelected, showDamage, playerLevel, isMobile, dndDisabled,
   availableTags, onToggleSelect, onDelete, onEdit, onMoveTask, onUncomplete, onTagCreated,
 }: TaskItemProps) {
+  const { BORDER_ELEVATED, BORDER_SUBTLE, BG_CARD, BG_DEEPEST, ACCENT_GOLD, COLOR_DANGER, COLOR_SUCCESS, TEXT_MUTED, TEXT_INACTIVE, TEXT_LIGHT, FONT_PIXEL, FONT_BODY, alpha } = useTheme();
   const [isEditing,   setIsEditing]   = useState(false);
   const [editText,    setEditText]    = useState(task.text);
   const [editDiff,    setEditDiff]    = useState<TaskDifficulty>(task.difficulty ?? "easy");
@@ -261,7 +259,7 @@ function TaskItem({
         opacity:      isDragging ? 0.4 : 1,
         background:   isSelected ? "rgba(227,159,100,0.08)" : task.completed ? "rgba(78,222,128,0.04)" : "transparent",
         borderBottom: "1px solid rgba(31,37,79,0.7)",
-        borderLeft:   isSelected ? "3px solid #e39f64" : task.completed ? "3px solid rgba(6,255,165,0.25)" : "3px solid transparent",
+        borderLeft:   isSelected ? `3px solid ${ACCENT_GOLD}` : task.completed ? `3px solid ${alpha(COLOR_SUCCESS, "40")}` : "3px solid transparent",
         transition:   "background 0.15s, border-color 0.15s",
         userSelect:   "none",
         cursor:       !task.completed && !isEditing ? "pointer" : "default",
@@ -281,7 +279,7 @@ function TaskItem({
 
         {/* Drag handle — desktop only, hidden on mobile or when DnD disabled */}
         {!isMobile && !task.completed && !dndDisabled ? (
-          <div ref={drag} data-action="drag" style={{ color: "#333", cursor: "grab", flexShrink: 0, padding: "16px 4px 16px 0", touchAction: "none" }}>
+          <div ref={drag} data-action="drag" style={{ color: TEXT_INACTIVE, cursor: "grab", flexShrink: 0, padding: "16px 4px 16px 0", touchAction: "none" }}>
             <GripVertical size={15} />
           </div>
         ) : (
@@ -290,18 +288,18 @@ function TaskItem({
 
         {/* Checkbox */}
         {!task.completed ? (
-          <div style={{ flexShrink: 0, width: 22, height: 22, background: isSelected ? "rgba(227,159,100,0.2)" : "transparent", border: `1px solid ${isSelected ? "#e39f64" : "#2a2e50"}`, borderRadius: 5, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
-            {isSelected && <Check size={13} color="#e39f64" strokeWidth={2.5} />}
+          <div style={{ flexShrink: 0, width: 22, height: 22, background: isSelected ? alpha(ACCENT_GOLD, "33") : "transparent", border: `1px solid ${isSelected ? ACCENT_GOLD : BORDER_ELEVATED}`, borderRadius: 5, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
+            {isSelected && <Check size={13} color={ACCENT_GOLD} strokeWidth={2.5} />}
           </div>
         ) : (
           <button
             data-action="uncomplete"
             onClick={(e) => { e.stopPropagation(); audioManager.playClick("tap"); onUncomplete(task.id); }}
-            style={{ flexShrink: 0, width: 22, height: 22, background: "rgba(6,255,165,0.12)", border: "1px solid rgba(6,255,165,0.5)", borderRadius: 5, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(230,57,70,0.15)"; (e.currentTarget as HTMLButtonElement).style.borderColor = "#E63946"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(6,255,165,0.12)"; (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(6,255,165,0.5)"; }}
+            style={{ flexShrink: 0, width: 22, height: 22, background: alpha(COLOR_SUCCESS, "1f"), border: `1px solid ${alpha(COLOR_SUCCESS, "80")}`, borderRadius: 5, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = alpha(COLOR_DANGER, "26"); (e.currentTarget as HTMLButtonElement).style.borderColor = COLOR_DANGER; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = alpha(COLOR_SUCCESS, "1f"); (e.currentTarget as HTMLButtonElement).style.borderColor = alpha(COLOR_SUCCESS, "80"); }}
           >
-            <Check size={13} color="#06FFA5" strokeWidth={2.5} />
+            <Check size={13} color={COLOR_SUCCESS} strokeWidth={2.5} />
           </button>
         )}
 
@@ -313,17 +311,17 @@ function TaskItem({
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
               onKeyDown={keyDown}
-              style={{ width: "100%", background: "#1b1e37", border: "1px solid #e39f64", color: "#fff", padding: "4px 8px", fontSize: 19, fontFamily: "'VT323', monospace", outline: "none", borderRadius: 4 }}
+              style={{ width: "100%", background: BG_CARD, border: `1px solid ${ACCENT_GOLD}`, color: "#fff", padding: "4px 8px", fontSize: 19, fontFamily: FONT_BODY, outline: "none", borderRadius: 4 }}
             />
           ) : (
             <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-              <span style={{ color: task.completed ? "#4a5070" : "#fff", fontSize: 19, fontFamily: "'VT323', monospace", textDecoration: task.completed ? "line-through" : "none" }}>
+              <span style={{ color: task.completed ? TEXT_INACTIVE : "#fff", fontSize: 19, fontFamily: FONT_BODY, textDecoration: task.completed ? "line-through" : "none" }}>
                 {task.text}
               </span>
               {/* Tag badge */}
               {task.tag && tc && (
                 <span style={{
-                  fontSize: 12, fontFamily: "'VT323', monospace",
+                  fontSize: 12, fontFamily: FONT_BODY,
                   color: tc, background: `${tc}18`,
                   border: `1px solid ${tc}44`,
                   padding: "1px 7px", borderRadius: 20, whiteSpace: "nowrap",
@@ -338,21 +336,21 @@ function TaskItem({
 
         {/* Difficulty badge */}
         {!isEditing && !task.completed && (
-          <span style={{ flexShrink: 0, padding: "1px 7px", background: diffInfo.color + "15", border: `1px solid ${diffInfo.color}55`, color: diffInfo.color, fontSize: 13, fontFamily: "'VT323', monospace", borderRadius: 4 }}>
+          <span style={{ flexShrink: 0, padding: "1px 7px", background: diffInfo.color + "15", border: `1px solid ${diffInfo.color}55`, color: diffInfo.color, fontSize: 13, fontFamily: FONT_BODY, borderRadius: 4 }}>
             {diffInfo.short}
           </span>
         )}
 
         {/* Damage preview */}
         {showDamage && !task.completed && !isEditing && (
-          <span style={{ flexShrink: 0, color: "#E63946", fontSize: 14, fontFamily: "'VT323', monospace", whiteSpace: "nowrap" }}>
+          <span style={{ flexShrink: 0, color: COLOR_DANGER, fontSize: 14, fontFamily: FONT_BODY, whiteSpace: "nowrap" }}>
             -{dmg}HP
           </span>
         )}
 
         {/* Completed checkmark */}
         {task.completed && !isEditing && (
-          <span style={{ color: "#06FFA5", fontSize: 14, fontFamily: "'VT323', monospace", flexShrink: 0 }}>✓</span>
+          <span style={{ color: COLOR_SUCCESS, fontSize: 14, fontFamily: FONT_BODY, flexShrink: 0 }}>✓</span>
         )}
 
         {/* ── Actions: float menu ── */}
@@ -361,7 +359,7 @@ function TaskItem({
             <>
               <button
                 onClick={(e) => { e.stopPropagation(); audioManager.playClick("tap"); setActionsOpen(o => !o); }}
-                style={{ background: "none", border: "none", color: actionsOpen ? "#e39f64" : "#5a6080", cursor: "pointer", padding: "8px 6px", display: "flex", alignItems: "center", transition: "color 0.15s" }}
+                style={{ background: "none", border: "none", color: actionsOpen ? ACCENT_GOLD : TEXT_MUTED, cursor: "pointer", padding: "8px 6px", display: "flex", alignItems: "center", transition: "color 0.15s" }}
               >
                 <MoreVertical size={15} />
               </button>
@@ -374,23 +372,23 @@ function TaskItem({
                   />
                   <div style={{
                     position: "absolute", right: 0, top: "calc(100% + 4px)", zIndex: 50,
-                    background: "#131629", border: "1px solid #2a2e50", borderRadius: 8,
+                    background: BG_CARD, border: `1px solid ${BORDER_ELEVATED}`, borderRadius: 8,
                     overflow: "hidden", minWidth: 128,
                     boxShadow: "0 8px 28px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.04) inset",
                   }}>
                     <button
                       onClick={(e) => { e.stopPropagation(); startEdit(); setActionsOpen(false); }}
-                      style={{ width: "100%", padding: "10px 14px", background: "none", border: "none", color: "#e39f64", fontFamily: "'VT323', monospace", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, transition: "background 0.1s" }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(227,159,100,0.1)"; }}
+                      style={{ width: "100%", padding: "10px 14px", background: "none", border: "none", color: ACCENT_GOLD, fontFamily: FONT_BODY, fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, transition: "background 0.1s" }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = alpha(ACCENT_GOLD, "1a"); }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "none"; }}
                     >
                       <Pencil size={13} /> Edit
                     </button>
-                    <div style={{ height: 1, background: "#1f254f" }} />
+                    <div style={{ height: 1, background: BORDER_SUBTLE }} />
                     <button
                       onClick={(e) => { e.stopPropagation(); audioManager.playClick("tap"); onDelete(task.id); setActionsOpen(false); }}
-                      style={{ width: "100%", padding: "10px 14px", background: "none", border: "none", color: "#E63946", fontFamily: "'VT323', monospace", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, transition: "background 0.1s" }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(230,57,70,0.1)"; }}
+                      style={{ width: "100%", padding: "10px 14px", background: "none", border: "none", color: COLOR_DANGER, fontFamily: FONT_BODY, fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, transition: "background 0.1s" }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = alpha(COLOR_DANGER, "1a"); }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "none"; }}
                     >
                       <Trash2 size={13} /> Delete
@@ -402,7 +400,7 @@ function TaskItem({
           ) : (
             <button
               onClick={(e) => { e.stopPropagation(); setEditText(task.text); setIsEditing(false); }}
-              style={{ background: "none", border: "none", color: "#5a6080", cursor: "pointer", padding: 8 }}
+              style={{ background: "none", border: "none", color: TEXT_MUTED, cursor: "pointer", padding: 8 }}
             >
               <X size={13} />
             </button>
@@ -417,17 +415,17 @@ function TaskItem({
 
           {/* Tag picker */}
           <div>
-            <div style={{ fontFamily: "'VT323', monospace", fontSize: 13, color: "#5a6080", marginBottom: 4, display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: TEXT_MUTED, marginBottom: 4, display: "flex", alignItems: "center", gap: 4 }}>
               <Tag size={11} /> TAG
             </div>
             <TagInput value={editTag} onChange={setEditTag} availableTags={availableTags} onTagCreated={onTagCreated} />
           </div>
 
           <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={saveEdit} style={{ padding: "4px 16px", background: "#e39f64", border: "none", color: "#0d1024", fontFamily: "'VT323', monospace", fontSize: 16, cursor: "pointer", borderRadius: 5 }}>
+            <button onClick={saveEdit} style={{ padding: "4px 16px", background: ACCENT_GOLD, border: "none", color: BG_CARD, fontFamily: FONT_BODY, fontSize: 16, cursor: "pointer", borderRadius: 5 }}>
               Save
             </button>
-            <button onClick={() => { setEditText(task.text); setIsEditing(false); }} style={{ padding: "4px 12px", background: "transparent", border: "1px solid #2a2e50", color: "#5a6080", fontFamily: "'VT323', monospace", fontSize: 16, cursor: "pointer", borderRadius: 5 }}>
+            <button onClick={() => { setEditText(task.text); setIsEditing(false); }} style={{ padding: "4px 12px", background: "transparent", border: `1px solid ${BORDER_ELEVATED}`, color: TEXT_MUTED, fontFamily: FONT_BODY, fontSize: 16, cursor: "pointer", borderRadius: 5 }}>
               Cancel
             </button>
           </div>
@@ -452,6 +450,7 @@ interface TaskListProps {
 }
 
 export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTask, showDamage = false, playerLevel = 1, hideAttackButton = false, addTriggerRef, onAddFormToggle }: TaskListProps) {
+  const { BG_CARD, BG_DEEPEST, BORDER_SUBTLE, BORDER_ELEVATED, ACCENT_GOLD, COLOR_DANGER, COLOR_SUCCESS, TEXT_INACTIVE, TEXT_MUTED, TEXT_LIGHT, FONT_PIXEL, FONT_BODY, alpha } = useTheme();
   const isDesktop = useIsDesktop();
   const isMobile  = !isDesktop;
 
@@ -638,8 +637,8 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
   return (
     <DndProvider backend={HTML5Backend}>
       <div style={{
-        background: "#0d1024",
-        border: isDesktop ? "1px solid rgba(42,46,80,0.8)" : "none",
+        background: BG_CARD,
+        border: isDesktop ? `1px solid ${alpha(BORDER_ELEVATED, "cc")}` : "none",
         borderRadius: isDesktop ? 10 : 0,
         position: "relative",
         display: "flex",
@@ -647,19 +646,19 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
       }}>
 
         {/* ── Toolbar ── */}
-        <div ref={headerRef} style={{ background: "#0b0d1e", borderBottom: "1px solid #1f254f", padding: "8px 14px", display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+        <div ref={headerRef} style={{ background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`, padding: "8px 14px", display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
           <button
             onClick={() => { audioManager.playClick("tap"); handleSelectAll(); }}
-            style={{ background: "none", border: "none", color: "#5a6080", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, fontSize: 15, fontFamily: "'VT323', monospace", transition: "color 0.15s" }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#e39f64")}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = "#5a6080")}
+            style={{ background: "none", border: "none", color: TEXT_MUTED, cursor: "pointer", display: "flex", alignItems: "center", gap: 5, fontSize: 15, fontFamily: FONT_BODY, transition: "color 0.15s" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = ACCENT_GOLD)}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = TEXT_MUTED)}
           >
             <CheckSquare size={14} />
             {selected.size === uncompletedCount && uncompletedCount > 0 ? "Deselect" : "All"}
           </button>
 
           <div style={{ flex: 1 }} />
-          <span style={{ color: "#5a6080", fontSize: 15, fontFamily: "'VT323', monospace" }}>
+          <span style={{ color: TEXT_MUTED, fontSize: 15, fontFamily: FONT_BODY }}>
             {completedCount}/{activeTagFilters.size > 0 ? displayTasks.length : tasks.length}
           </span>
 
@@ -670,11 +669,11 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
               title={showFilterBar ? "Hide filters" : "Filter by tag"}
               style={{
                 background: showFilterBar ? "rgba(124,77,255,0.18)" : "transparent",
-                border: `1px solid ${showFilterBar ? "#7c4dff" : "#2a2e50"}`,
-                color: showFilterBar ? "#a78bfa" : "#5a6080",
+                border: `1px solid ${showFilterBar ? "#7c4dff" : BORDER_ELEVATED}`,
+                color: showFilterBar ? "#a78bfa" : TEXT_MUTED,
                 padding: "4px 8px", borderRadius: 6, cursor: "pointer",
                 display: "flex", alignItems: "center", gap: 4,
-                fontFamily: "'VT323', monospace", fontSize: 14, transition: "all 0.15s",
+                fontFamily: FONT_BODY, fontSize: 14, transition: "all 0.15s",
               }}
             >
               <SlidersHorizontal size={13} />
@@ -695,13 +694,13 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
                 }, 50);
               }}
               style={{
-                background: "rgba(227,159,100,0.18)", border: "2px dashed #e39f64",
-                color: "#e39f64", padding: "5px 11px", fontFamily: "'VT323', monospace",
+                background: alpha(ACCENT_GOLD, "2e"), border: `2px dashed ${ACCENT_GOLD}`,
+                color: ACCENT_GOLD, padding: "5px 11px", fontFamily: FONT_BODY,
                 fontSize: 17, cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
                 transition: "all 0.2s", borderRadius: 6,
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(227,159,100,0.30)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(227,159,100,0.18)"; }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = alpha(ACCENT_GOLD, "4d"); }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = alpha(ACCENT_GOLD, "2e"); }}
               title="New Task"
             >
               <Plus size={14} /> New Task
@@ -712,20 +711,20 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
         {/* ── Tag filter bar ── */}
         {allTags.length > 0 && showFilterBar && (
           <div style={{
-            background: "#09091c", borderBottom: "1px solid #1a1e3a",
+            background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`,
             padding: "6px 14px", display: "flex", gap: 6, overflowX: "auto",
             scrollbarWidth: "none", flexShrink: 0, alignItems: "center",
           }}>
-            <Tag size={11} color="#3a4060" style={{ flexShrink: 0 }} />
+            <Tag size={11} color={TEXT_INACTIVE} style={{ flexShrink: 0 }} />
             {/* "Todas" chip */}
             <button
               onClick={clearTagFilters}
               style={{
                 padding: "3px 12px", borderRadius: 20, whiteSpace: "nowrap",
-                background: !activeTagFilters.size ? "#2a2e5044" : "transparent",
-                border: `1px solid ${!activeTagFilters.size ? "#5a6080" : "#2a2e50"}`,
-                color: !activeTagFilters.size ? "#c8d0f0" : "#4a5070",
-                fontFamily: "'VT323', monospace", fontSize: 15, cursor: "pointer", flexShrink: 0,
+                background: !activeTagFilters.size ? alpha(BORDER_ELEVATED, "44") : "transparent",
+                border: `1px solid ${!activeTagFilters.size ? TEXT_MUTED : BORDER_ELEVATED}`,
+                color: !activeTagFilters.size ? TEXT_LIGHT : TEXT_INACTIVE,
+                fontFamily: FONT_BODY, fontSize: 15, cursor: "pointer", flexShrink: 0,
               }}
             >
               All
@@ -735,7 +734,7 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
               const c = tagColor(tag);
               const active = activeTagFilters.has(tag);
               return (
-                <div key={tag} style={{ display: "flex", alignItems: "stretch", flexShrink: 0, borderRadius: 20, overflow: "hidden", border: `1px solid ${active ? c : "#2a2e50"}` }}>
+                <div key={tag} style={{ display: "flex", alignItems: "stretch", flexShrink: 0, borderRadius: 20, overflow: "hidden", border: `1px solid ${active ? c : BORDER_ELEVATED}` }}>
                   {/* Tag name — selects/deselects */}
                   <button
                     onClick={() => toggleTagFilter(tag)}
@@ -743,14 +742,14 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
                       padding: "3px 10px 3px 13px", whiteSpace: "nowrap",
                       background: active ? `${c}22` : "transparent",
                       border: "none",
-                      color: active ? c : "#5a6070",
-                      fontFamily: "'VT323', monospace", fontSize: 15, cursor: "pointer",
+                      color: active ? c : TEXT_INACTIVE,
+                      fontFamily: FONT_BODY, fontSize: 15, cursor: "pointer",
                     }}
                   >
                     {tag}
                   </button>
                   {/* Separator */}
-                  <div style={{ width: 1, background: active ? `${c}44` : "#2a2e30", flexShrink: 0 }} />
+                  <div style={{ width: 1, background: active ? `${c}44` : BORDER_ELEVATED, flexShrink: 0 }} />
                   {/* Delete button */}
                   <button
                     onClick={() => handleDeleteTag(tag)}
@@ -766,8 +765,8 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
                       fontSize: 15, lineHeight: 1,
                     }}
                     onMouseEnter={e => {
-                      (e.currentTarget as HTMLButtonElement).style.color = "#E63946";
-                      (e.currentTarget as HTMLButtonElement).style.background = "rgba(230,57,70,0.15)";
+                      (e.currentTarget as HTMLButtonElement).style.color = COLOR_DANGER;
+                      (e.currentTarget as HTMLButtonElement).style.background = alpha(COLOR_DANGER, "26");
                     }}
                     onMouseLeave={e => {
                       (e.currentTarget as HTMLButtonElement).style.color = active ? `${c}99` : "#4a5070";
@@ -784,32 +783,32 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
 
         {/* ── Desktop inline add form ── */}
         {showAddInput && isDesktop && (
-          <div style={{ flexShrink: 0, borderLeft: "3px solid #e39f64" }}>
+          <div style={{ flexShrink: 0, borderLeft: `3px solid ${ACCENT_GOLD}` }}>
             {/* Text row */}
-            <div style={{ background: "#0b0d1e", borderBottom: "1px solid #1f254f", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`, padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
               <input
                 id="new-task-input"
                 value={newText}
                 onChange={(e) => setNewText(e.target.value)}
                 placeholder="Task name..."
                 onKeyDown={(e) => { if (e.key === "Enter") handleAddDesktop(); if (e.key === "Escape") { setShowAddInput(false); setNewText(""); } }}
-                style={{ flex: 1, background: "#1b1e37", border: "1px solid #e39f6466", color: "#fff", padding: "6px 10px", fontSize: 19, fontFamily: "'VT323', monospace", outline: "none", borderRadius: 5 }}
+                style={{ flex: 1, background: BG_CARD, border: `1px solid ${alpha(ACCENT_GOLD, "66")}`, color: "#fff", padding: "6px 10px", fontSize: 19, fontFamily: FONT_BODY, outline: "none", borderRadius: 5 }}
               />
-              <button onClick={() => { audioManager.playClick("press"); handleAddDesktop(); }} style={{ background: "rgba(227,159,100,0.15)", border: "2px dashed #e39f64", color: "#e39f64", padding: "6px 14px", fontFamily: "'VT323', monospace", fontSize: 17, cursor: "pointer", borderRadius: 5 }}>
+              <button onClick={() => { audioManager.playClick("press"); handleAddDesktop(); }} style={{ background: alpha(ACCENT_GOLD, "26"), border: `2px dashed ${ACCENT_GOLD}`, color: ACCENT_GOLD, padding: "6px 14px", fontFamily: FONT_BODY, fontSize: 17, cursor: "pointer", borderRadius: 5 }}>
                 +
               </button>
-              <button onClick={() => { setShowAddInput(false); setNewText(""); setNewTaskTag(""); }} style={{ background: "none", border: "none", color: "#5a6080", cursor: "pointer", padding: 4 }}>
+              <button onClick={() => { setShowAddInput(false); setNewText(""); setNewTaskTag(""); }} style={{ background: "none", border: "none", color: TEXT_MUTED, cursor: "pointer", padding: 4 }}>
                 <X size={14} />
               </button>
             </div>
             {/* Difficulty row */}
-            <div style={{ background: "#0b0d1e", borderBottom: "1px solid #1f254f", padding: "6px 14px 8px" }}>
-              <div style={{ color: "#5a6080", fontSize: 13, fontFamily: "'VT323', monospace", marginBottom: 5 }}>DIFFICULTY</div>
+            <div style={{ background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`, padding: "6px 14px 8px" }}>
+              <div style={{ color: TEXT_MUTED, fontSize: 13, fontFamily: FONT_BODY, marginBottom: 5 }}>DIFFICULTY</div>
               <DifficultyPickerLocal value={newDiff} onChange={setNewDiff} />
             </div>
             {/* Tag row */}
-            <div style={{ background: "#0b0d1e", borderBottom: "1px solid #1f254f", padding: "6px 14px 10px" }}>
-              <div style={{ color: "#5a6080", fontSize: 13, fontFamily: "'VT323', monospace", marginBottom: 5, display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`, padding: "6px 14px 10px" }}>
+              <div style={{ color: TEXT_MUTED, fontSize: 13, fontFamily: FONT_BODY, marginBottom: 5, display: "flex", alignItems: "center", gap: 4 }}>
                 <Tag size={11} /> TAG (OPTIONAL)
               </div>
               <TagInput
@@ -829,7 +828,7 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
         {/* ── Task items ── */}
         <div>
           {displayTasks.length === 0 && !showAddInput && (
-            <div style={{ color: "#333", textAlign: "center", padding: "40px 20px", fontSize: 20, fontFamily: "'VT323', monospace" }}>
+            <div style={{ color: TEXT_INACTIVE, textAlign: "center", padding: "40px 20px", fontSize: 20, fontFamily: FONT_BODY }}>
               {activeTagFilters.size > 0
                 ? `No tasks with the selected tags.`
                 : "No tasks. Add one to start the battle!"}
@@ -841,12 +840,12 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
             return (
               <div key={task.id}>
                 {isFirstCompleted && uncompletedCount > 0 && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 14px", background: "#0a0c1a" }}>
-                    <div style={{ flex: 1, height: 1, background: "#1f254f" }} />
-                    <span style={{ color: "#3a4060", fontSize: 13, fontFamily: "'VT323', monospace", whiteSpace: "nowrap" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 14px", background: BG_DEEPEST }}>
+                    <div style={{ flex: 1, height: 1, background: BORDER_SUBTLE }} />
+                    <span style={{ color: TEXT_INACTIVE, fontSize: 13, fontFamily: FONT_BODY, whiteSpace: "nowrap" }}>
                       COMPLETED ({completedCount})
                     </span>
-                    <div style={{ flex: 1, height: 1, background: "#1f254f" }} />
+                    <div style={{ flex: 1, height: 1, background: BORDER_SUBTLE }} />
                   </div>
                 )}
                 <TaskItem
@@ -872,7 +871,7 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
 
         {/* ── Desktop sticky attack button ── */}
         {selected.size > 0 && !hideAttackButton && isDesktop && (
-          <div style={{ position: "sticky", bottom: 0, zIndex: 20, padding: "10px 12px", background: "rgba(13,16,36,0.97)", borderTop: "1px solid #1f254f", flexShrink: 0 }}>
+          <div style={{ position: "sticky", bottom: 0, zIndex: 20, padding: "10px 12px", background: alpha(BG_CARD, "f8"), borderTop: `1px solid ${BORDER_SUBTLE}`, flexShrink: 0 }}>
             <button
               onClick={() => { audioManager.playClick("press"); handleCompleteSelected(); }}
               style={{
@@ -882,10 +881,10 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
                   : selected.size >= 3
                   ? "linear-gradient(135deg, #FF6B35, #FFD700)"
                   : selected.size >= 2
-                  ? "linear-gradient(135deg, #06FFA5, #22D3EE)"
+                  ? `linear-gradient(135deg, ${COLOR_SUCCESS}, #22D3EE)`
                   : "#4ded6e",
-                border: "none", color: "#0d1024",
-                fontFamily: "'Press Start 2P', monospace",
+                border: "none", color: BG_CARD,
+                fontFamily: FONT_PIXEL,
                 fontSize: selected.size >= 3 ? 12 : 11,
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
                 borderRadius: 8,
@@ -911,7 +910,7 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
       {/* ── Mobile add-task modal ── */}
       <MobileAddTaskModal
         open={showAddInput && isMobile}
-        accent="#e39f64"
+        accent={ACCENT_GOLD}
         title="NEW TASK"
         placeholder="Task name..."
         availableTags={availableTags}

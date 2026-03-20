@@ -21,7 +21,7 @@ const SLOTS: ItemSlot[] = ["weapon", "armor", "accessory", "relic"];
 export function ItemsTab() {
   const {
     BG_CARD, BG_DEEPEST, BORDER_SUBTLE, BORDER_ELEVATED,
-    COLOR_SUCCESS, COLOR_MAGE, COLOR_DANGER,
+    COLOR_SUCCESS, COLOR_MAGE, COLOR_DANGER, COLOR_LEGENDARY,
     TEXT_MUTED, TEXT_LIGHT, TEXT_INACTIVE,
     FONT_PIXEL, FONT_BODY, RADIUS_LG, RADIUS_PILL, alpha,
   } = useTheme();
@@ -134,7 +134,7 @@ export function ItemsTab() {
                     background: alpha(BORDER_SUBTLE, "88"), border: `1px solid ${BORDER_SUBTLE}`,
                     fontFamily: FONT_BODY, fontSize: 16, color: TEXT_INACTIVE, textAlign: "center",
                   }}>
-                    No items. Buy in the <span style={{ color: "#FFD700" }}>Shop</span>.
+                    No items. Buy in the <span style={{ color: COLOR_LEGENDARY }}>Shop</span>.
                   </div>
                 ) : slotItems.map(item => {
                   const tpl       = getItemTemplate(item.template_id)!;
@@ -240,7 +240,7 @@ export function ItemsTab() {
                                 UNEQUIP
                               </RpgButton>
                             ) : (
-                              <RpgButton variant="primary" color="#FFD700" fullWidth bodyFont small onClick={() => handleEquip(selected.id)}>
+                              <RpgButton variant="primary" color={COLOR_LEGENDARY} fullWidth bodyFont small onClick={() => handleEquip(selected.id)}>
                                 EQUIP
                               </RpgButton>
                             )}
@@ -280,7 +280,7 @@ export function ItemsTab() {
             No items in inventory.
           </div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 15, color: TEXT_INACTIVE, marginTop: 4 }}>
-            Defeat monsters to earn gold and buy in the <span style={{ color: "#FFD700" }}>Shop</span>.
+            Defeat monsters to earn gold and buy in the <span style={{ color: COLOR_LEGENDARY }}>Shop</span>.
           </div>
         </div>
       )}

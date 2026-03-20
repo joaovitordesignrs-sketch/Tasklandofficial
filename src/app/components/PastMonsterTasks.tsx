@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from "react";
 import { ChevronDown, ChevronUp, History } from "lucide-react";
 import { getTaskHistory, TaskHistoryEntry, tagColor } from "../data/missions";
 import { DIFFICULTY_INFO } from "../data/gameEngine";
+import { useTheme } from "../contexts/PreferencesContext";
 
 const SHOW_KEY = "rpg_show_past_tasks_v1";
 
@@ -49,12 +50,13 @@ function formatDate(ts: number): string {
 
 // ── Single monster group card ─────────────────────────────────────────────────
 function MonsterGroupCard({ group }: { group: MonsterGroup }) {
+  const { BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED, COLOR_SUCCESS, TEXT_INACTIVE, FONT_PIXEL, FONT_BODY } = useTheme();
   const [expanded, setExpanded] = useState(false);
 
   return (
     <div style={{
-      background: "#09091c",
-      border: "1px solid #1a1e3a",
+      background: BG_DEEPEST,
+      border: `1px solid ${BORDER_SUBTLE}`,
       borderRadius: 8,
       overflow: "hidden",
       marginBottom: 6,
@@ -72,7 +74,7 @@ function MonsterGroupCard({ group }: { group: MonsterGroup }) {
         {/* Skull icon */}
         <div style={{
           width: 28, height: 28, flexShrink: 0,
-          background: "#0d1024", border: "1px solid #2a2e40",
+          background: BG_CARD, border: `1px solid ${BORDER_ELEVATED}`,
           borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center",
         }}>
           <span style={{ fontSize: 14 }}>💀</span>
@@ -80,24 +82,24 @@ function MonsterGroupCard({ group }: { group: MonsterGroup }) {
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
-            fontFamily: "'Press Start 2P', monospace", fontSize: 7,
+            fontFamily: FONT_PIXEL, fontSize: 7,
             color: "#8a9fba", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
           }}>
             {group.monsterName}
           </div>
-          <div style={{ fontFamily: "'VT323', monospace", fontSize: 14, color: "#3a4060", marginTop: 2 }}>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: TEXT_INACTIVE, marginTop: 2 }}>
             {group.tasks.length} task{group.tasks.length !== 1 ? "s" : ""} · {formatDate(group.lastAt)}
           </div>
         </div>
 
-        <div style={{ color: "#3a4060", flexShrink: 0 }}>
+        <div style={{ color: TEXT_INACTIVE, flexShrink: 0 }}>
           {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </div>
       </button>
 
       {/* Expanded task list */}
       {expanded && (
-        <div style={{ borderTop: "1px solid #1a1e3a" }}>
+        <div style={{ borderTop: `1px solid ${BORDER_SUBTLE}` }}>
           {group.tasks
             .sort((a, b) => b.completedAt - a.completedAt)
             .map((entry) => {
@@ -107,7 +109,7 @@ function MonsterGroupCard({ group }: { group: MonsterGroup }) {
                   key={entry.id}
                   style={{
                     display: "flex", alignItems: "center", gap: 8,
-                    padding: "8px 14px", borderBottom: "1px solid #111526",
+                    padding: "8px 14px", borderBottom: `1px solid ${BORDER_SUBTLE}`,
                   }}
                 >
                   {/* Done indicator */}
@@ -117,14 +119,14 @@ function MonsterGroupCard({ group }: { group: MonsterGroup }) {
                     border: "1px solid rgba(6,255,165,0.3)",
                     borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
-                    <span style={{ color: "#06FFA5", fontSize: 11 }}>✓</span>
+                    <span style={{ color: COLOR_SUCCESS, fontSize: 11 }}>✓</span>
                   </div>
 
                   {/* Task text + tag */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <span style={{
-                      fontFamily: "'VT323', monospace", fontSize: 17,
-                      color: "#4a5570", textDecoration: "line-through",
+                      fontFamily: FONT_BODY, fontSize: 17,
+                      color: TEXT_INACTIVE, textDecoration: "line-through",
                     }}>
                       {entry.text}
                     </span>
@@ -133,7 +135,7 @@ function MonsterGroupCard({ group }: { group: MonsterGroup }) {
                       return (
                         <span style={{
                           display: "inline-block", marginLeft: 7,
-                          fontSize: 13, fontFamily: "'VT323', monospace",
+                          fontSize: 13, fontFamily: FONT_BODY,
                           color: tc, background: `${tc}18`,
                           border: `1px solid ${tc}44`,
                           padding: "0px 6px", borderRadius: 20, whiteSpace: "nowrap",
@@ -151,13 +153,13 @@ function MonsterGroupCard({ group }: { group: MonsterGroup }) {
                     background: diffInfo.color + "12",
                     border: `1px solid ${diffInfo.color}33`,
                     color: diffInfo.color + "88",
-                    fontSize: 12, fontFamily: "'VT323', monospace", borderRadius: 4,
+                    fontSize: 12, fontFamily: FONT_BODY, borderRadius: 4,
                   }}>
                     {diffInfo.short}
                   </span>
 
                   {/* Date */}
-                  <span style={{ flexShrink: 0, fontFamily: "'VT323', monospace", fontSize: 13, color: "#2a3050" }}>
+                  <span style={{ flexShrink: 0, fontFamily: FONT_BODY, fontSize: 13, color: TEXT_INACTIVE }}>
                     {formatDate(entry.completedAt)}
                   </span>
                 </div>
@@ -176,6 +178,7 @@ interface PastMonsterTasksProps {
 }
 
 export function PastMonsterTasks({ compact }: PastMonsterTasksProps) {
+  const { BORDER_SUBTLE, TEXT_INACTIVE, FONT_PIXEL, FONT_BODY } = useTheme();
   const [show,    setShow]    = useState(loadShowState);
   const [groups,  setGroups]  = useState<MonsterGroup[]>(() => buildGroups(getTaskHistory()));
 
@@ -203,25 +206,25 @@ export function PastMonsterTasks({ compact }: PastMonsterTasksProps) {
         onClick={toggle}
         style={{
           width: "100%", background: "none", border: "none",
-          borderTop: "1px solid #1a1e3a",
+          borderTop: `1px solid ${BORDER_SUBTLE}`,
           padding: "10px 14px",
           display: "flex", alignItems: "center", gap: 8,
           cursor: "pointer", textAlign: "left",
         }}
       >
-        <History size={13} color="#3a4060" style={{ flexShrink: 0 }} />
+        <History size={13} color={TEXT_INACTIVE} style={{ flexShrink: 0 }} />
         <span style={{
-          fontFamily: "'Press Start 2P', monospace", fontSize: 7,
-          color: "#3a4060", flex: 1,
+          fontFamily: FONT_PIXEL, fontSize: 7,
+          color: TEXT_INACTIVE, flex: 1,
         }}>
           PREVIOUS MONSTERS ({groups.length})
         </span>
-        <span style={{ fontFamily: "'VT323', monospace", fontSize: 14, color: "#2a3050" }}>
+        <span style={{ fontFamily: FONT_BODY, fontSize: 14, color: TEXT_INACTIVE }}>
           {show ? "HIDE" : "SHOW"}
         </span>
         {show
-          ? <ChevronUp size={13} color="#2a3050" />
-          : <ChevronDown size={13} color="#2a3050" />}
+          ? <ChevronUp size={13} color={TEXT_INACTIVE} />
+          : <ChevronDown size={13} color={TEXT_INACTIVE} />}
       </button>
 
       {/* ── Group cards ── */}

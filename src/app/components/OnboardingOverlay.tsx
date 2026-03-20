@@ -3,6 +3,7 @@ import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
 import imgAvatarWarrior from '../../assets/profile_pic/profile_pic_warrior.png';
 import imgAvatarMage    from '../../assets/profile_pic/profile_pic_mage.png';
 import { useTheme } from "../contexts/PreferencesContext";
+import { COLOR_WARNING as CSS_COLOR_WARNING } from "../data/tokens";
 
 const ONBOARDING_KEY = "rpg_onboarding_v1";
 
@@ -68,20 +69,21 @@ const ONBOARDING_CSS = `
   @keyframes obBadgePop { from { opacity: 0; transform: scale(0.4) } to { opacity: 1; transform: scale(1) } }
   @keyframes obFriendIn { from { opacity: 0; transform: translateX(20px) } to { opacity: 1; transform: translateX(0) } }
   @keyframes obLvPop    { from { opacity: 0; transform: scale(0.3) } to { opacity: 1; transform: scale(1) } }
-  @keyframes obBtnPulse { 0%,100% { box-shadow: 3px 3px 0 #000, 0 0 12px #f0c04066 } 50% { box-shadow: 3px 3px 0 #000, 0 0 22px #f0c040aa } }
+  @keyframes obBtnPulse { 0%,100% { box-shadow: 3px 3px 0 #000, 0 0 12px ${CSS_COLOR_WARNING}66 } 50% { box-shadow: 3px 3px 0 #000, 0 0 22px ${CSS_COLOR_WARNING}aa } }
   @keyframes obStarTwinkle { 0%,100% { opacity: 0.1 } 50% { opacity: 0.5 } }
 `;
 
 // ─── Decorative pixel star ─────────────────────────────────────────────────────
 function PixelStar({ style }: { style: CSSProperties }) {
+  const { ACCENT_GOLD } = useTheme();
   return (
     <div
       style={{
         position: "absolute",
         width: 4,
         height: 4,
-        background: "#e39f64",
-        boxShadow: "0 0 0 1px #e39f6440",
+        background: ACCENT_GOLD,
+        boxShadow: `0 0 0 1px ${ACCENT_GOLD}40`,
         ...style,
       }}
     />
@@ -90,6 +92,7 @@ function PixelStar({ style }: { style: CSSProperties }) {
 
 // ─── Progress dots ─────────────────────────────────────────────────────────────
 function ProgressDots({ total, current }: { total: number; current: number }) {
+  const { COLOR_WARNING } = useTheme();
   return (
     <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "center" }}>
       {Array.from({ length: total }, (_, i) => (
@@ -98,9 +101,9 @@ function ProgressDots({ total, current }: { total: number; current: number }) {
           style={{
             width: i === current ? 18 : 8,
             height: 8,
-            background: i === current ? "#f0c040" : i < current ? "#7c5e28" : "#2a2e4a",
-            border: i === current ? "2px solid #f0c040" : "2px solid #3a3e5a",
-            boxShadow: i === current ? "0 0 8px #f0c04088" : "none",
+            background: i === current ? COLOR_WARNING : i < current ? "#7c5e28" : "#2a2e4a",
+            border: i === current ? `2px solid ${COLOR_WARNING}` : "2px solid #3a3e5a",
+            boxShadow: i === current ? `0 0 8px ${COLOR_WARNING}88` : "none",
             transition: "all 0.2s ease",
           }}
         />
@@ -112,6 +115,7 @@ function ProgressDots({ total, current }: { total: number; current: number }) {
 // ─── Slide illustrations ──────────────────────────────────────────────────────
 
 function MonsterSlide() {
+  const { FONT_PIXEL, FONT_BODY, PX_2XS, COLOR_DANGER, COLOR_WARNING } = useTheme();
   const [frame, setFrame] = useState(0);
   useEffect(() => {
     const t = setInterval(() => setFrame(f => (f + 1) % 2), 600);
@@ -122,11 +126,11 @@ function MonsterSlide() {
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
       {/* HP bar */}
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: "#e63946" }}>HP</span>
+        <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: COLOR_DANGER }}>HP</span>
         <div style={{ width: 120, height: 12, background: "#1a1f38", border: "2px solid #3a3e5a", position: "relative", overflow: "hidden" }}>
-          <div style={{ width: "65%", height: "100%", background: "#e63946", boxShadow: "0 0 6px #e63946aa" }} />
+          <div style={{ width: "65%", height: "100%", background: COLOR_DANGER, boxShadow: `0 0 6px ${COLOR_DANGER}aa` }} />
         </div>
-        <span style={{ fontFamily: "'VT323', monospace", fontSize: 14, color: "#e63946" }}>65%</span>
+        <span style={{ fontFamily: FONT_BODY, fontSize: 14, color: COLOR_DANGER }}>65%</span>
       </div>
 
       {/* Battle scene: character vs monster */}
@@ -135,7 +139,7 @@ function MonsterSlide() {
         <OnboardingChar charClass="guerreiro" size={110} />
 
         {/* VS */}
-        <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 9, color: "#f0c040", textShadow: "2px 2px 0 #000", paddingBottom: 16, flexShrink: 0 }}>
+        <div style={{ fontFamily: FONT_PIXEL, fontSize: 9, color: COLOR_WARNING, textShadow: "2px 2px 0 #000", paddingBottom: 16, flexShrink: 0 }}>
           VS
         </div>
 
@@ -157,7 +161,7 @@ function MonsterSlide() {
             <rect x="8"  y={frame === 0 ? "56" : "58"} width="8" height="8" fill="#7c4dff" />
             <rect x="64" y={frame === 0 ? "56" : "58"} width="8" height="8" fill="#7c4dff" />
           </svg>
-          <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: "#a97dff", marginTop: 2 }}>SLIME</div>
+          <div style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: "#a97dff", marginTop: 2 }}>SLIME</div>
         </div>
       </div>
     </div>
@@ -165,6 +169,7 @@ function MonsterSlide() {
 }
 
 function XPSlide() {
+  const { FONT_PIXEL, FONT_BODY, COLOR_WARNING, COLOR_WARRIOR } = useTheme();
   const [xpFill, setXpFill] = useState(40);
   useEffect(() => {
     const t = setTimeout(() => setXpFill(78), 400);
@@ -177,15 +182,15 @@ function XPSlide() {
       <OnboardingChar charClass="guerreiro" size={130} />
 
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 8, background: "#f0c040", color: "#000", padding: "3px 7px", border: "2px solid #c8960a", boxShadow: "2px 2px 0 #000" }}>LV 7</div>
-        <div style={{ fontFamily: "'VT323', monospace", fontSize: 16, color: "#7dd3fc" }}>→</div>
-        <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 8, background: "#f0c040", color: "#000", padding: "3px 7px", border: "2px solid #c8960a", boxShadow: "2px 2px 0 #000", animation: "obLvPop 0.4s ease 0.9s both" }}>LV 8 ✦</div>
+        <div style={{ fontFamily: FONT_PIXEL, fontSize: 8, background: COLOR_WARNING, color: "#000", padding: "3px 7px", border: "2px solid #c8960a", boxShadow: "2px 2px 0 #000" }}>LV 7</div>
+        <div style={{ fontFamily: FONT_BODY, fontSize: 16, color: "#7dd3fc" }}>→</div>
+        <div style={{ fontFamily: FONT_PIXEL, fontSize: 8, background: COLOR_WARNING, color: "#000", padding: "3px 7px", border: "2px solid #c8960a", boxShadow: "2px 2px 0 #000", animation: "obLvPop 0.4s ease 0.9s both" }}>LV 8 ✦</div>
       </div>
 
       <div style={{ width: 180, display: "flex", flexDirection: "column", gap: 4 }}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 6, color: "#60a5fa" }}>XP</span>
-          <span style={{ fontFamily: "'VT323', monospace", fontSize: 13, color: "#60a5fa" }}>{xpFill}%</span>
+          <span style={{ fontFamily: FONT_PIXEL, fontSize: 6, color: COLOR_WARRIOR }}>XP</span>
+          <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: COLOR_WARRIOR }}>{xpFill}%</span>
         </div>
         <div style={{ height: 14, background: "#1a1f38", border: "2px solid #3a3e5a", overflow: "hidden" }}>
           <div style={{ width: `${xpFill}%`, height: "100%", background: "linear-gradient(90deg, #3b82f6, #60a5fa)", boxShadow: "0 0 8px #60a5faaa", transition: "width 0.8s cubic-bezier(.22,.68,0,1.15)" }} />
@@ -196,6 +201,7 @@ function XPSlide() {
 }
 
 function HabitsSlide() {
+  const { FONT_PIXEL, FONT_BODY, PX_2XS, COLOR_WARNING, TEXT_LIGHT, TEXT_MUTED, BG_CARD } = useTheme();
   const habits = [
     { name: "Exercise",  streak: 7,  bonus: "+14%" },
     { name: "Reading",   streak: 3,  bonus: "+6%"  },
@@ -208,38 +214,39 @@ function HabitsSlide() {
         {["🔥", "💥", "⚡"].map((e, i) => (
           <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
             <span style={{ fontSize: 28 }}>{e}</span>
-            <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 8, color: "#f0c040", textShadow: "1px 1px 0 #000" }}>×{i + 1}</div>
+            <div style={{ fontFamily: FONT_PIXEL, fontSize: 8, color: COLOR_WARNING, textShadow: "1px 1px 0 #000" }}>×{i + 1}</div>
           </div>
         ))}
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 5, width: 220 }}>
         {habits.map((h, i) => (
-          <div key={h.name} style={{ display: "flex", alignItems: "center", gap: 8, background: "#0d1021", border: "2px solid #2a2e4a", padding: "5px 8px", animation: `obFriendIn 0.3s ease ${i * 0.1}s both` }}>
-            <div style={{ fontFamily: "'VT323', monospace", fontSize: 20, color: "#f0c040" }}>🔥{h.streak}</div>
-            <div style={{ flex: 1, fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: "#c8d0f0" }}>{h.name}</div>
-            <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: "#4ade80" }}>{h.bonus}</div>
+          <div key={h.name} style={{ display: "flex", alignItems: "center", gap: 8, background: BG_CARD, border: "2px solid #2a2e4a", padding: "5px 8px", animation: `obFriendIn 0.3s ease ${i * 0.1}s both` }}>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 20, color: COLOR_WARNING }}>🔥{h.streak}</div>
+            <div style={{ flex: 1, fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: TEXT_LIGHT }}>{h.name}</div>
+            <div style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: "#4ade80" }}>{h.bonus}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ fontFamily: "'VT323', monospace", fontSize: 14, color: "#5a6080", textAlign: "center", maxWidth: 220 }}>
-        Keep your <span style={{ color: "#f0c040" }}>streak</span> to multiply your damage!
+      <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: TEXT_MUTED, textAlign: "center", maxWidth: 220 }}>
+        Keep your <span style={{ color: COLOR_WARNING }}>streak</span> to multiply your damage!
       </div>
     </div>
   );
 }
 
 function RankSlide() {
+  const { FONT_PIXEL, FONT_BODY, PX_2XS, COLOR_WARNING, TEXT_MUTED, BG_CARD } = useTheme();
   const ranks = [
     { label: "F",  color: "#6b7280", bg: "#1f2937" },
     { label: "E",  color: "#84cc16", bg: "#1a2e05" },
     { label: "D",  color: "#22d3ee", bg: "#0a2535" },
     { label: "C",  color: "#a78bfa", bg: "#1e1b4b" },
-    { label: "B",  color: "#60a5fa", bg: "#0f1f4a" },
+    { label: "B",  color: COLOR_WARRIOR, bg: "#0f1f4a" },
     { label: "A",  color: "#fb923c", bg: "#2a1500" },
-    { label: "S",  color: "#f0c040", bg: "#2a1f00" },
-    { label: "S+", color: "#f0c040", bg: "#2a1f00" },
+    { label: "S",  color: COLOR_WARNING, bg: "#2a1f00" },
+    { label: "S+", color: COLOR_WARNING, bg: "#2a1f00" },
   ];
 
   return (
@@ -251,7 +258,7 @@ function RankSlide() {
             border: `2px solid ${r.color}`,
             boxShadow: i >= 6 ? `0 0 10px ${r.color}88` : "2px 2px 0 #000",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontFamily: "'Press Start 2P', monospace",
+            fontFamily: FONT_PIXEL,
             fontSize: r.label === "S+" ? 9 : 12,
             color: r.color,
             textShadow: i >= 5 ? `0 0 8px ${r.color}` : "2px 2px 0 #000",
@@ -261,18 +268,19 @@ function RankSlide() {
           </div>
         ))}
       </div>
-      <div style={{ background: "#0d1021", border: "2px solid #2a2e4a", padding: "8px 16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-        <div style={{ fontFamily: "'VT323', monospace", fontSize: 13, color: "#5a6080" }}>POWER = MH × MN × MC × MR</div>
-        <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: "#f0c040" }}>Power = floor(75 × Total)</div>
+      <div style={{ background: BG_CARD, border: "2px solid #2a2e4a", padding: "8px 16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+        <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: TEXT_MUTED }}>POWER = MH × MN × MC × MR</div>
+        <div style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: COLOR_WARNING }}>Power = floor(75 × Total)</div>
       </div>
     </div>
   );
 }
 
 function FriendsSlide() {
+  const { FONT_PIXEL, FONT_BODY, PX_2XS, COLOR_WARNING, COLOR_WARRIOR, COLOR_MAGE, TEXT_LIGHT, TEXT_MUTED, BG_CARD } = useTheme();
   const friends = [
-    { name: "ARIA", rank: "S", rankColor: "#f0c040", cp: 840, rankBg: "#2a1f00", isYou: false },
-    { name: "KAEL", rank: "B", rankColor: "#60a5fa", cp: 312, rankBg: "#0f1f4a", isYou: false },
+    { name: "ARIA", rank: "S", rankColor: COLOR_WARNING, cp: 840, rankBg: "#2a1f00", isYou: false },
+    { name: "KAEL", rank: "B", rankColor: COLOR_WARRIOR, cp: 312, rankBg: "#0f1f4a", isYou: false },
     { name: "YOU",  rank: "C", rankColor: "#a78bfa", cp: 190, rankBg: "#1e1b4b", isYou: true  },
   ];
 
@@ -280,24 +288,25 @@ function FriendsSlide() {
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 6, width: 240 }}>
         {friends.map((f, i) => (
-          <div key={f.name} style={{ display: "flex", alignItems: "center", gap: 8, background: f.isYou ? "#1a1f38" : "#0d1021", border: f.isYou ? "2px solid #a78bfa" : "2px solid #2a2e4a", boxShadow: f.isYou ? "0 0 8px #a78bfa44" : "none", padding: "6px 10px", animation: `obFriendIn 0.4s ease ${i * 0.12}s both` }}>
-            <div style={{ width: 28, height: 28, background: f.rankBg, border: `2px solid ${f.rankColor}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Press Start 2P', monospace", fontSize: 8, color: f.rankColor, flexShrink: 0 }}>{f.rank}</div>
+          <div key={f.name} style={{ display: "flex", alignItems: "center", gap: 8, background: f.isYou ? "#1a1f38" : BG_CARD, border: f.isYou ? `2px solid ${COLOR_MAGE}` : "2px solid #2a2e4a", boxShadow: f.isYou ? `0 0 8px ${COLOR_MAGE}44` : "none", padding: "6px 10px", animation: `obFriendIn 0.4s ease ${i * 0.12}s both` }}>
+            <div style={{ width: 28, height: 28, background: f.rankBg, border: `2px solid ${f.rankColor}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT_PIXEL, fontSize: 8, color: f.rankColor, flexShrink: 0 }}>{f.rank}</div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: f.isYou ? "#a78bfa" : "#c8d0f0" }}>{f.name} {f.isYou ? "◀" : ""}</div>
-              <div style={{ fontFamily: "'VT323', monospace", fontSize: 14, color: "#5a6080", marginTop: 2 }}>POWER {f.cp}</div>
+              <div style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: f.isYou ? COLOR_MAGE : TEXT_LIGHT }}>{f.name} {f.isYou ? "◀" : ""}</div>
+              <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: TEXT_MUTED, marginTop: 2 }}>POWER {f.cp}</div>
             </div>
-            <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: "#5a6080" }}>#{i + 1}</div>
+            <div style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: TEXT_MUTED }}>#{i + 1}</div>
           </div>
         ))}
       </div>
-      <div style={{ fontFamily: "'VT323', monospace", fontSize: 15, color: "#5a6080", textAlign: "center", maxWidth: 220 }}>
-        Go to <span style={{ color: "#a78bfa" }}>Friends</span> in the menu and search by nick
+      <div style={{ fontFamily: FONT_BODY, fontSize: 15, color: TEXT_MUTED, textAlign: "center", maxWidth: 220 }}>
+        Go to <span style={{ color: COLOR_MAGE }}>Friends</span> in the menu and search by nick
       </div>
     </div>
   );
 }
 
 function FinalSlide() {
+  const { FONT_PIXEL, FONT_BODY, COLOR_WARNING, TEXT_BODY } = useTheme();
   const [glow, setGlow] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setGlow(true), 300);
@@ -312,10 +321,10 @@ function FinalSlide() {
         <OnboardingChar charClass="mago" size={120} />
       </div>
 
-      <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "clamp(9px, 2vw, 13px)", color: "#f0c040", textShadow: glow ? "2px 2px 0 #000, 0 0 20px #f0c04088" : "2px 2px 0 #000", textAlign: "center", lineHeight: 1.8, transition: "text-shadow 0.6s ease" }}>
+      <div style={{ fontFamily: FONT_PIXEL, fontSize: "clamp(9px, 2vw, 13px)", color: COLOR_WARNING, textShadow: glow ? `2px 2px 0 #000, 0 0 20px ${COLOR_WARNING}88` : "2px 2px 0 #000", textAlign: "center", lineHeight: 1.8, transition: "text-shadow 0.6s ease" }}>
         YOUR ADVENTURE{"\n"}STARTS NOW!
       </div>
-      <div style={{ fontFamily: "'VT323', monospace", fontSize: 16, color: "#8090b0", textAlign: "center", maxWidth: 240, lineHeight: 1.5 }}>
+      <div style={{ fontFamily: FONT_BODY, fontSize: 16, color: TEXT_BODY, textAlign: "center", maxWidth: 240, lineHeight: 1.5 }}>
         Create your first mission, defeat your first monster and climb the ranks, hero!
       </div>
     </div>
@@ -380,7 +389,7 @@ interface OnboardingOverlayProps {
 }
 
 export function OnboardingOverlay({ onFinish }: OnboardingOverlayProps) {
-  const { BG_CARD, BORDER_ELEVATED, BORDER_SUBTLE, TEXT_MUTED, TEXT_INACTIVE, alpha, BG_DEEPEST } = useTheme();
+  const { BG_CARD, BORDER_ELEVATED, BORDER_SUBTLE, TEXT_MUTED, TEXT_INACTIVE, TEXT_BODY, TEXT_LIGHT, ACCENT_GOLD, COLOR_DANGER, COLOR_WARNING, COLOR_MAGE, COLOR_LEGENDARY, alpha, BG_DEEPEST, FONT_PIXEL, FONT_BODY, PX_2XS } = useTheme();
   const [step, setStep]       = useState(0);
   const [leaving, setLeaving] = useState(false);
   const [animKey, setAnimKey] = useState(0);
@@ -453,7 +462,7 @@ export function OnboardingOverlay({ onFinish }: OnboardingOverlayProps) {
           display: "flex", flexDirection: "column", overflow: "hidden",
         }}>
           {/* Top accent bar */}
-          <div style={{ height: 4, background: "linear-gradient(90deg,#7c4dff,#f0c040,#e63946,#4ade80,#60a5fa)", opacity: 0.8 }} />
+          <div style={{ height: 4, background: `linear-gradient(90deg,#7c4dff,${COLOR_WARNING},${COLOR_DANGER},#4ade80,#60a5fa)`, opacity: 0.8 }} />
 
           {/* Corner ornaments */}
           {[
@@ -462,18 +471,18 @@ export function OnboardingOverlay({ onFinish }: OnboardingOverlayProps) {
             { bottom: 10, left: 10, clip: "polygon(0 0,35% 0,35% 65%,100% 65%,100% 100%,0 100%)" },
             { bottom: 10, right: 10, clip: "polygon(65% 0,100% 0,100% 100%,0 100%,0 65%,65% 65%)" },
           ].map((c, i) => (
-            <div key={i} style={{ position: "absolute", width: 18, height: 18, border: "2px solid #e39f64", opacity: 0.4, pointerEvents: "none", clipPath: c.clip, top: c.top, bottom: c.bottom, left: c.left, right: c.right } as CSSProperties} />
+            <div key={i} style={{ position: "absolute", width: 18, height: 18, border: `2px solid ${ACCENT_GOLD}`, opacity: 0.4, pointerEvents: "none", clipPath: c.clip, top: c.top, bottom: c.bottom, left: c.left, right: c.right } as CSSProperties} />
           ))}
 
           {/* Header: step + skip */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 20px 0" }}>
-            <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: TEXT_INACTIVE }}>
+            <div style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: TEXT_INACTIVE }}>
               {step + 1}/{SLIDES.length}
             </div>
             <button
               onClick={() => { setLeaving(true); setTimeout(() => { localStorage.setItem(ONBOARDING_KEY, "done"); onFinish(); }, 400); }}
-              style={{ background: "none", border: "none", fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: TEXT_INACTIVE, cursor: "pointer", padding: "2px 4px" }}
-              onMouseEnter={e => (e.currentTarget.style.color = "#e39f64")}
+              style={{ background: "none", border: "none", fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: TEXT_INACTIVE, cursor: "pointer", padding: "2px 4px" }}
+              onMouseEnter={e => (e.currentTarget.style.color = ACCENT_GOLD)}
               onMouseLeave={e => (e.currentTarget.style.color = TEXT_INACTIVE)}
             >
               SKIP ▶▶
@@ -484,13 +493,13 @@ export function OnboardingOverlay({ onFinish }: OnboardingOverlayProps) {
           <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "16px 24px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 16, scrollbarWidth: "none" }}>
             {/* Title */}
             <div key={`title-${animKey}`} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, animation: slideAnim }}>
-              <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "clamp(10px,2.5vw,14px)", color: "#f0c040", textShadow: "3px 3px 0 #000, 0 0 20px #f0c04066", textAlign: "center", lineHeight: 1.7, whiteSpace: "pre-line" }}>
+              <div style={{ fontFamily: FONT_PIXEL, fontSize: "clamp(10px,2.5vw,14px)", color: COLOR_WARNING, textShadow: `3px 3px 0 #000, 0 0 20px ${COLOR_WARNING}66`, textAlign: "center", lineHeight: 1.7, whiteSpace: "pre-line" }}>
                 {slide.title}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, width: "80%" }}>
-                <div style={{ flex: 1, height: 1, background: "#e39f6433" }} />
-                <div style={{ fontFamily: "'VT323', monospace", fontSize: 14, color: "#e39f64aa", textAlign: "center" }}>{slide.subtitle}</div>
-                <div style={{ flex: 1, height: 1, background: "#e39f6433" }} />
+                <div style={{ flex: 1, height: 1, background: `${ACCENT_GOLD}33` }} />
+                <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: `${ACCENT_GOLD}aa`, textAlign: "center" }}>{slide.subtitle}</div>
+                <div style={{ flex: 1, height: 1, background: `${ACCENT_GOLD}33` }} />
               </div>
             </div>
 
@@ -500,7 +509,7 @@ export function OnboardingOverlay({ onFinish }: OnboardingOverlayProps) {
             </div>
 
             {/* Body */}
-            <div key={`body-${animKey}`} style={{ fontFamily: "'VT323', monospace", fontSize: "clamp(15px,3vw,18px)", color: "#8090b0", textAlign: "center", lineHeight: 1.6, maxWidth: 340, animation: slideAnim }}>
+            <div key={`body-${animKey}`} style={{ fontFamily: FONT_BODY, fontSize: "clamp(15px,3vw,18px)", color: TEXT_BODY, textAlign: "center", lineHeight: 1.6, maxWidth: 340, animation: slideAnim }}>
               {slide.body}
             </div>
           </div>
@@ -510,16 +519,16 @@ export function OnboardingOverlay({ onFinish }: OnboardingOverlayProps) {
             <ProgressDots total={SLIDES.length} current={step} />
             <div style={{ display: "flex", gap: 10 }}>
               {step > 0 && (
-                <button onClick={goBack} style={{ flex: 1, maxWidth: 120, padding: "10px 0", background: BG_CARD, border: `2px solid ${BORDER_ELEVATED}`, color: TEXT_MUTED, fontFamily: "'Press Start 2P', monospace", fontSize: 8, cursor: "pointer", boxShadow: "2px 2px 0 rgba(0,0,0,0.15)" }}
-                  onMouseEnter={e => (e.currentTarget.style.borderColor = "#e39f64")}
+                <button onClick={goBack} style={{ flex: 1, maxWidth: 120, padding: "10px 0", background: BG_CARD, border: `2px solid ${BORDER_ELEVATED}`, color: TEXT_MUTED, fontFamily: FONT_PIXEL, fontSize: 8, cursor: "pointer", boxShadow: "2px 2px 0 rgba(0,0,0,0.15)" }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = ACCENT_GOLD)}
                   onMouseLeave={e => (e.currentTarget.style.borderColor = BORDER_ELEVATED)}
                 >
                   ◀ BACK
                 </button>
               )}
-              <button onClick={goNext} style={{ flex: 1, padding: "12px 0", background: isLast ? "#7c4dff" : BG_CARD, border: `2px solid ${isLast ? "#a97dff" : "#e39f64"}`, color: isLast ? "#fff" : "#f0c040", fontFamily: "'Press Start 2P', monospace", fontSize: 9, cursor: "pointer", boxShadow: isLast ? "3px 3px 0 rgba(0,0,0,0.2), 0 0 14px #7c4dff88" : "3px 3px 0 rgba(0,0,0,0.15)", animation: isLast ? "obBtnPulse 1.8s ease-in-out infinite" : "none", letterSpacing: "0.08em" }}
-                onMouseEnter={e => { e.currentTarget.style.background = isLast ? "#9a6dff" : BORDER_ELEVATED; }}
-                onMouseLeave={e => { e.currentTarget.style.background = isLast ? "#7c4dff" : BG_CARD; }}
+              <button onClick={goNext} style={{ flex: 1, padding: "12px 0", background: isLast ? COLOR_MAGE : BG_CARD, border: `2px solid ${isLast ? alpha(COLOR_MAGE, "cc") : ACCENT_GOLD}`, color: isLast ? TEXT_LIGHT : COLOR_WARNING, fontFamily: FONT_PIXEL, fontSize: 9, cursor: "pointer", boxShadow: isLast ? `3px 3px 0 rgba(0,0,0,0.2), 0 0 14px ${alpha(COLOR_MAGE, "88")}` : "3px 3px 0 rgba(0,0,0,0.15)", animation: isLast ? "obBtnPulse 1.8s ease-in-out infinite" : "none", letterSpacing: "0.08em" }}
+                onMouseEnter={e => { e.currentTarget.style.background = isLast ? alpha(COLOR_MAGE, "dd") : BORDER_ELEVATED; }}
+                onMouseLeave={e => { e.currentTarget.style.background = isLast ? COLOR_MAGE : BG_CARD; }}
               >
                 {isLast ? "⚔ START ADVENTURE!" : "NEXT ▶"}
               </button>

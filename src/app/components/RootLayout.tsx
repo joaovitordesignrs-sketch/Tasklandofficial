@@ -16,7 +16,7 @@ import { useEffect, useState, useRef } from "react";
 import { AuthProvider, useAuth }        from "../hooks/useAuth";
 import { CampaignProvider }             from "../hooks/useCampaign";
 import { audioManager }                 from "../hooks/audioManager";
-import { PreferencesProvider }          from "../contexts/PreferencesContext";
+import { PreferencesProvider, useTheme } from "../contexts/PreferencesContext";
 import { GameShell }                    from "./GameLayouts";
 import AuthScreen                       from "./AuthScreen";
 import { OnboardingOverlay, useOnboarding } from "./OnboardingOverlay";
@@ -76,12 +76,13 @@ const GLOBAL_CSS = `
 
 // ── SyncLoader: shown while cloud pull is in progress ─────────────────────────
 function SyncLoader() {
+  const { BG_DEEPEST, COLOR_WARNING, TEXT_MUTED, FONT_PIXEL, FONT_BODY } = useTheme();
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#080c1a", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
-      <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 12, color: "#f0c040", textShadow: "2px 2px 0 #000", animation: "pulse 1.5s ease-in-out infinite" }}>
+    <div style={{ position: "fixed", inset: 0, background: BG_DEEPEST, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
+      <div style={{ fontFamily: FONT_PIXEL, fontSize: 12, color: COLOR_WARNING, textShadow: "2px 2px 0 #000", animation: "pulse 1.5s ease-in-out infinite" }}>
         SINCRONIZANDO DADOS...
       </div>
-      <div style={{ fontFamily: "'VT323', monospace", fontSize: 18, color: "#5a6080" }}>
+      <div style={{ fontFamily: FONT_BODY, fontSize: 18, color: TEXT_MUTED }}>
         Carregando progresso do servidor
       </div>
       <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }`}</style>

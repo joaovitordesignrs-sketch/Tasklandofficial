@@ -84,10 +84,18 @@ const SESSION_PRESETS = [15, 25, 30, 45, 60];
 // MAIN PANEL
 // ══════════════════════════════════════════════════════════════════════════════
 export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelectedCountChange, attackCallbackRef }: FocusPanelProps) {
-  const { COLOR_MAGE } = useTheme();
+  const {
+    COLOR_MAGE, COLOR_DANGER, COLOR_SUCCESS, COLOR_WARNING, COLOR_LEGENDARY,
+    BG_CARD, BG_DEEPEST, BORDER_SUBTLE, BORDER_ELEVATED,
+    TEXT_MUTED, TEXT_INACTIVE, TEXT_LIGHT, TEXT_BODY,
+    FONT_PIXEL, FONT_BODY,
+    PX_MD, PX_SM, PX_XS,
+    VT_SM, VT_XS, VT_MD, VT_LG, VT_XL,
+    alpha,
+  } = useTheme();
   const ACCENT      = COLOR_MAGE;
-  const ACCENT_BG   = "rgba(192,132,252,0.10)";
-  const ACCENT_BORD = COLOR_MAGE + "55";
+  const ACCENT_BG   = alpha(COLOR_MAGE, "1a");
+  const ACCENT_BORD = alpha(COLOR_MAGE, "55");
 
   const [challenges, setChallenges] = useState(getChallenges());
   const [creating, setCreating]     = useState(false);
@@ -278,25 +286,25 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
   if (!activeChallenge) {
     if (!creating) {
       return (
-        <div style={{ borderTop: isDesktop ? undefined : "1px solid #1a1e37" }}>
+        <div style={{ borderTop: isDesktop ? undefined : `1px solid ${BORDER_SUBTLE}` }}>
           <button
             onClick={() => { audioManager.playClick("press"); setCreating(true); }}
             style={{
               width: "100%",
-              background: "rgba(192,132,252,0.06)",
-              border: isDesktop ? "1px solid rgba(192,132,252,0.45)" : "none",
-              borderBottom: "1px solid rgba(192,132,252,0.25)",
-              borderTop: isDesktop ? undefined : "1px solid rgba(192,132,252,0.35)",
+              background: alpha(COLOR_MAGE, "0f"),
+              border: isDesktop ? `1px solid ${alpha(COLOR_MAGE, "73")}` : "none",
+              borderBottom: `1px solid ${alpha(COLOR_MAGE, "40")}`,
+              borderTop: isDesktop ? undefined : `1px solid ${alpha(COLOR_MAGE, "59")}`,
               color: ACCENT,
               padding: "13px 16px",
-              fontFamily: "'Press Start 2P', monospace", fontSize: 9,
+              fontFamily: FONT_PIXEL, fontSize: PX_SM,
               letterSpacing: 0.5,
               cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
               transition: "background 0.15s, border-color 0.15s",
               borderRadius: isDesktop ? 8 : 0,
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = "rgba(192,132,252,0.13)"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "rgba(192,132,252,0.06)"; }}
+            onMouseEnter={e => { e.currentTarget.style.background = alpha(COLOR_MAGE, "21"); }}
+            onMouseLeave={e => { e.currentTarget.style.background = alpha(COLOR_MAGE, "0f"); }}
           >
             <Brain size={13} /> ACTIVATE FOCUS MODE
           </button>
@@ -308,24 +316,24 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
     return (
       <div>
         <div style={{
-          background: "#0d1024",
-          border: isDesktop ? "1px solid #2a2e50" : "none",
+          background: BG_CARD,
+          border: isDesktop ? `1px solid ${BORDER_ELEVATED}` : "none",
           borderTop: `2px solid ${ACCENT}`,
-          borderBottom: isDesktop ? undefined : "1px solid #1a1e37",
+          borderBottom: isDesktop ? undefined : `1px solid ${BORDER_SUBTLE}`,
           borderRadius: isDesktop ? 10 : 0,
           overflow: "hidden",
         }}>
           {/* Header */}
           <div style={{
-            background: "#0b0d1e", borderBottom: "1px solid #1f254f",
+            background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`,
             padding: "10px 14px", display: "flex", alignItems: "center", gap: 8,
           }}>
             <Brain size={16} color={ACCENT} />
-            <span style={{ fontFamily: "'Press Start 2P', monospace", color: ACCENT, fontSize: 10, flex: 1, textShadow: "1px 1px 0 #000" }}>
+            <span style={{ fontFamily: FONT_PIXEL, color: ACCENT, fontSize: PX_MD, flex: 1, textShadow: "1px 1px 0 #000" }}>
               CREATE FOCUS SESSION
             </span>
             <button onClick={() => { setCreating(false); setNewTasks([]); setCustomMode(false); }}
-              style={{ background: "none", border: "none", color: "#5a6080", cursor: "pointer", padding: 4 }}>
+              style={{ background: "none", border: "none", color: TEXT_MUTED, cursor: "pointer", padding: 4 }}>
               <X size={16} />
             </button>
           </div>
@@ -334,13 +342,13 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
             {/* Big session display */}
             <div style={{ textAlign: "center", marginBottom: 14 }}>
               <div style={{
-                fontFamily: "'Press Start 2P', monospace",
+                fontFamily: FONT_PIXEL,
                 fontSize: 42, color: ACCENT,
-                textShadow: `0 0 24px ${ACCENT}55`, letterSpacing: 4, lineHeight: 1,
+                textShadow: `0 0 24px ${alpha(ACCENT, "55")}`, letterSpacing: 4, lineHeight: 1,
               }}>
                 {String(sessionMin).padStart(2, "0")}:00
               </div>
-              <div style={{ fontFamily: "'VT323', monospace", color: "#5a6080", fontSize: 15, marginTop: 6 }}>
+              <div style={{ fontFamily: FONT_BODY, color: TEXT_MUTED, fontSize: 15, marginTop: 6 }}>
                 session duration · each task +0.01x permanent damage
               </div>
             </div>
@@ -354,10 +362,10 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
                     onClick={() => { audioManager.playClick("tap"); setSessionMin(m); setCustomMode(false); }}
                     style={{
                       padding: "6px 14px",
-                      background: isActive ? ACCENT + "22" : "transparent",
-                      border: `1px solid ${isActive ? ACCENT : "#2a2e50"}`,
-                      color: isActive ? ACCENT : "#5a6080",
-                      fontFamily: "'Press Start 2P', monospace", fontSize: 9, cursor: "pointer",
+                      background: isActive ? alpha(ACCENT, "22") : "transparent",
+                      border: `1px solid ${isActive ? ACCENT : BORDER_ELEVATED}`,
+                      color: isActive ? ACCENT : TEXT_MUTED,
+                      fontFamily: FONT_PIXEL, fontSize: PX_SM, cursor: "pointer",
                       transition: "all 0.12s", borderRadius: 6,
                     }}
                   >
@@ -369,10 +377,10 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
                 onClick={() => { audioManager.playClick("tap"); setCustomMode(true); }}
                 style={{
                   padding: "6px 14px",
-                  background: customMode ? ACCENT + "22" : "transparent",
-                  border: `1px solid ${customMode ? ACCENT : "#2a2e50"}`,
-                  color: customMode ? ACCENT : "#5a6080",
-                  fontFamily: "'Press Start 2P', monospace", fontSize: 9, cursor: "pointer",
+                  background: customMode ? alpha(ACCENT, "22") : "transparent",
+                  border: `1px solid ${customMode ? ACCENT : BORDER_ELEVATED}`,
+                  color: customMode ? ACCENT : TEXT_MUTED,
+                  fontFamily: FONT_PIXEL, fontSize: PX_SM, cursor: "pointer",
                   borderRadius: 6,
                 }}
               >
@@ -384,21 +392,21 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
             {customMode && (
               <div style={{
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                marginBottom: 16, padding: "12px", background: "#0b0d1e",
-                border: `1px solid ${ACCENT}33`, borderRadius: 7,
+                marginBottom: 16, padding: "12px", background: BG_DEEPEST,
+                border: `1px solid ${alpha(ACCENT, "33")}`, borderRadius: 7,
               }}>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                  <span style={{ fontFamily: "'VT323', monospace", color: "#5a6080", fontSize: 14 }}>MINUTES</span>
+                  <span style={{ fontFamily: FONT_BODY, color: TEXT_MUTED, fontSize: VT_SM }}>MINUTES</span>
                   <input type="number" min={1} max={180} value={customMinutes}
                     onChange={e => {
                       const m = Math.max(1, Math.min(180, parseInt(e.target.value) || 1));
                       setCustomMinutes(m);
                       setSessionMin(m);
                     }}
-                    style={{ width: 72, textAlign: "center", background: "#1b1e37", border: `1px solid ${ACCENT}`, color: ACCENT, padding: "8px 4px", fontFamily: "'Press Start 2P', monospace", fontSize: 18, outline: "none", borderRadius: 5 }}
+                    style={{ width: 72, textAlign: "center", background: BG_CARD, border: `1px solid ${ACCENT}`, color: ACCENT, padding: "8px 4px", fontFamily: FONT_PIXEL, fontSize: 18, outline: "none", borderRadius: 5 }}
                   />
                 </div>
-                <span style={{ fontFamily: "'VT323', monospace", color: ACCENT, fontSize: 16, marginTop: 18 }}>
+                <span style={{ fontFamily: FONT_BODY, color: ACCENT, fontSize: VT_MD, marginTop: 18 }}>
                   = {sessionMin}min
                 </span>
               </div>
@@ -406,7 +414,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
 
             {!customMode && <div style={{ marginBottom: 16 }} />}
 
-            <div style={{ borderTop: "1px solid #1a1e37", marginBottom: 12 }} />
+            <div style={{ borderTop: `1px solid ${BORDER_SUBTLE}`, marginBottom: 12 }} />
 
             {/* Bonus info */}
             <div style={{
@@ -414,9 +422,9 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
               padding: "8px 12px", marginBottom: 12,
               display: "flex", alignItems: "center", gap: 8, borderRadius: 6,
             }}>
-              <Zap size={14} color="#FFD700" />
-              <span style={{ fontFamily: "'VT323', monospace", color: "#FFD700", fontSize: 16 }}>
-                Focus tasks: damage to monster + <span style={{ color: "#06FFA5" }}>+0.01x permanent DMG</span>
+              <Zap size={14} color={COLOR_LEGENDARY} />
+              <span style={{ fontFamily: FONT_BODY, color: COLOR_LEGENDARY, fontSize: VT_MD }}>
+                Focus tasks: damage to monster + <span style={{ color: COLOR_SUCCESS }}>+0.01x permanent DMG</span>
               </span>
             </div>
 
@@ -426,20 +434,20 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
                 {newTasks.map(t => (
                   <div key={t.id} style={{
                     display: "flex", alignItems: "center", gap: 8,
-                    padding: "8px 0", borderBottom: "1px solid #1a1e37",
+                    padding: "8px 0", borderBottom: `1px solid ${BORDER_SUBTLE}`,
                   }}>
                     <Brain size={12} color={ACCENT} style={{ flexShrink: 0 }} />
-                    <span style={{ flex: 1, color: "#fff", fontSize: 18, fontFamily: "'VT323', monospace" }}>{t.text}</span>
+                    <span style={{ flex: 1, color: "#fff", fontSize: VT_LG, fontFamily: FONT_BODY }}>{t.text}</span>
                     <span style={{
-                      padding: "1px 6px", fontSize: 13, fontFamily: "'VT323', monospace",
+                      padding: "1px 6px", fontSize: VT_XS, fontFamily: FONT_BODY,
                       color: DIFFICULTY_INFO[t.difficulty].color,
-                      background: DIFFICULTY_INFO[t.difficulty].color + "18",
-                      border: `1px solid ${DIFFICULTY_INFO[t.difficulty].color}40`, borderRadius: 4,
+                      background: alpha(DIFFICULTY_INFO[t.difficulty].color, "18"),
+                      border: `1px solid ${alpha(DIFFICULTY_INFO[t.difficulty].color, "40")}`, borderRadius: 4,
                     }}>
                       {DIFFICULTY_INFO[t.difficulty].short}
                     </span>
                     <button onClick={() => setNewTasks(newTasks.filter(x => x.id !== t.id))}
-                      style={{ background: "none", border: "none", color: "#5a6080", cursor: "pointer", padding: 2 }}>
+                      style={{ background: "none", border: "none", color: TEXT_MUTED, cursor: "pointer", padding: 2 }}>
                       <X size={13} />
                     </button>
                   </div>
@@ -457,16 +465,16 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
                   onKeyDown={e => { if (e.key === "Enter") addNewTask(); }}
                   placeholder="Add focus task..."
                   style={{
-                    flex: 1, background: "#1b1e37", border: "1px solid #2a2e50",
-                    color: "#fff", padding: "8px 12px", fontSize: 18,
-                    fontFamily: "'VT323', monospace", outline: "none", borderRadius: 6,
+                    flex: 1, background: BG_CARD, border: `1px solid ${BORDER_ELEVATED}`,
+                    color: "#fff", padding: "8px 12px", fontSize: VT_LG,
+                    fontFamily: FONT_BODY, outline: "none", borderRadius: 6,
                   }}
                   onFocus={e => (e.target.style.borderColor = ACCENT)}
-                  onBlur={e => (e.target.style.borderColor = "#2a2e50")}
+                  onBlur={e => (e.target.style.borderColor = BORDER_ELEVATED)}
                 />
                 <button onClick={addNewTask} style={{
-                  background: `${ACCENT}18`, border: `2px dashed ${ACCENT}`, color: ACCENT,
-                  padding: "8px 14px", fontFamily: "'VT323', monospace", fontSize: 20, cursor: "pointer", borderRadius: 6,
+                  background: alpha(ACCENT, "18"), border: `2px dashed ${ACCENT}`, color: ACCENT,
+                  padding: "8px 14px", fontFamily: FONT_BODY, fontSize: VT_XL, cursor: "pointer", borderRadius: 6,
                 }}>
                   <Plus size={18} />
                 </button>
@@ -478,11 +486,11 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
             <button onClick={startSession}
               style={{
                 width: "100%", background: ACCENT,
-                border: "none", color: "#0d1024", padding: "14px",
-                fontFamily: "'Press Start 2P', monospace", fontSize: 11,
+                border: "none", color: BG_CARD, padding: "14px",
+                fontFamily: FONT_PIXEL, fontSize: 11,
                 cursor: "pointer",
                 borderRadius: 8,
-                boxShadow: `0 0 18px ${ACCENT}55`,
+                boxShadow: `0 0 18px ${alpha(ACCENT, "55")}`,
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               }}
             >
@@ -516,14 +524,14 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
     <div>
       <style>{`
         @keyframes focusBonusPop { from{transform:scale(0.7);opacity:0} to{transform:scale(1);opacity:1} }
-        @keyframes focusGlow { 0%,100%{box-shadow:0 0 14px rgba(192,132,252,0.18)}50%{box-shadow:0 0 26px rgba(192,132,252,0.35)} }
+        @keyframes focusGlow { 0%,100%{box-shadow:0 0 14px ${alpha(COLOR_MAGE, "2d")}}50%{box-shadow:0 0 26px ${alpha(COLOR_MAGE, "59")}} }
       `}</style>
 
       <div style={{
-        background: "#0d1024",
-        border: isDesktop ? "1px solid #2a2e50" : "none",
+        background: BG_CARD,
+        border: isDesktop ? `1px solid ${BORDER_ELEVATED}` : "none",
         borderTop: `2px solid ${ACCENT}`,
-        borderBottom: "1px solid #1a1e37",
+        borderBottom: `1px solid ${BORDER_SUBTLE}`,
         borderRadius: isDesktop ? 10 : 0,
         overflow: "hidden",
         animation: running ? "focusGlow 2.5s ease infinite" : "none",
@@ -540,8 +548,8 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
 
           {/* Countdown display */}
           <div style={{
-            fontFamily: "'Press Start 2P', monospace",
-            fontSize: 18, color: running ? "#06FFA5" : ACCENT,
+            fontFamily: FONT_PIXEL,
+            fontSize: 18, color: running ? COLOR_SUCCESS : ACCENT,
             textShadow: "1px 1px 0 #000", letterSpacing: 2,
           }}>
             {formatMs(sessionRemaining)}
@@ -550,9 +558,9 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
           {/* Sessions counter */}
           {sessionsDone > 0 && (
             <span style={{
-              fontFamily: "'VT323', monospace", fontSize: 14,
-              color: "#06FFA5", background: "rgba(6,255,165,0.08)",
-              border: "1px solid #06FFA533", padding: "2px 7px", borderRadius: 4,
+              fontFamily: FONT_BODY, fontSize: VT_SM,
+              color: COLOR_SUCCESS, background: alpha(COLOR_SUCCESS, "14"),
+              border: `1px solid ${alpha(COLOR_SUCCESS, "33")}`, padding: "2px 7px", borderRadius: 4,
             }}>
               🍅×{sessionsDone}
             </span>
@@ -562,9 +570,9 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
 
           {/* Focus bonus badge */}
           <span style={{
-            fontFamily: "'Press Start 2P', monospace", fontSize: 8,
-            color: "#06FFA5", background: "rgba(6,255,165,0.08)",
-            border: "1px solid #06FFA533", padding: "3px 7px", borderRadius: 4,
+            fontFamily: FONT_PIXEL, fontSize: PX_XS,
+            color: COLOR_SUCCESS, background: alpha(COLOR_SUCCESS, "14"),
+            border: `1px solid ${alpha(COLOR_SUCCESS, "33")}`, padding: "3px 7px", borderRadius: 4,
           }}>
             +{currentFocusBonus.toFixed(2)}x
           </span>
@@ -573,12 +581,12 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
           <button
             onClick={() => { audioManager.playClick("press"); running ? pauseTimer() : startTimer(); }}
             style={{
-              background: running ? "#E63946" : ACCENT,
-              border: `1px solid ${running ? "#E63946" : ACCENT}`,
-              color: "#0d1024",
-              boxShadow: `0 0 10px ${running ? "#E6394644" : ACCENT + "44"}`,
+              background: running ? COLOR_DANGER : ACCENT,
+              border: `1px solid ${running ? COLOR_DANGER : ACCENT}`,
+              color: BG_CARD,
+              boxShadow: `0 0 10px ${running ? alpha(COLOR_DANGER, "44") : alpha(ACCENT, "44")}`,
               padding: "4px 12px", cursor: "pointer",
-              fontFamily: "'VT323', monospace", fontSize: 16,
+              fontFamily: FONT_BODY, fontSize: VT_MD,
               display: "flex", alignItems: "center", gap: 5,
               transition: "all 0.2s",
             }}
@@ -590,19 +598,19 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
 
           {/* Delete */}
           <button onClick={handleDelete}
-            style={{ background: "none", border: "none", color: "#5a6080", cursor: "pointer", padding: 4 }}
-            onMouseEnter={e => (e.currentTarget.style.color = "#E63946")}
-            onMouseLeave={e => (e.currentTarget.style.color = "#5a6080")}
+            style={{ background: "none", border: "none", color: TEXT_MUTED, cursor: "pointer", padding: 4 }}
+            onMouseEnter={e => (e.currentTarget.style.color = COLOR_DANGER)}
+            onMouseLeave={e => (e.currentTarget.style.color = TEXT_MUTED)}
           >
             <Trash2 size={14} />
           </button>
         </div>
 
         {/* ── Session progress bar ── */}
-        <div style={{ height: 4, background: "#0a0c1a" }}>
+        <div style={{ height: 4, background: BG_DEEPEST }}>
           <div style={{
             height: "100%", width: `${sessionPct}%`,
-            background: running ? "#06FFA5" : ACCENT,
+            background: running ? COLOR_SUCCESS : ACCENT,
             transition: running ? "none" : "width 0.3s ease",
           }} />
         </div>
@@ -610,13 +618,13 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
         {/* ── Bonus notification ── */}
         {bonusGained !== null && (
           <div style={{
-            background: "rgba(6,255,165,0.08)", borderBottom: "1px solid #06FFA533",
+            background: alpha(COLOR_SUCCESS, "14"), borderBottom: `1px solid ${alpha(COLOR_SUCCESS, "33")}`,
             padding: "6px 14px",
             display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
             animation: "focusBonusPop 0.4s ease-out",
           }}>
-            <Zap size={13} color="#06FFA5" />
-            <span style={{ fontFamily: "'Press Start 2P', monospace", color: "#06FFA5", fontSize: 8 }}>
+            <Zap size={13} color={COLOR_SUCCESS} />
+            <span style={{ fontFamily: FONT_PIXEL, color: COLOR_SUCCESS, fontSize: PX_XS }}>
               +{bonusGained.toFixed(2)}x DMG PERMANENTE!
             </span>
           </div>
@@ -624,14 +632,14 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
 
         {/* ── Toolbar (same as ChallengePanel) ── */}
         <div style={{
-          background: "#0b0d1e", borderBottom: "1px solid #1f254f",
+          background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`,
           padding: "8px 14px", display: "flex", alignItems: "center", gap: 10,
           flexWrap: "wrap",
         }}>
           <button onClick={() => { audioManager.playClick("tap"); handleSelectAll(); }}
-            style={{ background: "none", border: "none", color: "#5a6080", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, fontSize: 15, fontFamily: "'VT323', monospace", transition: "color 0.15s" }}
+            style={{ background: "none", border: "none", color: TEXT_MUTED, cursor: "pointer", display: "flex", alignItems: "center", gap: 5, fontSize: 15, fontFamily: FONT_BODY, transition: "color 0.15s" }}
             onMouseEnter={e => (e.currentTarget.style.color = ACCENT)}
-            onMouseLeave={e => (e.currentTarget.style.color = "#5a6080")}
+            onMouseLeave={e => (e.currentTarget.style.color = TEXT_MUTED)}
           >
             <CheckSquare size={14} />
             {allUncomplSelected && uncompletedCount > 0 ? "Deselect All" : "Select All"}
@@ -639,11 +647,11 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
 
           <div style={{ flex: 1 }} />
 
-          <span style={{ fontFamily: "'VT323', monospace", color: "#FFD700", fontSize: 14, display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ fontFamily: FONT_BODY, color: COLOR_LEGENDARY, fontSize: VT_SM, display: "flex", alignItems: "center", gap: 4 }}>
             <Zap size={11} /> +0.01x/task
           </span>
 
-          <span style={{ color: "#5a6080", fontSize: 15, fontFamily: "'VT323', monospace" }}>
+          <span style={{ color: TEXT_MUTED, fontSize: 15, fontFamily: FONT_BODY }}>
             {completedCount}/{tasks.length}
           </span>
 
@@ -651,13 +659,13 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
           <button
             onClick={() => { audioManager.playClick("press"); setShowAddInput(v => !v); setTimeout(() => activeInputRef.current?.focus(), 50); }}
             style={{
-              background: `${ACCENT}18`, border: `2px dashed ${ACCENT}`, color: ACCENT,
-              padding: "5px 11px", fontFamily: "'VT323', monospace", fontSize: 17,
+              background: alpha(ACCENT, "18"), border: `2px dashed ${ACCENT}`, color: ACCENT,
+              padding: "5px 11px", fontFamily: FONT_BODY, fontSize: 17,
               cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
               transition: "all 0.2s",
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = `${ACCENT}30`; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = `${ACCENT}18`; }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = alpha(ACCENT, "30"); }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = alpha(ACCENT, "18"); }}
           >
             <Plus size={14} /> New Task
           </button>
@@ -667,7 +675,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
         {showAddInput && isDesktop && (
           <div style={{ flexShrink: 0, borderLeft: `3px solid ${ACCENT}` }}>
             <div style={{
-              background: "#0b0d1e", borderBottom: "1px solid #1f254f",
+              background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`,
               padding: "10px 14px",
               display: "flex", alignItems: "center", gap: 10,
             }}>
@@ -684,31 +692,31 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
                 }}
                 placeholder="Focus task name..."
                 style={{
-                  flex: 1, background: "#1b1e37", border: `1px solid ${ACCENT}55`,
+                  flex: 1, background: BG_CARD, border: `1px solid ${alpha(ACCENT, "55")}`,
                   color: "#fff", padding: "6px 10px", fontSize: 19,
-                  fontFamily: "'VT323', monospace", outline: "none", borderRadius: 5,
+                  fontFamily: FONT_BODY, outline: "none", borderRadius: 5,
                 }}
               />
               <button
                 onClick={() => { if (activeText.trim()) { addTaskToActive(activeText.trim(), activeDiff); setActiveText(""); } }}
                 style={{
-                  background: `${ACCENT}18`, border: `2px dashed ${ACCENT}`, color: ACCENT,
-                  padding: "6px 14px", fontFamily: "'VT323', monospace", fontSize: 17,
+                  background: alpha(ACCENT, "18"), border: `2px dashed ${ACCENT}`, color: ACCENT,
+                  padding: "6px 14px", fontFamily: FONT_BODY, fontSize: 17,
                   cursor: "pointer", borderRadius: 5,
                 }}
               >
                 +
               </button>
               <button onClick={() => { setShowAddInput(false); setActiveText(""); }}
-                style={{ background: "none", border: "none", color: "#5a6080", cursor: "pointer", padding: 4 }}>
+                style={{ background: "none", border: "none", color: TEXT_MUTED, cursor: "pointer", padding: 4 }}>
                 <X size={14} />
               </button>
             </div>
             <div style={{
-              background: "#0b0d1e", borderBottom: "1px solid #1f254f",
+              background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`,
               padding: "6px 14px 10px",
             }}>
-              <div style={{ color: "#5a6080", fontSize: 13, fontFamily: "'VT323', monospace", marginBottom: 5 }}>DIFFICULTY</div>
+              <div style={{ color: TEXT_MUTED, fontSize: VT_XS, fontFamily: FONT_BODY, marginBottom: 5 }}>DIFFICULTY</div>
               <DiffPicker value={activeDiff} onChange={setActiveDiff} />
             </div>
           </div>
@@ -717,7 +725,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
         {/* ── Task items ── */}
         <div style={{ overflowY: "auto" }}>
           {tasks.length === 0 && (
-            <div style={{ color: "#5a6080", textAlign: "center", padding: "30px 20px", fontSize: 20, fontFamily: "'VT323', monospace" }}>
+            <div style={{ color: TEXT_MUTED, textAlign: "center", padding: "30px 20px", fontSize: VT_XL, fontFamily: FONT_BODY }}>
               Add tasks to earn permanent bonus!
             </div>
           )}
@@ -733,7 +741,7 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
                 onClick={() => toggleSelect(task.id)}
                 style={{
                   background: isSelected ? ACCENT_BG : "transparent",
-                  borderBottom: "1px solid rgba(31,37,79,0.7)",
+                  borderBottom: `1px solid ${alpha(BORDER_SUBTLE, "b3")}`,
                   borderLeft: isSelected ? `3px solid ${ACCENT}` : "3px solid transparent",
                   transition: "all 0.15s",
                   cursor: "pointer",
@@ -744,8 +752,8 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
 
                   <div style={{
                     flexShrink: 0, width: 22, height: 22,
-                    background: isSelected ? ACCENT + "25" : "transparent",
-                    border: `1px solid ${isSelected ? ACCENT : "#2a2e50"}`,
+                    background: isSelected ? alpha(ACCENT, "25") : "transparent",
+                    border: `1px solid ${isSelected ? ACCENT : BORDER_ELEVATED}`,
                     borderRadius: 5,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     transition: "all 0.15s",
@@ -754,19 +762,19 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
                   </div>
 
                   <div style={{ flex: 1, paddingTop: 6, paddingBottom: 6 }}>
-                    <span style={{ color: "#fff", fontSize: 19, fontFamily: "'VT323', monospace" }}>{task.text}</span>
+                    <span style={{ color: "#fff", fontSize: 19, fontFamily: FONT_BODY }}>{task.text}</span>
                   </div>
 
                   <span style={{
                     flexShrink: 0, padding: "1px 7px",
-                    background: diffInfo.color + "15", border: `1px solid ${diffInfo.color}55`,
-                    color: diffInfo.color, fontSize: 13, fontFamily: "'VT323', monospace", borderRadius: 4,
+                    background: alpha(diffInfo.color, "15"), border: `1px solid ${alpha(diffInfo.color, "55")}`,
+                    color: diffInfo.color, fontSize: VT_XS, fontFamily: FONT_BODY, borderRadius: 4,
                   }}>
                     {diffInfo.short}
                   </span>
 
                   {monsterAlive && (
-                    <span style={{ flexShrink: 0, color: "#c084fc", fontSize: 14, fontFamily: "'VT323', monospace", whiteSpace: "nowrap" }}>
+                    <span style={{ flexShrink: 0, color: COLOR_MAGE, fontSize: VT_SM, fontFamily: FONT_BODY, whiteSpace: "nowrap" }}>
                       -{dmg}HP
                     </span>
                   )}
@@ -777,35 +785,35 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
 
           {/* Separator */}
           {completedCount > 0 && uncompletedCount > 0 && (
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 14px", background: "#0a0c1a" }}>
-              <div style={{ flex: 1, height: 1, background: "#1f254f" }} />
-              <span style={{ color: "#3a4060", fontSize: 13, fontFamily: "'VT323', monospace", whiteSpace: "nowrap" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 14px", background: BG_DEEPEST }}>
+              <div style={{ flex: 1, height: 1, background: BORDER_SUBTLE }} />
+              <span style={{ color: TEXT_INACTIVE, fontSize: VT_XS, fontFamily: FONT_BODY, whiteSpace: "nowrap" }}>
                 COMPLETED ({completedCount})
               </span>
-              <div style={{ flex: 1, height: 1, background: "#1f254f" }} />
+              <div style={{ flex: 1, height: 1, background: BORDER_SUBTLE }} />
             </div>
           )}
 
           {/* Completed tasks */}
           {completedTasks.map(task => (
             <div key={task.id} style={{
-              background: "rgba(78,222,128,0.04)",
-              borderBottom: "1px solid rgba(31,37,79,0.7)",
-              borderLeft: "3px solid rgba(6,255,165,0.2)",
+              background: alpha(COLOR_SUCCESS, "0a"),
+              borderBottom: `1px solid ${alpha(BORDER_SUBTLE, "b3")}`,
+              borderLeft: `3px solid ${alpha(COLOR_SUCCESS, "33")}`,
             }}>
               <div className="flex items-center gap-2 px-3" style={{ minHeight: 54 }}>
                 <Brain size={13} color={ACCENT} style={{ flexShrink: 0, opacity: 0.25 }} />
                 <div style={{
                   flexShrink: 0, width: 22, height: 22,
-                  background: "rgba(6,255,165,0.12)", border: "1px solid rgba(6,255,165,0.4)",
+                  background: alpha(COLOR_SUCCESS, "1e"), border: `1px solid ${alpha(COLOR_SUCCESS, "66")}`,
                   borderRadius: 5, display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
-                  <Check size={13} color="#06FFA5" strokeWidth={2.5} />
+                  <Check size={13} color={COLOR_SUCCESS} strokeWidth={2.5} />
                 </div>
                 <div style={{ flex: 1, paddingTop: 6, paddingBottom: 6 }}>
-                  <span style={{ color: "#4a5070", fontSize: 19, fontFamily: "'VT323', monospace", textDecoration: "line-through" }}>{task.text}</span>
+                  <span style={{ color: TEXT_MUTED, fontSize: 19, fontFamily: FONT_BODY, textDecoration: "line-through" }}>{task.text}</span>
                 </div>
-                <span style={{ color: "#06FFA5", fontSize: 14, fontFamily: "'VT323', monospace" }}>+0.01x ✓</span>
+                <span style={{ color: COLOR_SUCCESS, fontSize: VT_SM, fontFamily: FONT_BODY }}>+0.01x ✓</span>
               </div>
             </div>
           ))}

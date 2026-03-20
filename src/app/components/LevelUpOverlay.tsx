@@ -27,7 +27,7 @@ const STARS = [
 ];
 
 export function LevelUpOverlay({ level, rank, rankColor, onClose }: LevelUpOverlayProps) {
-  const { BG_CARD, BG_DEEPEST, TEXT_LIGHT, TEXT_MUTED, alpha } = useTheme();
+  const { BG_CARD, BG_DEEPEST, TEXT_LIGHT, TEXT_MUTED, FONT_PIXEL, FONT_BODY, alpha } = useTheme();
   const [phase, setPhase] = useState<"in" | "hold" | "out">("in");
 
   useEffect(() => {
@@ -190,7 +190,7 @@ export function LevelUpOverlay({ level, rank, rankColor, onClose }: LevelUpOverl
           {/* "LEVEL UP!" label */}
           <div
             style={{
-              fontFamily: "'Press Start 2P', monospace",
+              fontFamily: FONT_PIXEL,
               fontSize: "11px",
               color: TEXT_LIGHT,
               letterSpacing: "4px",
@@ -205,7 +205,7 @@ export function LevelUpOverlay({ level, rank, rankColor, onClose }: LevelUpOverl
           {/* Level number — hard pixel shadow only */}
           <div
             style={{
-              fontFamily: "'Press Start 2P', monospace",
+              fontFamily: FONT_PIXEL,
               fontSize: "56px",
               color: rankColor,
               lineHeight: 1,
@@ -232,7 +232,7 @@ export function LevelUpOverlay({ level, rank, rankColor, onClose }: LevelUpOverl
             <Star size={16} color={rankColor} />
             <span
               style={{
-                fontFamily: "'VT323', monospace",
+                fontFamily: FONT_BODY,
                 color: rankColor,
                 fontSize: 22,
                 letterSpacing: 2,
@@ -279,7 +279,7 @@ export function LevelUpOverlay({ level, rank, rankColor, onClose }: LevelUpOverl
           <div
             style={{
               marginTop: 20,
-              fontFamily: "'VT323', monospace",
+              fontFamily: FONT_BODY,
               color: TEXT_MUTED,
               fontSize: 16,
               animation: "lvlBlink 1.2s step-end infinite",

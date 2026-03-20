@@ -37,7 +37,7 @@ function EditField({ label, value, color, icon, onApply, type = "number" }: {
 }) {
   const {
     FONT_PIXEL, FONT_BODY, TEXT_MUTED, TEXT_BODY, BG_CARD, BG_DEEPEST,
-    BORDER_SUBTLE, BORDER_ELEVATED, RADIUS_LG, RADIUS_MD, SP_XS, SP_SM, SP_MD, alpha,
+    BORDER_SUBTLE, BORDER_ELEVATED, COLOR_SUCCESS, RADIUS_LG, RADIUS_MD, SP_XS, SP_SM, SP_MD, alpha,
   } = useTheme();
   const [input, setInput] = useState(String(value));
   const [saved, setSaved] = useState(false);
@@ -77,7 +77,7 @@ function EditField({ label, value, color, icon, onApply, type = "number" }: {
         />
         <RpgButton
           variant={saved ? "ghost" : "primary"}
-          color={saved ? "#06FFA5" : color}
+          color={saved ? COLOR_SUCCESS : color}
           small
           bodyFont
           onClick={handleApply}

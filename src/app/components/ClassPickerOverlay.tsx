@@ -58,7 +58,7 @@ function SkinCard({
 }: {
   skinId: SkinId; isSelected: boolean; onSelect: () => void; unlocked: boolean;
 }) {
-  const { BG_CARD, BG_DEEPEST, BORDER_ELEVATED, TEXT_INACTIVE, TEXT_LIGHT, alpha } = useTheme();
+  const { BG_CARD, BG_DEEPEST, BORDER_ELEVATED, COLOR_SUCCESS, COLOR_DANGER, TEXT_INACTIVE, TEXT_LIGHT, FONT_PIXEL, FONT_BODY, alpha } = useTheme();
   const info = SKIN_INFO[skinId];
   const locked = info.locked;
   const color = locked ? TEXT_INACTIVE : info.color;
@@ -97,7 +97,7 @@ function SkinCard({
             gap: 6,
           }}>
             <Lock size={22} color={TEXT_INACTIVE} />
-            <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 6, color: TEXT_INACTIVE, letterSpacing: 1 }}>
+            <span style={{ fontFamily: FONT_PIXEL, fontSize: 6, color: TEXT_INACTIVE, letterSpacing: 1 }}>
               COMING SOON
             </span>
           </div>
@@ -109,7 +109,7 @@ function SkinCard({
             position: 'absolute', top: 8, right: 8,
             background: color, width: 20, height: 20,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontFamily: "'Press Start 2P', monospace", fontSize: 9, color: '#0d1024',
+            fontFamily: FONT_PIXEL, fontSize: 9, color: BG_CARD,
           }}>
             ✓
           </div>
@@ -121,7 +121,7 @@ function SkinCard({
             position: 'absolute', bottom: 6, right: 6,
             background: BG_CARD, border: `1px solid ${info.color}`,
             padding: '2px 6px', borderRadius: 4,
-            fontFamily: "'VT323', monospace", fontSize: 13, color: info.color,
+            fontFamily: FONT_BODY, fontSize: 13, color: info.color,
           }}>
             🪙 {info.cost}
           </div>
@@ -131,9 +131,9 @@ function SkinCard({
         {!locked && unlocked && skinId !== 'warrior_base' && (
           <div style={{
             position: 'absolute', bottom: 6, right: 6,
-            background: BG_CARD, border: `1px solid #06FFA5`,
+            background: BG_CARD, border: `1px solid ${COLOR_SUCCESS}`,
             padding: '2px 6px', borderRadius: 4,
-            fontFamily: "'VT323', monospace", fontSize: 13, color: '#06FFA5',
+            fontFamily: FONT_BODY, fontSize: 13, color: COLOR_SUCCESS,
           }}>
             OWNED
           </div>
@@ -142,7 +142,7 @@ function SkinCard({
 
       {/* Name */}
       <div style={{
-        fontFamily: "'Press Start 2P', monospace",
+        fontFamily: FONT_PIXEL,
         fontSize: 'clamp(7px, 2vw, 9px)',
         color: isSelected && !locked ? color : locked ? TEXT_INACTIVE : TEXT_LIGHT,
         marginTop: 10, marginBottom: 4, letterSpacing: 1,
@@ -152,9 +152,9 @@ function SkinCard({
 
       {/* Cost or status line */}
       <div style={{
-        fontFamily: "'VT323', monospace",
+        fontFamily: FONT_BODY,
         fontSize: 14,
-        color: locked ? TEXT_INACTIVE : unlocked ? '#06FFA5' : info.color,
+        color: locked ? TEXT_INACTIVE : unlocked ? COLOR_SUCCESS : info.color,
         letterSpacing: 0.5,
       }}>
         {locked ? 'LOCKED' : unlocked ? (skinId === 'warrior_base' ? 'DEFAULT' : 'UNLOCKED') : `${info.cost} coins`}
@@ -169,7 +169,7 @@ interface ClassPickerOverlayProps {
 }
 
 export function ClassPickerOverlay({ onConfirm }: ClassPickerOverlayProps) {
-  const { BG_DEEPEST, TEXT_INACTIVE, alpha } = useTheme();
+  const { BG_DEEPEST, BG_CARD, COLOR_SUCCESS, COLOR_DANGER, COLOR_WARNING, TEXT_INACTIVE, FONT_PIXEL, FONT_BODY, alpha } = useTheme();
   const econ = getEconomy();
   const [selected,  setSelected]  = useState<SkinId>('warrior_base');
   const [confirmed, setConfirmed] = useState(false);
@@ -222,7 +222,7 @@ export function ClassPickerOverlay({ onConfirm }: ClassPickerOverlayProps) {
         background: alpha(BG_DEEPEST, 'f7'),
         opacity: visible ? 1 : 0,
         transition: 'opacity 0.35s ease',
-        fontFamily: "'VT323', monospace",
+        fontFamily: FONT_BODY,
         padding: '20px 16px',
         overflowY: 'auto',
       }}
@@ -245,15 +245,15 @@ export function ClassPickerOverlay({ onConfirm }: ClassPickerOverlayProps) {
         {/* ── Title ── */}
         <div style={{ textAlign: 'center', marginBottom: 22 }}>
           <h1 style={{
-            fontFamily: "'Press Start 2P', monospace",
+            fontFamily: FONT_PIXEL,
             fontSize: 'clamp(9px, 2.8vw, 13px)',
-            color: '#f0c040',
+            color: COLOR_WARNING,
             textShadow: '2px 2px 0 #000, 0 0 16px rgba(240,192,64,0.25)',
             margin: 0, lineHeight: 1.6,
           }}>
             CHOOSE YOUR SKIN
           </h1>
-          <p style={{ color: TEXT_INACTIVE, fontSize: 17, margin: '4px 0 0', fontFamily: "'VT323', monospace" }}>
+          <p style={{ color: TEXT_INACTIVE, fontSize: 17, margin: '4px 0 0', fontFamily: FONT_BODY }}>
             Your hero's appearance. More skins coming soon.
           </p>
         </div>
@@ -278,19 +278,19 @@ export function ClassPickerOverlay({ onConfirm }: ClassPickerOverlayProps) {
           style={{
             width: '100%',
             padding: '15px 0',
-            fontFamily: "'Press Start 2P', monospace",
+            fontFamily: FONT_PIXEL,
             fontSize: 'clamp(9px, 2.5vw, 11px)',
             letterSpacing: 1,
-            color: confirmed ? '#06FFA5' : SKIN_INFO[selected].locked ? TEXT_INACTIVE : !canAfford ? '#E63946' : '#0d1024',
+            color: confirmed ? COLOR_SUCCESS : SKIN_INFO[selected].locked ? TEXT_INACTIVE : !canAfford ? COLOR_DANGER : BG_CARD,
             background: confirmed
-              ? 'rgba(6,255,165,0.1)'
+              ? alpha(COLOR_SUCCESS, '1a')
               : SKIN_INFO[selected].locked ? BG_DEEPEST
-              : !canAfford ? 'rgba(230,57,70,0.08)'
+              : !canAfford ? alpha(COLOR_DANGER, '14')
               : selColor,
             border: confirmed
-              ? '3px solid #06FFA5'
+              ? `3px solid ${COLOR_SUCCESS}`
               : SKIN_INFO[selected].locked ? `1px solid ${BG_DEEPEST}`
-              : !canAfford ? '1px solid #E63946'
+              : !canAfford ? `1px solid ${COLOR_DANGER}`
               : `1px solid ${selColor}`,
             boxShadow: !SKIN_INFO[selected].locked && canAfford && !confirmed ? `0 0 18px ${selColor}44` : 'none',
             cursor: !SKIN_INFO[selected].locked && canAfford && !confirmed ? 'pointer' : 'default',
