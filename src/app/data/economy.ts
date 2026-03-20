@@ -161,9 +161,7 @@ function loadEconomy(): EconomyState {
     const raw = localStorage.getItem(ECON_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as EconomyState;
-      if (parsed.needsClassSelection === undefined) {
-        parsed.needsClassSelection = parsed.selectedClass === null;
-      }
+      parsed.needsClassSelection = false;
       if (parsed.bonusXP === undefined) {
         // Migrate from legacy rpg_bonus_xp_v3 key
         try {
@@ -201,7 +199,7 @@ function loadEconomy(): EconomyState {
     unlockedClasses: [], activeSkin: "warrior_base", unlockedSkins: ["warrior_base"],
     pets: [], activePet: null,
     unlockedAchievements: [], title: null, onePunchBosses: 0,
-    needsClassSelection: true, bonusXP: migratedBonusXP,
+    needsClassSelection: false, bonusXP: migratedBonusXP,
     monsterEssences: 0, gmBonusXP: 0,
   };
 }
@@ -369,7 +367,7 @@ export function resetEconomy(): void {
     unlockedClasses: [], activeSkin: "warrior_base", unlockedSkins: ["warrior_base"],
     pets: [], activePet: null,
     unlockedAchievements: [], title: null, onePunchBosses: 0,
-    needsClassSelection: true, bonusXP: 0,
+    needsClassSelection: false, bonusXP: 0,
     monsterEssences: econ.monsterEssences ?? 0, gmBonusXP: 0,
   };
   saveEconomy(econ);
