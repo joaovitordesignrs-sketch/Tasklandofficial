@@ -194,15 +194,26 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
     const hasCampaign = currentMissions.some(m => m.mode === "campaign");
     if (!hasCampaign) { for (const m of initialMissions) createMission(m); }
     const active = getActiveCampaignMission();
-    setMission(active);
+    // Only update mission state if something actually changed — avoids
+    // unnecessary re-renders that restart CSS animations on focus/visibility.
+    setMission(prev => {
+      if (!prev && !active) return prev;
+      if (!prev || !active) return active;
+      if (prev.id === active.id && prev.monsterCurrentHp === active.monsterCurrentHp
+          && prev.tasks.length === active.tasks.length) return prev;
+      return active;
+    });
     if (active) setPrevHpPct(getMonsterHpInfo(active).percent);
     syncMissions();
-    // ← Re-sync economy state into context after cloud pull overwrites localStorage.
-    // This is critical to prevent "class selection on every login" (needsClassSelection
-    // is read from the empty economy during CampaignProvider mount, before sync finishes).
     const freshEcon = getEconomy();
-    setNeedsClassPick(freshEcon.needsClassSelection);
-    setActiveSkinSt(freshEcon.activeSkin ?? "warrior_base");
+    setNeedsClassPick(prev => {
+      const next = freshEcon.needsClassSelection;
+      return prev === next ? prev : next;
+    });
+    setActiveSkinSt(prev => {
+      const next = freshEcon.activeSkin ?? "warrior_base";
+      return prev === next ? prev : next;
+    });
   }, [syncMissions]);
 
   useEffect(() => {
@@ -210,7 +221,6 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
     prevLevelRef.current = getLevelInfo(xp0).level;
     refresh();
     const handleVis = () => { if (document.visibilityState === "visible") refresh(); };
-    window.addEventListener("focus", refresh);
     document.addEventListener("visibilitychange", handleVis);
     // Listen for cloud sync completion so we can re-read economy state into context.
     // This event is dispatched by RootLayout after pullFromCloud finishes, fixing
@@ -219,7 +229,6 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
     window.addEventListener("rpg:sync-complete", handleSyncComplete);
     const poll = setInterval(() => syncMissions(), 2000);
     return () => {
-      window.removeEventListener("focus", refresh);
       document.removeEventListener("visibilitychange", handleVis);
       window.removeEventListener("rpg:sync-complete", handleSyncComplete);
       clearInterval(poll);
