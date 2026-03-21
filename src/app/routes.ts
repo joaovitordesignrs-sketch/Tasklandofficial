@@ -14,8 +14,14 @@ import AdminWipeScreen      from "./components/AdminWipeScreen";
 import DesignSystemScreen   from "./components/DesignSystemScreen";
 import ShopScreen           from "./components/ShopScreen";
 import GameMasterScreen     from "./components/GameMasterScreen";
+import ProductPage          from "./components/ProductPage";
 
 export const router = createBrowserRouter([
+  {
+    // Product landing page — outside the game layout (for unauthenticated visitors)
+    path: "/produto",
+    Component: ProductPage,
+  },
   {
     // Admin panel is outside the normal game layout
     path: "/admin-wipe",

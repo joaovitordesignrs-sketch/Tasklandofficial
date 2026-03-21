@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, type CSSProperties } from "react";
+import { useState, useEffect, useCallback, useRef, type CSSProperties } from "react";
 import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
 import imgAvatarWarrior from '../../assets/profile_pic/profile_pic_warrior.png';
 import imgAvatarMage    from '../../assets/profile_pic/profile_pic_mage.png';
@@ -558,4 +558,193 @@ export function useOnboarding() {
 
   const finish = useCallback(() => setShow(false), []);
   return { show, finish };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SPOTLIGHT ONBOARDING — 5-step tutorial using data-onboarding attributes
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const SPOTLIGHT_KEY = "onboarding_complete";
+
+interface SpotlightStep {
+  target: string; // data-onboarding value
+  title: string;
+  text: string;
+}
+
+const SPOTLIGHT_STEPS: SpotlightStep[] = [
+  {
+    target: "monster-area",
+    title: "YOUR ENEMY",
+    text: "This is your enemy. Defeat it by completing tasks!",
+  },
+  {
+    target: "add-task-btn",
+    title: "CREATE TASKS",
+    text: "Create a task. Each task deals damage to the monster when completed. Hard tasks deal more damage than Easy ones.",
+  },
+  {
+    target: "power-badge",
+    title: "YOUR POWER",
+    text: "Your Power determines how much damage you deal. Increase it with habits, items, and leveling up.",
+  },
+  {
+    target: "challenge-panel",
+    title: "TEMPORAL CHALLENGE",
+    text: "Activate the Temporal Challenge to complete tasks with a timer — damage is multiplied!",
+  },
+  {
+    target: "bottom-nav",
+    title: "EXPLORE",
+    text: "Explore Habits, Achievements, and the Shop to evolve your character.",
+  },
+];
+
+export function useSpotlightOnboarding() {
+  const [show, setShow] = useState(() => {
+    try { return !localStorage.getItem(SPOTLIGHT_KEY); } catch { return false; }
+  });
+
+  const finish = useCallback(() => {
+    try { localStorage.setItem(SPOTLIGHT_KEY, "1"); } catch {}
+    setShow(false);
+  }, []);
+
+  return { show, finish };
+}
+
+interface SpotlightOnboardingProps {
+  onFinish: () => void;
+}
+
+export function SpotlightOnboarding({ onFinish }: SpotlightOnboardingProps) {
+  const { FONT_PIXEL, FONT_BODY, ACCENT_GOLD, BG_DEEPEST, TEXT_MUTED, BORDER_ELEVATED } = useTheme();
+  const [step, setStep] = useState(0);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+  const rectRef = useRef<DOMRect | null>(null);
+
+  useEffect(() => {
+    const target = document.querySelector(`[data-onboarding="${SPOTLIGHT_STEPS[step].target}"]`);
+    if (target) {
+      const r = target.getBoundingClientRect();
+      setRect(r);
+      rectRef.current = r;
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+    } else {
+      setRect(null);
+      rectRef.current = null;
+    }
+  }, [step]);
+
+  const next = useCallback(() => {
+    if (step < SPOTLIGHT_STEPS.length - 1) setStep(s => s + 1);
+    else onFinish();
+  }, [step, onFinish]);
+
+  const current = SPOTLIGHT_STEPS[step];
+  const isLast = step === SPOTLIGHT_STEPS.length - 1;
+
+  // Position tooltip: above or below the spotlight area
+  const tooltipBelow = rect ? rect.bottom < window.innerHeight * 0.6 : false;
+  const tooltipTop = rect
+    ? tooltipBelow
+      ? rect.bottom + 16
+      : Math.max(20, rect.top - 180)
+    : 80;
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 10000 }}>
+      {/* Dark overlay with cutout */}
+      <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }}>
+        <defs>
+          <mask id="spotlight-mask">
+            <rect width="100%" height="100%" fill="white" />
+            {rect && (
+              <rect
+                x={rect.left - 8}
+                y={rect.top - 8}
+                width={rect.width + 16}
+                height={rect.height + 16}
+                rx={12}
+                fill="black"
+              />
+            )}
+          </mask>
+        </defs>
+        <rect
+          width="100%"
+          height="100%"
+          fill="rgba(0,0,0,0.78)"
+          mask="url(#spotlight-mask)"
+        />
+      </svg>
+
+      {/* Spotlight dashed border */}
+      {rect && (
+        <div style={{
+          position: "absolute",
+          left: rect.left - 8,
+          top: rect.top - 8,
+          width: rect.width + 16,
+          height: rect.height + 16,
+          border: `2px dashed ${ACCENT_GOLD}`,
+          borderRadius: 12,
+          pointerEvents: "none",
+          boxShadow: `0 0 20px ${ACCENT_GOLD}44`,
+        }} />
+      )}
+
+      {/* Tooltip card */}
+      <div style={{
+        position: "absolute",
+        left: "50%",
+        transform: "translateX(-50%)",
+        top: tooltipTop,
+        width: "calc(100% - 40px)",
+        maxWidth: 380,
+        background: BG_DEEPEST,
+        border: `1px solid ${ACCENT_GOLD}66`,
+        borderTop: `3px solid ${ACCENT_GOLD}`,
+        borderRadius: 10,
+        padding: "20px 24px",
+        zIndex: 10001,
+        boxSizing: "border-box" as const,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+          <span style={{ fontFamily: FONT_PIXEL, fontSize: 10, color: ACCENT_GOLD, letterSpacing: 1 }}>
+            {current.title}
+          </span>
+          <span style={{ fontFamily: FONT_BODY, fontSize: 14, color: TEXT_MUTED, marginLeft: "auto" }}>
+            {step + 1}/{SPOTLIGHT_STEPS.length}
+          </span>
+        </div>
+        <div style={{ fontFamily: FONT_BODY, fontSize: 18, color: "#c8d0f0", lineHeight: 1.4, marginBottom: 20 }}>
+          {current.text}
+        </div>
+        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+          <button
+            onClick={onFinish}
+            style={{
+              background: "transparent", border: `1px solid ${BORDER_ELEVATED}`,
+              color: TEXT_MUTED, fontFamily: FONT_BODY, fontSize: 16,
+              padding: "8px 16px", borderRadius: 6, cursor: "pointer",
+            }}
+          >
+            Skip tutorial
+          </button>
+          <button
+            onClick={next}
+            style={{
+              background: ACCENT_GOLD, border: "none",
+              color: BG_DEEPEST, fontFamily: FONT_PIXEL, fontSize: 9,
+              padding: "8px 20px", borderRadius: 6, cursor: "pointer",
+              letterSpacing: 0.5,
+            }}
+          >
+            {isLast ? "START!" : "NEXT →"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }

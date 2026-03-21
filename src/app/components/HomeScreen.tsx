@@ -251,7 +251,7 @@ function MobileArenaSection() {
       </div>
 
       {/* Battle area */}
-      <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", background: "#0a0c1a" }}>
+      <div data-onboarding="monster-area" style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", background: "#0a0c1a" }}>
         <img src={imgArenaBackground} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", imageRendering: "pixelated", zIndex: 1 }} />
         <div style={{ position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none", background: "radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(5,7,18,0.45) 100%)" }} />
 
@@ -261,7 +261,7 @@ function MobileArenaSection() {
         </div>
 
         {/* Power badge */}
-        <div style={{
+        <div data-onboarding="power-badge" style={{
           position: "absolute", left: "4%", top: "6%", zIndex: 6,
           display: "flex", alignItems: "center", gap: 7,
           background: "rgba(10, 14, 40, 0.88)",
@@ -457,7 +457,7 @@ export default function HomeScreen() {
     BORDER_ELEVATED,
     ACCENT_GOLD,
     COLOR_DANGER, COLOR_SUCCESS, COLOR_LEGENDARY,
-    TEXT_INACTIVE,
+    TEXT_INACTIVE, TEXT_MUTED,
     FONT_PIXEL, FONT_BODY,
     PX_XS,
     VT_SM, VT_LG,
@@ -476,12 +476,19 @@ export default function HomeScreen() {
       <PageShell icon={<Swords size={16} />} title="CAMPAIGN" accentColor={ACCENT_GOLD}>
         <div style={{ display: "flex", flexDirection: "column", gap: SP_SM, flex: 1 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: SP_SM, flexShrink: 0 }}>
-            <ChallengePanel
-              playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission && !campaignDone}
-              onTemporalStrike={handleTemporalStrike} onChallengeFailed={handleChallengeFailed}
-              onSelectedCountChange={setTemporalSelectedCount}
-              attackCallbackRef={temporalAttackCallbackRef}
-            />
+            <div data-onboarding="challenge-panel">
+              <ChallengePanel
+                playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission && !campaignDone}
+                onTemporalStrike={handleTemporalStrike} onChallengeFailed={handleChallengeFailed}
+                onSelectedCountChange={setTemporalSelectedCount}
+                attackCallbackRef={temporalAttackCallbackRef}
+              />
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 0" }}>
+              <div style={{ flex: 1, height: 1, background: "rgba(90,96,128,0.4)" }} />
+              <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: TEXT_MUTED, letterSpacing: 1 }}>OU</span>
+              <div style={{ flex: 1, height: 1, background: "rgba(90,96,128,0.4)" }} />
+            </div>
             <FocusPanel
               playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission && !campaignDone}
               onFocusStrike={handleFocusStrike}
@@ -601,8 +608,15 @@ export default function HomeScreen() {
             </div>
           ) : (
             <>
-              <ChallengePanel playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission} onTemporalStrike={handleTemporalStrike} onChallengeFailed={handleChallengeFailed}
-                onSelectedCountChange={setTemporalSelectedCount} attackCallbackRef={temporalAttackCallbackRef} />
+              <div data-onboarding="challenge-panel">
+                <ChallengePanel playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission} onTemporalStrike={handleTemporalStrike} onChallengeFailed={handleChallengeFailed}
+                  onSelectedCountChange={setTemporalSelectedCount} attackCallbackRef={temporalAttackCallbackRef} />
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 14px" }}>
+                <div style={{ flex: 1, height: 1, background: "rgba(90,96,128,0.4)" }} />
+                <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: TEXT_MUTED, letterSpacing: 1 }}>OU</span>
+                <div style={{ flex: 1, height: 1, background: "rgba(90,96,128,0.4)" }} />
+              </div>
               <FocusPanel playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission} onFocusStrike={handleFocusStrike}
                 onSelectedCountChange={setFocusSelectedCount} attackCallbackRef={focusAttackCallbackRef} />
               {mission ? (

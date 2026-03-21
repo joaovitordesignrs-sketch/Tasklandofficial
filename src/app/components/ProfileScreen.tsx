@@ -27,6 +27,7 @@ import { useIsDesktop } from "../hooks/useIsDesktop";
 import { audioManager } from "../hooks/audioManager";
 import { PageShell } from "./ui/PageShell";
 import { CardIn } from "./ui/CardIn";
+import { RpgTooltip } from "./ui/RpgTooltip";
 import { ItemsTab } from "./ItemsTab";
 import { PixelIcon } from "./ui/PixelIcon";
 import { PixelTabs, PixelTabDef } from "./ui/PixelTabs";
@@ -336,12 +337,12 @@ function EvolucaoTab() {
                   {activeClass ? activeClass.label.toUpperCase() : "NO CLASS"}
                 </div>
                 <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: TEXT_INACTIVE, marginTop: 2 }}>
-                  {activeClass ? activeClass.desc : "Tap to choose your class"}
+                  Skins are cosmetic and don't affect gameplay
                 </div>
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: activeClassColors?.color ?? TEXT_INACTIVE }}>CHANGE</span>
+              <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: activeClassColors?.color ?? TEXT_INACTIVE }}>CHANGE SKIN</span>
               <span style={{ color: activeClassColors?.color ?? TEXT_INACTIVE, fontSize: 20, fontFamily: FONT_BODY }}>▶</span>
             </div>
           </button>
@@ -359,7 +360,19 @@ function EvolucaoTab() {
         <div style={{ padding: "16px 18px", position: "relative", zIndex: 1 }}>
           <div style={{ textAlign: "center", marginBottom: 16 }}>
             <div style={{ fontFamily: FONT_PIXEL, fontSize: 36, color: cpData.rank.color, textShadow: `3px 3px 0 #000, 0 0 20px ${cpData.rank.glow}`, letterSpacing: 3, lineHeight: 1 }}>{formatPower(cpData.total)}</div>
-            <div style={{ fontFamily: FONT_BODY, fontSize: 16, color: TEXT_MUTED, marginTop: 4 }}>MH × MN × MC</div>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 16, color: TEXT_MUTED, marginTop: 4, display: "flex", gap: 4, justifyContent: "center" }}>
+              <RpgTooltip content="MH = Habit Multiplier. Damage bonus from active habits.">
+                <span style={{ borderBottom: `1px dashed ${TEXT_INACTIVE}` }}>MH</span>
+              </RpgTooltip>
+              {" × "}
+              <RpgTooltip content="MN = Level Multiplier. Bonus based on your current level.">
+                <span style={{ borderBottom: `1px dashed ${TEXT_INACTIVE}` }}>MN</span>
+              </RpgTooltip>
+              {" × "}
+              <RpgTooltip content="MC = Achievement Multiplier. Damage bonus from unlocked achievements.">
+                <span style={{ borderBottom: `1px dashed ${TEXT_INACTIVE}` }}>MC</span>
+              </RpgTooltip>
+            </div>
           </div>
           {cpProgress && nextRank && (
             <div style={{ marginBottom: 16 }}>

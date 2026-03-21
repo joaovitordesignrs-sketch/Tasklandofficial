@@ -308,6 +308,9 @@ export function FocusPanel({ playerLevel, monsterAlive, onFocusStrike, onSelecte
           >
             <Brain size={13} /> ACTIVATE FOCUS MODE
           </button>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: TEXT_MUTED, marginTop: 4, textAlign: "center", padding: "0 16px 10px" }}>
+            Focused session · Each task grants +0.01x permanent damage
+          </div>
         </div>
       );
     }

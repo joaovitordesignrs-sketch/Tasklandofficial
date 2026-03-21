@@ -19,7 +19,7 @@ import { audioManager }                 from "../hooks/audioManager";
 import { PreferencesProvider, useTheme } from "../contexts/PreferencesContext";
 import { GameShell }                    from "./GameLayouts";
 import AuthScreen                       from "./AuthScreen";
-import { OnboardingOverlay, useOnboarding } from "./OnboardingOverlay";
+import { OnboardingOverlay, useOnboarding, SpotlightOnboarding, useSpotlightOnboarding } from "./OnboardingOverlay";
 import {
   pullFromCloud, setSyncUser, startRealtime, stopRealtime,
   applyCloudData, clearGameLocalStorage, stopSync, setAccessToken,
@@ -72,6 +72,7 @@ const GLOBAL_CSS = `
   @keyframes lvlShine { 0%,100%{opacity:0.6} 50%{opacity:1} }
   @keyframes lvlNumberPop { 0%{transform:scale(0.3);opacity:0} 100%{transform:scale(1);opacity:1} }
   @keyframes notifPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.28)} }
+  @keyframes tooltipIn { 0%{opacity:0;transform:translateX(-50%) translateY(4px)} 100%{opacity:1;transform:translateX(-50%) translateY(0)} }
 `;
 
 // ── SyncLoader: shown while cloud pull is in progress ─────────────────────────
@@ -98,6 +99,7 @@ function RootLayoutInner() {
   const [syncDone, setSyncDone] = useState(false);
   const activeUidRef = useRef<string | null>(null);
   const { show: showOnboarding, finish: finishOnboarding } = useOnboarding();
+  const { show: showSpotlight, finish: finishSpotlight } = useSpotlightOnboarding();
 
   void tick; // prevents unused-variable lint warning; triggers re-render for sidebar XP
 
@@ -192,6 +194,7 @@ function RootLayoutInner() {
     <>
       <GameShell globalCss={GLOBAL_CSS} />
       {showOnboarding && <OnboardingOverlay onFinish={finishOnboarding} />}
+      {!showOnboarding && showSpotlight && <SpotlightOnboarding onFinish={finishSpotlight} />}
     </>
   );
 }

@@ -2,7 +2,7 @@ import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Task, TaskDifficulty, getTags, ensureTag, tagColor, removeTag, setTagColor, TAG_PALETTE } from "../data/missions";
 import { DIFFICULTY_INFO, calcTaskDamage } from "../data/gameEngine";
-import { Trash2, Check, GripVertical, Pencil, Plus, X, CheckSquare, Swords, MoreVertical, Tag, SlidersHorizontal } from "lucide-react";
+import { Trash2, Check, GripVertical, Pencil, Plus, X, CheckSquare, Swords, MoreVertical, Tag, SlidersHorizontal, Calendar } from "lucide-react";
 import { audioManager } from "../hooks/audioManager";
 import { useCampaign } from "../hooks/useCampaign";
 import { useIsDesktop } from "../hooks/useIsDesktop";
@@ -197,6 +197,7 @@ function TaskItem({
   const [editText,    setEditText]    = useState(task.text);
   const [editDiff,    setEditDiff]    = useState<TaskDifficulty>(task.difficulty ?? "easy");
   const [editTag,     setEditTag]     = useState<string>(task.tag ?? "");
+  const [editDueDate, setEditDueDate] = useState<string>(task.dueDate ?? "");
   const [actionsOpen, setActionsOpen] = useState(false);
   const ref      = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -231,13 +232,14 @@ function TaskItem({
     setEditText(task.text);
     setEditDiff(task.difficulty ?? "easy");
     setEditTag(task.tag ?? "");
+    setEditDueDate(task.dueDate ?? "");
     setIsEditing(true);
     setTimeout(() => inputRef.current?.focus(), 50);
   }
   function saveEdit() {
     if (editText.trim()) {
       if (editTag) ensureTag(editTag);
-      onEdit(task.id, { text: editText.trim(), difficulty: editDiff, tag: editTag || undefined });
+      onEdit(task.id, { text: editText.trim(), difficulty: editDiff, tag: editTag || undefined, dueDate: editDueDate || undefined });
     }
     setIsEditing(false);
   }
@@ -330,6 +332,25 @@ function TaskItem({
                   {task.tag}
                 </span>
               )}
+              {/* Due date badge */}
+              {task.dueDate && (() => {
+                const today = new Date().toISOString().slice(0, 10);
+                const isToday = task.dueDate === today;
+                const isOverdue = task.dueDate < today && !task.completed;
+                const badgeColor = isOverdue ? COLOR_DANGER : isToday ? COLOR_SUCCESS : TEXT_INACTIVE;
+                const badgeLabel = isOverdue ? "OVERDUE" : isToday ? "TODAY" : task.dueDate;
+                return (
+                  <span style={{
+                    fontSize: 12, fontFamily: FONT_BODY,
+                    color: badgeColor, background: `${badgeColor}18`,
+                    border: `1px solid ${badgeColor}44`,
+                    padding: "1px 7px", borderRadius: 20, whiteSpace: "nowrap",
+                    opacity: task.completed ? 0.5 : 1,
+                  }}>
+                    {badgeLabel}
+                  </span>
+                );
+              })()}
             </div>
           )}
         </div>
@@ -419,6 +440,24 @@ function TaskItem({
               <Tag size={11} /> TAG
             </div>
             <TagInput value={editTag} onChange={setEditTag} availableTags={availableTags} onTagCreated={onTagCreated} />
+          </div>
+
+          {/* Due date */}
+          <div>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: TEXT_MUTED, marginBottom: 4, display: "flex", alignItems: "center", gap: 4 }}>
+              <Calendar size={11} /> DUE DATE
+            </div>
+            <input
+              type="date"
+              value={editDueDate}
+              onChange={e => setEditDueDate(e.target.value)}
+              style={{
+                background: BG_DEEPEST, border: `1px solid ${BORDER_ELEVATED}`,
+                color: TEXT_LIGHT, padding: "4px 8px", fontSize: 15,
+                fontFamily: FONT_BODY, borderRadius: 4, outline: "none",
+                colorScheme: "dark",
+              }}
+            />
           </div>
 
           <div style={{ display: "flex", gap: 8 }}>
@@ -515,6 +554,7 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
 
   const [newText, setNewText] = useState("");
   const [newDiff, setNewDiff] = useState<TaskDifficulty>("easy");
+  const [newDueDate, setNewDueDate] = useState("");
 
   const sortedTasks = useMemo(() => {
     const uncompleted = tasks.filter((t) => !t.completed);
@@ -615,11 +655,11 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
     if (!newText.trim()) return;
     const tag = showNewTagInput ? newTagInput.trim() : newTaskTag || undefined;
     if (tag) ensureTag(tag);
-    onChange([{ id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, text: newText.trim(), completed: false, difficulty: newDiff, tag: tag || undefined }, ...tasks]);
-    setNewText(""); setNewDiff("easy"); setNewTaskTag(""); setNewTagInput(""); setShowNewTagInput(false);
+    onChange([{ id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, text: newText.trim(), completed: false, difficulty: newDiff, tag: tag || undefined, dueDate: newDueDate || undefined }, ...tasks]);
+    setNewText(""); setNewDiff("easy"); setNewTaskTag(""); setNewTagInput(""); setShowNewTagInput(false); setNewDueDate("");
     setShowAddInput(false);
     refreshTags();
-  }, [tasks, newText, newDiff, newTaskTag, newTagInput, showNewTagInput, onChange, refreshTags]);
+  }, [tasks, newText, newDiff, newTaskTag, newTagInput, showNewTagInput, newDueDate, onChange, refreshTags]);
 
   const handleSelectAll = useCallback(() => {
     const uc = displayTasks.filter((t) => !t.completed).map((t) => t.id);
@@ -685,6 +725,7 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
 
           {isDesktop && (
             <button
+              data-onboarding="add-task-btn"
               onClick={() => {
                 audioManager.playClick("press");
                 setShowAddInput(true);
@@ -820,6 +861,23 @@ export function TaskList({ tasks, onChange, onComplete, onUncomplete, onDeleteTa
                 }}
                 availableTags={availableTags}
                 onTagCreated={refreshTags}
+              />
+            </div>
+            {/* Due date row */}
+            <div style={{ background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`, padding: "6px 14px 10px" }}>
+              <div style={{ color: TEXT_MUTED, fontSize: 13, fontFamily: FONT_BODY, marginBottom: 5, display: "flex", alignItems: "center", gap: 4 }}>
+                <Calendar size={11} /> DUE DATE (OPTIONAL)
+              </div>
+              <input
+                type="date"
+                value={newDueDate}
+                onChange={e => setNewDueDate(e.target.value)}
+                style={{
+                  background: BG_CARD, border: `1px solid ${alpha(ACCENT_GOLD, "44")}`,
+                  color: TEXT_LIGHT, padding: "6px 10px", fontSize: 16,
+                  fontFamily: FONT_BODY, borderRadius: 5, outline: "none",
+                  colorScheme: "dark",
+                }}
               />
             </div>
           </div>

@@ -329,6 +329,9 @@ export function ChallengePanel({ playerLevel, monsterAlive, onTemporalStrike, on
           >
             <Timer size={13} /> ACTIVATE TEMPORAL CHALLENGE
           </button>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: TEXT_MUTED, marginTop: 4, textAlign: "center", padding: "0 16px 10px" }}>
+            Timed tasks · Damage 1.0x–1.5x based on remaining time
+          </div>
         </div>
       );
     }

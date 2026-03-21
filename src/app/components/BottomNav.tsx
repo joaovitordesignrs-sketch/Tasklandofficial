@@ -38,7 +38,7 @@ export function BottomNav() {
       {/* Spacer so content isn't hidden under the floating nav */}
       <div style={{ height: 88 }} />
 
-      <nav style={{
+      <nav data-onboarding="bottom-nav" style={{
         position:     "fixed",
         bottom:       16,
         left:         "50%",

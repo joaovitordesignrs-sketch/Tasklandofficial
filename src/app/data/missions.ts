@@ -11,6 +11,7 @@ export interface Task {
   completedAt?: number;
   damageDealt?: number;
   tag?:        string;   // ← NEW: client / project tag
+  dueDate?:    string;   // ISO date string YYYY-MM-DD
 }
 
 export interface Mission {

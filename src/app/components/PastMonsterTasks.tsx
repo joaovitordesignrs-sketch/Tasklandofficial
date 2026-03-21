@@ -83,7 +83,7 @@ function MonsterGroupCard({ group }: { group: MonsterGroup }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
             fontFamily: FONT_PIXEL, fontSize: 7,
-            color: "#8a9fba", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            color: "#8a9fba", whiteSpace: "normal", wordBreak: "break-word",
           }}>
             {group.monsterName}
           </div>

@@ -17,11 +17,12 @@ import { TaskCharacter }       from "./TaskCharacter";
 import { ClassPickerOverlay }  from "./ClassPickerOverlay";
 import { TYPE_INFO }           from "../data/missions";
 import { forcePush }           from "../data/syncService";
-import { getEconomy } from "../data/economy";
+import { getEconomy, SKIN_INFO } from "../data/economy";
 import { FloatingDamage }      from "./ui/FloatingDamage";
 import { useNotifications }    from "../hooks/useNotifications";
 import { RpgButton }           from "./ui/RpgButton";
 import { useTheme } from "../contexts/PreferencesContext";
+import { RpgTooltip } from "./ui/RpgTooltip";
 
 import imgAvatar  from "../../assets/profile_pic/profile_pic_warrior.png";
 import imgAvatarMago from "../../assets/profile_pic/profile_pic_mage.png";
@@ -200,7 +201,7 @@ function ArenaCard() {
       </div>
 
       {/* Battle area */}
-      <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", background: BG_DEEPEST }}>
+      <div data-onboarding="monster-area" style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", background: BG_DEEPEST }}>
         <img
           src={imgArenaBackground}
           alt=""
@@ -214,7 +215,7 @@ function ArenaCard() {
         </div>
 
         {/* Power badge */}
-        <div style={{
+        <div data-onboarding="power-badge" style={{
           position: "absolute", left: "4%", top: "6%", zIndex: 6,
           display: "flex", alignItems: "center", gap: 6,
           background: alpha(BG_DEEPEST, "e0"),
@@ -341,7 +342,7 @@ function CharacterCard() {
   const {
     BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED, ACCENT_GOLD,
     COLOR_DANGER, COLOR_MAGE, COLOR_LEGENDARY, COLOR_WARRIOR,
-    FONT_PIXEL, FONT_BODY, PX_MD, PX_SM,
+    TEXT_INACTIVE, TEXT_MUTED, FONT_PIXEL, FONT_BODY, PX_MD, PX_SM,
     VT_LG, VT_XS, RADIUS_SM, RADIUS_MD, RADIUS_XL,
     SP_SM, RANK_NOVATO, alpha,
   } = useTheme();
@@ -376,6 +377,9 @@ function CharacterCard() {
               </span>
             )}
           </div>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: TEXT_MUTED, marginTop: 2 }}>
+            Class: {activeSkin === "mage" ? "Mage" : "Warrior"} · Skin: {SKIN_INFO[activeSkin ?? "warrior_base"].label}
+          </div>
         </div>
       </div>
 
@@ -395,7 +399,9 @@ function CharacterCard() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 10px", background: `${cpData.rank.color}0C`, border: `1px solid ${cpData.rank.color}25`, borderRadius: RADIUS_MD }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <Zap size={14} color={cpData.rank.color} />
-          <span style={{ fontFamily: FONT_PIXEL, fontSize: 11, color: cpData.rank.color, textShadow: "1px 1px 0 #000", letterSpacing: 1 }}>POWER {cpData.combatPower}</span>
+          <RpgTooltip content="Power is total damage per task. Calculated as Base × MH × MN × MC × MI">
+            <span style={{ fontFamily: FONT_PIXEL, fontSize: 11, color: cpData.rank.color, textShadow: "1px 1px 0 #000", letterSpacing: 1 }}>POWER {cpData.combatPower}</span>
+          </RpgTooltip>
         </div>
         <span style={{ fontFamily: FONT_PIXEL, fontSize: VT_XS, color: cpData.rank.color, opacity: 0.85 }}>{cpData.rank.tier}</span>
       </div>
@@ -459,6 +465,7 @@ function NavMenu() {
 
   return (
     <div style={{ background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "b3")}`, borderRadius: RADIUS_XL, padding: "10px", flexShrink: 0 }}>
+      <div style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: TEXT_INACTIVE, letterSpacing: 1, marginBottom: 6, paddingLeft: 2 }}>MENU</div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
         {HOME_NAV_ITEMS.map(({ path, label, Icon, notif }) => {
           const active = pathname === path || (path !== "/" && pathname.startsWith(path));
@@ -475,6 +482,7 @@ function NavMenu() {
                 padding: "13px 14px",
                 borderRadius: RADIUS_LG - 1,
                 fontSize: PX_2XS,
+                boxShadow: active ? `inset 3px 0 0 ${ACCENT_GOLD}` : "none",
               }}
             >
               <Icon size={15} /> {label}
@@ -559,6 +567,7 @@ export function DesktopLeftColumn() {
       }}>
         <ArenaCard />
         <CharacterCard />
+        <div style={{ height: 1, background: "rgba(255,255,255,0.1)", margin: "0 12px" }} />
         <NavMenu />
       </div>
     </>

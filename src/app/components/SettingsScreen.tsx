@@ -10,7 +10,7 @@ import { useNavigate } from "react-router";
 import { PageShell } from "./ui/PageShell";
 import { PixelTabs, PixelTabDef } from "./ui/PixelTabs";
 import { RpgButton } from "./ui/RpgButton";
-import { getPreferences } from "../data/preferences";
+import { getPreferences, setPref, type Preferences } from "../data/preferences";
 import { useTheme } from "../contexts/PreferencesContext";
 import { useLanguage } from "../contexts/PreferencesContext";
 
@@ -251,10 +251,10 @@ function ProfileSettings() {
 function PreferencesSettings() {
   const t = useLanguage();
   const {
-    BG_CARD, ACCENT_GOLD, COLOR_SUCCESS,
-    TEXT_MUTED, TEXT_LIGHT,
+    BG_CARD, BG_DEEPEST, ACCENT_GOLD, COLOR_SUCCESS, COLOR_ORANGE,
+    TEXT_MUTED, TEXT_LIGHT, TEXT_INACTIVE,
     FONT_PIXEL, FONT_BODY, RADIUS_XL, RADIUS_MD,
-    BORDER_ELEVATED, alpha,
+    BORDER_ELEVATED, BORDER_SUBTLE, alpha,
   } = useTheme();
   const [prefs, setPrefs] = useState(getPreferences);
 
@@ -263,6 +263,12 @@ function PreferencesSettings() {
     window.addEventListener("rpg-prefs-changed", handler);
     return () => window.removeEventListener("rpg-prefs-changed", handler);
   }, []);
+
+  const toggles: { key: keyof Preferences; label: string; desc: string; color: string }[] = [
+    { key: "showDamageNumbers", label: "Damage Numbers", desc: "Show floating damage numbers on animations", color: COLOR_ORANGE },
+    { key: "habitStreakNotifs", label: "Streak Notifications", desc: "Notify when habits are on a streak", color: COLOR_SUCCESS },
+    { key: "compactMode", label: "Compact Mode", desc: "Reduce sprite and card sizes", color: ACCENT_GOLD },
+  ];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -278,6 +284,51 @@ function PreferencesSettings() {
           </span>
         </div>
 
+        {/* Language selector */}
+        <div>
+          <div style={{ fontFamily: FONT_PIXEL, fontSize: 8, color: TEXT_MUTED, marginBottom: 8, letterSpacing: 1 }}>
+            LANGUAGE
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            {([["pt", "Português"], ["en", "English"]] as const).map(([lang, label]) => (
+              <button
+                key={lang}
+                onClick={() => { setPref("language", lang); audioManager.playClick("tap"); }}
+                style={{
+                  flex: 1, padding: "10px 14px",
+                  background: prefs.language === lang ? `${COLOR_SUCCESS}18` : BG_DEEPEST,
+                  border: `1px solid ${prefs.language === lang ? COLOR_SUCCESS : BORDER_ELEVATED}`,
+                  color: prefs.language === lang ? COLOR_SUCCESS : TEXT_INACTIVE,
+                  fontFamily: FONT_BODY, fontSize: 18, cursor: "pointer",
+                  borderRadius: RADIUS_MD, transition: "all 0.15s",
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div style={{ height: 1, background: BORDER_SUBTLE }} />
+
+        {/* Toggles */}
+        {toggles.map(({ key, label, desc, color }) => (
+          <div key={key} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: FONT_PIXEL, fontSize: 8, color: color, letterSpacing: 0.5 }}>{label}</div>
+              <div style={{ fontFamily: FONT_BODY, fontSize: 15, color: TEXT_MUTED, marginTop: 2 }}>{desc}</div>
+            </div>
+            <RpgButton
+              variant="toggle"
+              color={COLOR_SUCCESS}
+              isOn={!!prefs[key]}
+              onClick={() => { setPref(key, !prefs[key] as any); audioManager.playClick("tap"); }}
+            >
+              {prefs[key] ? t("common.on") : t("common.off")}
+            </RpgButton>
+          </div>
+        ))}
       </div>
     </div>
   );
