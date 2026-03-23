@@ -14,7 +14,6 @@ import imgSlime    from "../../assets/monsters/monster_slime.png";
 import imgGoblin   from "../../assets/monsters/monster_goblin.png";
 import imgCogu     from "../../assets/monsters/monster_cogu.png";
 import imgSkeleton from "../../assets/monsters/monster_skeleton.png";
-import imgDarkLord from "../../assets/monsters/monster_darklord.png";
 import imgArena    from "../../assets/arena_background/arena_background_default.png";
 import TasklandLogotipo from "../../imports/TasklandLogotipo";
 
@@ -30,7 +29,7 @@ const CSS = `
   @keyframes taskCheck   { 0%{transform:scale(0)} 50%{transform:scale(1.3)} 100%{transform:scale(1)} }
   @keyframes taskStrike  { from{width:0} to{width:100%} }
   @keyframes victoryPop  { 0%{transform:scale(0.5);opacity:0} 50%{transform:scale(1.1);opacity:1} 100%{transform:scale(1);opacity:1} }
-  @keyframes monsterIn   { 0%{opacity:0;transform:translateY(20px)} 100%{opacity:1;transform:translateY(0)} }
+  @keyframes monsterIn   { 0%{opacity:0;transform:scaleX(-1) translateY(20px)} 100%{opacity:1;transform:scaleX(-1) translateY(0)} }
   @keyframes particleDrift {
     0%   { transform: translateY(0) rotate(45deg); opacity: 0; }
     10%  { opacity: 1; }
@@ -82,7 +81,6 @@ const MONSTERS: MonsterDef[] = [
   { name: "Procrastination Goblin",  sprite: imgGoblin,   type: "normal",   typeLabel: "NORMAL",   hp: 180, height: "48%", bottom: "15%" },
   { name: "Shroom of Distraction",   sprite: imgCogu,     type: "xp_bonus", typeLabel: "XP BONUS", hp: 140, height: "38%", bottom: "16%" },
   { name: "Skeleton of Burnout",     sprite: imgSkeleton, type: "strong",   typeLabel: "STRONG",   hp: 220, height: "58%", bottom: "12%" },
-  { name: "Dark Lord of Chaos",      sprite: imgDarkLord, type: "boss",     typeLabel: "BOSS",     hp: 300, height: "88%", bottom: "5%"  },
 ];
 
 const TYPE_COLORS: Record<string, string> = {
@@ -117,16 +115,6 @@ const TASK_SETS = [
     { text: "Optimize database queries",   diff: "hard",   xp: 75 },
     { text: "Set up monitoring alerts",    diff: "medium", xp: 50 },
     { text: "Code review teammate's PR",   diff: "medium", xp: 50 },
-  ],
-  [
-    { text: "Design system architecture",  diff: "hard",   xp: 75 },
-    { text: "Implement CI/CD pipeline",    diff: "hard",   xp: 75 },
-    { text: "Write integration tests",     diff: "hard",   xp: 75 },
-    { text: "Performance audit",           diff: "hard",   xp: 75 },
-    { text: "Launch production deploy",    diff: "hard",   xp: 75 },
-    { text: "Create post-mortem doc",      diff: "medium", xp: 50 },
-    { text: "Team retrospective notes",    diff: "medium", xp: 50 },
-    { text: "Celebrate the victory!",      diff: "easy",   xp: 30 },
   ],
 ];
 
@@ -1035,7 +1023,7 @@ function LandingInner() {
                   <div key={monsterIdx} style={{
                     position: "absolute", right: "8%", bottom: monster.bottom,
                     height: monster.height, zIndex: 2,
-                    transform: showDmg ? "translateX(-8px)" : "none",
+                    transform: showDmg ? "scaleX(-1) translateX(-8px)" : "scaleX(-1)",
                     transition: showDmg ? "transform 0.05s" : "transform 0.3s",
                     filter: defeated ? "brightness(0.3) grayscale(1)" : hpPercent < 25 ? "brightness(1.4) saturate(1.2)" : "brightness(0.88) saturate(0.82)",
                     imageRendering: "pixelated",
