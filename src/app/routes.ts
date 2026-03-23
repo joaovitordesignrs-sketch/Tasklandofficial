@@ -1,20 +1,23 @@
-import { createBrowserRouter } from "react-router";
-import HomeScreen           from "./components/HomeScreen";
-import ChallengesScreen     from "./components/ChallengesScreen";
-import ProfileScreen        from "./components/ProfileScreen";
-import HabitsScreen         from "./components/HabitsScreen";
-import AchievementsScreen   from "./components/AchievementsScreen";
-import SettingsScreen       from "./components/SettingsScreen";
-import FriendsScreen        from "./components/FriendsScreen";
-import FriendProfileScreen  from "./components/FriendProfileScreen";
-import ClassSelectionScreen from "./components/ClassSelectionScreen";
-import RootLayout           from "./components/RootLayout";
-import RedirectToProfile    from "./components/RedirectToProfile";
-import AdminWipeScreen      from "./components/AdminWipeScreen";
-import DesignSystemScreen   from "./components/DesignSystemScreen";
-import ShopScreen           from "./components/ShopScreen";
-import GameMasterScreen     from "./components/GameMasterScreen";
-import ProductPage          from "./components/ProductPage";
+import { createBrowserRouter, type RouteObject } from "react-router";
+import { lazy } from "react";
+import HomeScreen  from "./components/HomeScreen";
+import RootLayout  from "./components/RootLayout";
+
+// Lazy-loaded routes — split into separate chunks to reduce initial bundle
+const ChallengesScreen     = lazy(() => import("./components/ChallengesScreen"));
+const ProfileScreen        = lazy(() => import("./components/ProfileScreen"));
+const HabitsScreen         = lazy(() => import("./components/HabitsScreen"));
+const AchievementsScreen   = lazy(() => import("./components/AchievementsScreen"));
+const SettingsScreen       = lazy(() => import("./components/SettingsScreen"));
+const FriendsScreen        = lazy(() => import("./components/FriendsScreen"));
+const FriendProfileScreen  = lazy(() => import("./components/FriendProfileScreen"));
+const ClassSelectionScreen = lazy(() => import("./components/ClassSelectionScreen"));
+const RedirectToProfile    = lazy(() => import("./components/RedirectToProfile"));
+const AdminWipeScreen      = lazy(() => import("./components/AdminWipeScreen"));
+const DesignSystemScreen   = lazy(() => import("./components/DesignSystemScreen"));
+const ShopScreen           = lazy(() => import("./components/ShopScreen"));
+const GameMasterScreen     = lazy(() => import("./components/GameMasterScreen"));
+const ProductPage          = lazy(() => import("./components/ProductPage"));
 
 export const router = createBrowserRouter([
   {
@@ -49,4 +52,4 @@ export const router = createBrowserRouter([
       { path: "renascer",         Component: RedirectToProfile  },
     ],
   },
-]);
+] satisfies RouteObject[]);

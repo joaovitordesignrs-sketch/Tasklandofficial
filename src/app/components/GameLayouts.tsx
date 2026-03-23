@@ -12,6 +12,7 @@
  * By isolating layouts here, both this file and useCampaign.tsx share the
  * same module instance during an HMR cycle, keeping context identity stable.
  */
+import { Suspense } from "react";
 import { Skull } from "lucide-react";
 import { Outlet } from "react-router";
 import { BottomNav }         from "./BottomNav";
@@ -77,7 +78,7 @@ export function DesktopLayout() {
             flexDirection: "column",
             borderRadius: 12,
           }}>
-            <Outlet />
+            <Suspense><Outlet /></Suspense>
           </div>
         </div>
       </div>
@@ -123,7 +124,7 @@ export function MobileLayout() {
           display: "flex",
           flexDirection: "column",
         }}>
-          <Outlet />
+          <Suspense><Outlet /></Suspense>
         </div>
         <BottomNav />
       </div>
