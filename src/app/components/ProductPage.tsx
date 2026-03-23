@@ -867,8 +867,8 @@ function LandingInner() {
           position: "relative", zIndex: 1,
           display: "flex", flexDirection: "column", alignItems: "center",
           textAlign: "center",
-          padding: "clamp(16px, 3vh, 32px) 24px 0",
-          gap: 12,
+          padding: "clamp(32px, 6vh, 60px) 24px 0",
+          gap: 40,
           animation: "heroReveal 0.8s cubic-bezier(0.22,1,0.36,1) both",
           minHeight: "calc(100dvh - 52px)",
         }}>
