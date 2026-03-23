@@ -44,6 +44,7 @@ const CSS = `
   @media(max-width:700px) {
     .pp-row { flex-direction: column !important; }
     .pp-tasklist { width: 100% !important; }
+    .pp-nav { display: none !important; }
   }
 `;
 
@@ -371,6 +372,69 @@ function FeatureCard({ children, label, labelColor, icon, delay = 0 }: {
 }
 
 // ── Features section ────────────────────────────────────────────────────────
+// ── SVG area chart for habits (no Recharts dependency) ──────────────────────
+const CHART_BASELINE = [2, 3, 1, 4, 3, 5, 4, 3, 5, 4, 2, 3, 4, 5];
+
+function HabitChart({ checkedCount, color }: { checkedCount: number; color: string }) {
+  const { BG_DEEPEST, BORDER_SUBTLE, TEXT_INACTIVE, FONT_BODY } = useTheme();
+  const max = 5;
+  const data = useMemo(() => {
+    const d = [...CHART_BASELINE];
+    // Last few values react to current check-in count
+    d[d.length - 1] = Math.min(max, checkedCount);
+    d[d.length - 2] = Math.min(max, Math.max(checkedCount - 1, d[d.length - 2]));
+    return d;
+  }, [checkedCount]);
+
+  const w = 280, h = 100, px = 8, py = 8;
+  const innerW = w - px * 2, innerH = h - py * 2;
+  const points = data.map((v, i) => {
+    const x = px + (i / (data.length - 1)) * innerW;
+    const y = py + innerH - (v / max) * innerH;
+    return `${x},${y}`;
+  });
+  const line = points.join(" ");
+  const area = `${px},${py + innerH} ${line} ${px + innerW},${py + innerH}`;
+
+  const labels = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date(); d.setDate(d.getDate() - (13 - i));
+    return `${d.getMonth() + 1}/${d.getDate()}`;
+  });
+
+  return (
+    <div style={{ padding: "12px 12px 6px", background: BG_DEEPEST, borderRadius: 8, margin: "0 10px 10px" }}>
+      <svg viewBox={`0 0 ${w} ${h}`} width="100%" style={{ display: "block" }}>
+        <defs>
+          <linearGradient id="hcGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity={0.35} />
+            <stop offset="100%" stopColor={color} stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        {/* Grid lines */}
+        {[0, 1, 2, 3, 4, 5].map(v => {
+          const y = py + innerH - (v / max) * innerH;
+          return <line key={v} x1={px} x2={px + innerW} y1={y} y2={y} stroke={BORDER_SUBTLE} strokeWidth={0.5} strokeDasharray="3 3" />;
+        })}
+        {/* Area fill */}
+        <polygon points={area} fill="url(#hcGrad)" style={{ transition: "all 0.6s ease" }} />
+        {/* Line */}
+        <polyline points={line} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ transition: "all 0.6s ease" }} />
+        {/* Dots */}
+        {data.map((v, i) => {
+          const x = px + (i / (data.length - 1)) * innerW;
+          const y = py + innerH - (v / max) * innerH;
+          return <circle key={i} cx={x} cy={y} r={i === data.length - 1 ? 4 : 2.5} fill={color} style={{ transition: "all 0.6s ease" }} />;
+        })}
+      </svg>
+      <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 4px 0" }}>
+        <span style={{ fontFamily: FONT_BODY, fontSize: 10, color: TEXT_INACTIVE }}>{labels[0]}</span>
+        <span style={{ fontFamily: FONT_BODY, fontSize: 10, color: TEXT_INACTIVE }}>{labels[6]}</span>
+        <span style={{ fontFamily: FONT_BODY, fontSize: 10, color: TEXT_INACTIVE }}>{labels[13]}</span>
+      </div>
+    </div>
+  );
+}
+
 function FeaturesSection() {
   const {
     BG_CARD, BG_DEEPEST, BORDER_SUBTLE, BORDER_ELEVATED,
@@ -383,14 +447,21 @@ function FeaturesSection() {
 
   const [habitTick, setHabitTick] = useState(0);
 
-  // Auto-toggle habits for demo
   useEffect(() => {
     const t = setInterval(() => setHabitTick(c => c + 1), 2000);
     return () => clearInterval(t);
   }, []);
 
+  // How many habits are checked (cycles through them)
+  const checkedIndices = useMemo(() => {
+    const base = DEMO_HABITS.map((h, i) => h.checked ? i : -1).filter(i => i >= 0);
+    const cycleIdx = habitTick % DEMO_HABITS.length;
+    const extra = DEMO_HABITS[cycleIdx]?.checked ? -1 : cycleIdx;
+    return extra >= 0 ? [...base, extra] : base;
+  }, [habitTick]);
+
   return (
-    <section style={{
+    <section id="pp-features" style={{
       position: "relative", zIndex: 1,
       padding: "60px 24px",
       display: "flex", flexDirection: "column", alignItems: "center", gap: 40,
@@ -412,13 +483,8 @@ function FeaturesSection() {
         </p>
       </div>
 
-      {/* Feature cards */}
-      <div className="pp-row" style={{
-        display: "flex", gap: 16, width: "100%", maxWidth: 920,
-        alignItems: "stretch",
-      }}>
-
-        {/* ── TASKS CARD ── */}
+      {/* ── ROW 1: TASKS (full width) ── */}
+      <div style={{ width: "100%", maxWidth: 920 }}>
         <FeatureCard
           label="CAMPAIGN TASKS"
           labelColor={ACCENT_GOLD}
@@ -466,7 +532,6 @@ function FeaturesSection() {
               );
             })}
           </div>
-          {/* Damage summary */}
           <div style={{
             marginTop: "auto",
             borderTop: `1px solid ${BORDER_SUBTLE}`, padding: "8px 14px",
@@ -480,17 +545,23 @@ function FeaturesSection() {
             </span>
           </div>
         </FeatureCard>
+      </div>
 
-        {/* ── HABITS CARD ── */}
+      {/* ── ROW 2: HABITS + CHART (side by side) ── */}
+      <div className="pp-row" style={{
+        display: "flex", gap: 16, width: "100%", maxWidth: 920,
+        alignItems: "stretch",
+      }}>
+        {/* Habits list */}
         <FeatureCard
           label="DAILY HABITS"
           labelColor={COLOR_SUCCESS}
           icon={<Flame size={12} color={COLOR_SUCCESS} />}
-          delay={0.15}
+          delay={0}
         >
           <div style={{ padding: "8px 10px", display: "flex", flexDirection: "column", gap: 5 }}>
             {DEMO_HABITS.map((habit, i) => {
-              const isChecked = habit.checked || (habitTick % DEMO_HABITS.length === i && !habit.checked);
+              const isChecked = checkedIndices.includes(i);
               const HIcon = habit.icon;
               const streakColor = STREAK_COLOR(habit.streak);
               return (
@@ -502,7 +573,6 @@ function FeaturesSection() {
                   borderRadius: 6,
                   transition: "all 0.3s ease",
                 }}>
-                  {/* Check button */}
                   <div style={{
                     width: 32, height: 32, flexShrink: 0, borderRadius: 6,
                     background: isChecked ? COLOR_SUCCESS : BG_DEEPEST,
@@ -515,7 +585,6 @@ function FeaturesSection() {
                       : <HIcon size={14} color={TEXT_INACTIVE} />
                     }
                   </div>
-                  {/* Info */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{
                       fontFamily: FONT_BODY, fontSize: 15,
@@ -545,7 +614,6 @@ function FeaturesSection() {
               );
             })}
           </div>
-          {/* Power bonus footer */}
           <div style={{
             marginTop: "auto",
             borderTop: `1px solid ${BORDER_SUBTLE}`, padding: "8px 14px",
@@ -559,9 +627,42 @@ function FeaturesSection() {
             </span>
           </div>
         </FeatureCard>
+
+        {/* Chart card */}
+        <FeatureCard
+          label="COMPLETION · 14 DAYS"
+          labelColor={COLOR_SUCCESS}
+          icon={<Zap size={12} color={COLOR_SUCCESS} />}
+          delay={0.15}
+        >
+          <div style={{ padding: "12px 0 0", flex: 1, display: "flex", flexDirection: "column" }}>
+            <div style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: COLOR_SUCCESS, letterSpacing: 1, padding: "0 14px 8px" }}>
+              HABITS COMPLETED · LAST 14 DAYS
+            </div>
+            <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
+              <HabitChart checkedCount={checkedIndices.length} color={COLOR_SUCCESS} />
+            </div>
+            {/* Stats row */}
+            <div style={{
+              borderTop: `1px solid ${BORDER_SUBTLE}`, padding: "8px 14px",
+              display: "flex", gap: 16,
+            }}>
+              {[
+                { label: "TODAY", val: `${checkedIndices.length}/5`, color: COLOR_SUCCESS },
+                { label: "BEST STREAK", val: "67d", color: "#FF6B35" },
+                { label: "AVG/DAY", val: "3.4", color: ACCENT_GOLD },
+              ].map(s => (
+                <div key={s.label} style={{ flex: 1, textAlign: "center" }}>
+                  <div style={{ fontFamily: FONT_PIXEL, fontSize: 5, color: TEXT_INACTIVE, letterSpacing: 0.5 }}>{s.label}</div>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 18, color: s.color, marginTop: 2 }}>{s.val}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </FeatureCard>
       </div>
 
-      {/* ── FRIENDS CARD — full width ── */}
+      {/* ── ROW 3: FRIENDS (full width) ── */}
       <div style={{ width: "100%", maxWidth: 920 }}>
         <FeatureCard
           label="FRIENDS & LEADERBOARD"
@@ -578,14 +679,12 @@ function FeaturesSection() {
                 border: `1px solid ${i === 0 ? `${ACCENT_GOLD}33` : BORDER_SUBTLE}`,
                 borderRadius: 6,
               }}>
-                {/* Rank position */}
                 <span style={{
                   fontFamily: FONT_PIXEL, fontSize: 9, color: i < 3 ? ACCENT_GOLD : TEXT_INACTIVE,
                   width: 20, textAlign: "center", flexShrink: 0,
                 }}>
                   {i + 1}
                 </span>
-                {/* Avatar placeholder */}
                 <div style={{
                   width: 32, height: 32, flexShrink: 0, borderRadius: 8,
                   background: BG_DEEPEST, border: `1px solid ${BORDER_ELEVATED}`,
@@ -595,33 +694,24 @@ function FeaturesSection() {
                     {f.name.charAt(0)}
                   </span>
                 </div>
-                {/* Name + rank */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     <span style={{ fontFamily: FONT_BODY, fontSize: 15, color: TEXT_LIGHT }}>
                       {f.name}
                     </span>
-                    {/* Online indicator */}
                     <div style={{
                       width: 6, height: 6, borderRadius: "50%",
                       background: f.status === "online" ? COLOR_SUCCESS : TEXT_INACTIVE,
                     }} />
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
-                    <span style={{ fontFamily: FONT_PIXEL, fontSize: 6, color: COLOR_LEGENDARY }}>
-                      LVL {f.level}
-                    </span>
-                    <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: f.rankColor }}>
-                      {f.rank}
-                    </span>
+                    <span style={{ fontFamily: FONT_PIXEL, fontSize: 6, color: COLOR_LEGENDARY }}>LVL {f.level}</span>
+                    <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: f.rankColor }}>{f.rank}</span>
                   </div>
                 </div>
-                {/* Streak */}
                 <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
                   <Flame size={10} color={STREAK_COLOR(f.streak)} />
-                  <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: STREAK_COLOR(f.streak) }}>
-                    {f.streak}d
-                  </span>
+                  <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: STREAK_COLOR(f.streak) }}>{f.streak}d</span>
                 </div>
               </div>
             ))}
@@ -787,24 +877,72 @@ function LandingInner() {
           }} />
         ))}
 
+        {/* ═══ STICKY HEADER ═══ */}
+        <header style={{
+          position: "sticky", top: 0, zIndex: 50,
+          display: "flex", alignItems: "center",
+          padding: "10px 24px",
+          background: alpha(BG_DEEPEST, "e8"),
+          backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+          borderBottom: `1px solid ${alpha(BORDER_ELEVATED, "44")}`,
+        }}>
+          {/* Logo left */}
+          <div style={{ width: 100, aspectRatio: "725 / 378", flexShrink: 0 }}>
+            <TasklandLogotipo />
+          </div>
+
+          {/* Spacer */}
+          <div style={{ flex: 1 }} />
+
+          {/* Nav links */}
+          <nav className="pp-nav" style={{ display: "flex", alignItems: "center", gap: 20, marginRight: 16 }}>
+            {[
+              { label: "Arena", target: "pp-hero" },
+              { label: "Tasks", target: "pp-features" },
+              { label: "Habits", target: "pp-features" },
+              { label: "Friends", target: "pp-features" },
+            ].map(link => (
+              <button
+                key={link.label}
+                onClick={() => document.getElementById(link.target)?.scrollIntoView({ behavior: "smooth" })}
+                style={{
+                  background: "none", border: "none", cursor: "pointer",
+                  fontFamily: FONT_BODY, fontSize: 15, color: TEXT_MUTED,
+                  padding: "4px 0", transition: "color 0.15s",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = TEXT_LIGHT; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = TEXT_MUTED; }}
+              >
+                {link.label}
+              </button>
+            ))}
+          </nav>
+
+          {/* CTA */}
+          <RpgButton
+            color={ACCENT_GOLD}
+            onClick={() => navigate("/")}
+            small
+            style={{ fontSize: 7, letterSpacing: 1, padding: "7px 16px" }}
+          >
+            <Swords size={10} /> START
+          </RpgButton>
+        </header>
+
         {/* ═══ HERO + DEMO — all above the fold ═══ */}
-        <section style={{
+        <section id="pp-hero" style={{
           position: "relative", zIndex: 1,
           display: "flex", flexDirection: "column", alignItems: "center",
           textAlign: "center",
-          padding: "clamp(20px, 4vh, 40px) 24px 0",
+          padding: "clamp(16px, 3vh, 32px) 24px 0",
           gap: 12,
           animation: "heroReveal 0.8s cubic-bezier(0.22,1,0.36,1) both",
-          minHeight: "100dvh",
+          minHeight: "calc(100dvh - 52px)",
         }}>
-          {/* Top row: logo + headline + subtitle + CTA — compact */}
+          {/* Headline + subtitle + CTA — compact */}
           <div style={{
             display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
           }}>
-            {/* Logo — smaller */}
-            <div style={{ width: "min(180px, 40vw)", aspectRatio: "725 / 378", animation: "logoIn 0.6s ease both" }}>
-              <TasklandLogotipo />
-            </div>
 
             {/* Headline — tighter */}
             <h1 style={{
