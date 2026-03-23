@@ -14,7 +14,6 @@ import { track } from "../hooks/analytics";
 import imgSlime    from "../../assets/monsters/monster_slime.webp";
 import imgGoblin   from "../../assets/monsters/monster_goblin.webp";
 import imgCogu     from "../../assets/monsters/monster_cogu.webp";
-import imgSkeleton from "../../assets/monsters/monster_skeleton.webp";
 import imgArena    from "../../assets/arena_background/arena_background_default.webp";
 import TasklandLogotipo from "../../imports/TasklandLogotipo";
 
@@ -81,7 +80,6 @@ const MONSTERS: MonsterDef[] = [
   { name: "Slime of Laziness",       sprite: imgSlime,    type: "weak",     typeLabel: "WEAK",     hp: 110, height: "30%", bottom: "18%" },
   { name: "Procrastination Goblin",  sprite: imgGoblin,   type: "normal",   typeLabel: "NORMAL",   hp: 180, height: "48%", bottom: "15%" },
   { name: "Shroom of Distraction",   sprite: imgCogu,     type: "xp_bonus", typeLabel: "XP BONUS", hp: 140, height: "38%", bottom: "16%" },
-  { name: "Skeleton of Burnout",     sprite: imgSkeleton, type: "strong",   typeLabel: "STRONG",   hp: 220, height: "35%", bottom: "15%" },
 ];
 
 const TYPE_COLORS: Record<string, string> = {
@@ -108,14 +106,6 @@ const TASK_SETS = [
     { text: "Practice typing for 15 min",  diff: "easy",   xp: 30 },
     { text: "Complete online lesson",      diff: "medium", xp: 50 },
     { text: "Summarize key takeaways",     diff: "medium", xp: 50 },
-  ],
-  [
-    { text: "Refactor auth module",        diff: "hard",   xp: 75 },
-    { text: "Deploy staging build",        diff: "medium", xp: 50 },
-    { text: "Write API documentation",     diff: "hard",   xp: 75 },
-    { text: "Optimize database queries",   diff: "hard",   xp: 75 },
-    { text: "Set up monitoring alerts",    diff: "medium", xp: 50 },
-    { text: "Code review teammate's PR",   diff: "medium", xp: 50 },
   ],
 ];
 
