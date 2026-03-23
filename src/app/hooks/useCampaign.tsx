@@ -135,7 +135,7 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
   const [focusSelectedCount,       setFocusSelectedCount]       = useState(0);
   const [damageNumbers,            setDamageNumbers]            = useState<DamageNumber[]>([]);
 
-  const playHit = useSound("https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/sound_hit.mp3");
+  const playHit = useSound("/audio/sound_hit.mp3");
 
   // ── shared monster-defeat sequence ─────────────────────────────────────────
   const processVictory = useCallback((updatedMission: Mission) => {

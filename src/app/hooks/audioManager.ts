@@ -16,10 +16,10 @@
 const STORAGE_KEY = "rpg_audio_settings";
 
 const PLAYLIST = [
-  "https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/songtheme_1.mp3",
-  "https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/songtheme_2.mp3",
-  "https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/songtheme_3.mp3",
-  "https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/songtheme_4.mp3",
+  "/audio/songtheme_1.mp3",
+  "/audio/songtheme_2.mp3",
+  "/audio/songtheme_3.mp3",
+  "/audio/songtheme_4.mp3",
 ];
 
 const TRACK_NAMES = ["Theme I", "Theme II", "Theme III", "Theme IV"];
