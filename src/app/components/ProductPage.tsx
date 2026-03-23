@@ -351,16 +351,16 @@ function LandingInner() {
 
           {/* Headline */}
           <h1 style={{
-            fontFamily: FONT_BODY,
-            fontSize: "clamp(28px, 6vw, 56px)",
-            fontWeight: 700,
+            fontFamily: FONT_PIXEL,
+            fontSize: "clamp(14px, 3.5vw, 28px)",
             color: TEXT_LIGHT,
-            margin: 0, lineHeight: 1.15,
-            letterSpacing: -0.5,
+            margin: 0, lineHeight: 1.8,
+            letterSpacing: 2,
+            textShadow: "2px 2px 0 #000",
             animation: "fadeUp 0.5s 0.1s ease both",
           }}>
-            Slay the monster<br />
-            <span style={{ color: ACCENT_GOLD }}>of procrastination.</span>
+            SLAY THE MONSTER<br />
+            <span style={{ color: ACCENT_GOLD }}>OF PROCRASTINATION</span>
           </h1>
 
           {/* Subtitle */}
