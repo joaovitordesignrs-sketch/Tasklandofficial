@@ -1,6 +1,5 @@
 /**
- * ProductPage — Direct, punchy landing page for Taskland.
- * Shows an animated battle scene (Rive warrior) + demo task list with a single CTA.
+ * ProductPage — Landing page replicating the real in-game arena + demo task list.
  */
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router";
@@ -16,24 +15,25 @@ const WARRIOR_RIV = "https://raw.githubusercontent.com/joaovitordesignrs-sketch/
 const RIVE_LAYOUT = new Layout({ fit: Fit.Contain, alignment: Alignment.BottomCenter });
 
 const CSS = `
-  @keyframes monsterIdle { 0%,100%{transform:scaleX(-1) translateY(0)} 50%{transform:scaleX(-1) translateY(-4px)} }
-  @keyframes slashIn     { 0%{opacity:0;transform:translate(-50%,-50%) scale(0.3) rotate(-15deg)} 40%{opacity:1;transform:translate(-50%,-50%) scale(1.2) rotate(5deg)} 100%{opacity:0;transform:translate(-50%,-50%) scale(0.8) rotate(0deg)} }
-  @keyframes monsterHit  { 0%{filter:brightness(1)} 30%{filter:brightness(3)} 100%{filter:brightness(1)} }
-  @keyframes fadeUp      { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
   @keyframes dmgFloat    { 0%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(-30px)} }
+  @keyframes fadeUp      { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
   @keyframes ctaPulse    { 0%,100%{box-shadow:0 0 0 0 rgba(235,176,55,0.5)} 50%{box-shadow:0 0 0 12px rgba(235,176,55,0)} }
   @keyframes blink       { 0%,49%{opacity:1} 50%,100%{opacity:0} }
   @keyframes logoIn      { 0%{opacity:0;transform:scale(0.9)} 100%{opacity:1;transform:scale(1)} }
   @keyframes taskCheck   { 0%{transform:scale(0)} 50%{transform:scale(1.3)} 100%{transform:scale(1)} }
   @keyframes taskStrike  { from{width:0} to{width:100%} }
+  @media(max-width:700px) {
+    .pp-row { flex-direction: column !important; }
+    .pp-tasklist { width: 100% !important; }
+  }
 `;
 
 const DEMO_TASKS = [
-  { text: "Estudar React por 30 min",     diff: "medium", xp: 50  },
-  { text: "Responder emails pendentes",   diff: "easy",   xp: 30  },
-  { text: "Revisar pull request",          diff: "hard",   xp: 75  },
-  { text: "Planejar sprint da semana",     diff: "medium", xp: 50  },
-  { text: "Organizar notas do projeto",    diff: "easy",   xp: 30  },
+  { text: "Estudar React por 30 min",   diff: "medium", xp: 50 },
+  { text: "Responder emails pendentes",  diff: "easy",   xp: 30 },
+  { text: "Revisar pull request",        diff: "hard",   xp: 75 },
+  { text: "Planejar sprint da semana",   diff: "medium", xp: 50 },
+  { text: "Organizar notas do projeto",  diff: "easy",   xp: 30 },
 ];
 
 const DIFF_STYLES: Record<string, { color: string; icon: typeof Shield }> = {
@@ -42,17 +42,16 @@ const DIFF_STYLES: Record<string, { color: string; icon: typeof Shield }> = {
   hard:   { color: "#e63946", icon: Flame },
 };
 
-// ── Rive warrior with periodic attacks ──────────────────────────────────────
-function BattleWarrior() {
+const MONSTER_MAX_HP = 180;
+
+// ── Rive warrior ────────────────────────────────────────────────────────────
+function DemoWarrior({ onAttack }: { onAttack: () => void }) {
   const [riveReady, setRiveReady] = useState(false);
   const attackInputRef = useRef<any>(null);
   const onLoad = useCallback(() => setRiveReady(true), []);
 
   const { RiveComponent, rive } = useRive({
-    src: WARRIOR_RIV,
-    autoplay: true,
-    layout: RIVE_LAYOUT,
-    onLoad,
+    src: WARRIOR_RIV, autoplay: true, layout: RIVE_LAYOUT, onLoad,
   });
 
   useEffect(() => {
@@ -63,9 +62,8 @@ function BattleWarrior() {
       if (anims.length > 0) try { rive.play(anims[0]); } catch (_) {}
       return;
     }
-    const smName = sms[0];
-    try { rive.play(smName); } catch (_) {}
-    const inputs: any[] = (rive as any).stateMachineInputs?.(smName) ?? [];
+    try { rive.play(sms[0]); } catch (_) {}
+    const inputs: any[] = (rive as any).stateMachineInputs?.(sms[0]) ?? [];
     attackInputRef.current =
       inputs.find((i: any) => /attack/i.test(i.name)) ??
       inputs.find((i: any) => /trigger/i.test(i.name)) ??
@@ -77,22 +75,21 @@ function BattleWarrior() {
     const fire = () => {
       const input = attackInputRef.current;
       if (!input) return;
-      if (typeof input.fire === "function") { input.fire(); return; }
-      input.value = true;
-      setTimeout(() => { input.value = false; }, 70);
+      if (typeof input.fire === "function") { input.fire(); }
+      else { input.value = true; setTimeout(() => { input.value = false; }, 70); }
+      onAttack();
     };
     const first = setTimeout(fire, 1400);
     const interval = setInterval(fire, 3000);
     return () => { clearTimeout(first); clearInterval(interval); };
-  }, [riveReady]);
+  }, [riveReady, onAttack]);
 
   return (
     <div style={{
-      position: "absolute", left: "0%", bottom: "0%",
-      width: "55%", height: "95%", zIndex: 3,
+      position: "absolute", left: "4%", bottom: "4%", height: "85%", zIndex: 4,
       opacity: riveReady ? 1 : 0, transition: "opacity 0.4s",
     }}>
-      <RiveComponent style={{ width: "100%", height: "100%", imageRendering: "pixelated" }} />
+      <RiveComponent style={{ width: 360, height: "100%", imageRendering: "pixelated" }} />
     </div>
   );
 }
@@ -104,46 +101,49 @@ function DemoTaskList({ completedCount }: { completedCount: number }) {
     ACCENT_GOLD, COLOR_SUCCESS, COLOR_DANGER,
     TEXT_MUTED, TEXT_INACTIVE, TEXT_LIGHT,
     FONT_PIXEL, FONT_BODY, alpha,
+    RADIUS_SM, RADIUS_XL, SP_SM,
+    PX_2XS, PX_SM, VT_SM, VT_XS,
   } = useTheme();
 
   return (
-    <div style={{
+    <div className="pp-tasklist" style={{
+      width: 280, flexShrink: 0,
       background: alpha(BG_CARD, "e8"),
-      border: `1px solid ${BORDER_ELEVATED}`,
-      borderRadius: 10,
+      border: `1px solid ${alpha(BORDER_ELEVATED, "b3")}`,
+      borderRadius: RADIUS_XL,
       overflow: "hidden",
-      backdropFilter: "blur(8px)",
-      WebkitBackdropFilter: "blur(8px)",
       animation: "fadeUp 0.5s 0.25s ease both",
+      alignSelf: "stretch",
+      display: "flex", flexDirection: "column",
     }}>
-      {/* Header */}
+      {/* Header — matches real toolbar */}
       <div style={{
         background: BG_DEEPEST,
         borderBottom: `1px solid ${BORDER_SUBTLE}`,
-        padding: "8px 12px",
-        display: "flex", alignItems: "center", gap: 8,
+        padding: "6px 14px",
+        display: "flex", alignItems: "center", gap: SP_SM,
       }}>
         <div style={{
-          width: 20, height: 20,
-          background: `${ACCENT_GOLD}22`, border: `1px solid ${ACCENT_GOLD}55`,
-          borderRadius: 4,
+          flexShrink: 0, minWidth: 24, height: 24,
+          background: BG_CARD, border: `1px solid ${BORDER_ELEVATED}`,
+          borderRadius: RADIUS_SM + 1,
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
-          <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: 7 }}>#1</span>
+          <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: PX_2XS, lineHeight: 1 }}>#1</span>
         </div>
         <span style={{
-          fontFamily: FONT_PIXEL, color: TEXT_LIGHT, fontSize: 8,
+          fontFamily: FONT_PIXEL, color: TEXT_LIGHT, fontSize: PX_SM,
           textShadow: "1px 1px 0 #000", flex: 1,
         }}>
-          MISSÃO DO DIA
+          TAREFAS
         </span>
-        <span style={{ fontFamily: FONT_BODY, color: TEXT_MUTED, fontSize: 12 }}>
-          {completedCount}/{DEMO_TASKS.length}
+        <span style={{ fontFamily: FONT_BODY, color: TEXT_MUTED, fontSize: VT_SM }}>
+          {Math.min(completedCount, DEMO_TASKS.length)}/{DEMO_TASKS.length}
         </span>
       </div>
 
       {/* Tasks */}
-      <div style={{ padding: "6px 8px", display: "flex", flexDirection: "column", gap: 4 }}>
+      <div style={{ padding: "6px 8px", display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
         {DEMO_TASKS.map((task, i) => {
           const done = i < completedCount;
           const ds = DIFF_STYLES[task.diff];
@@ -157,10 +157,8 @@ function DemoTaskList({ completedCount }: { completedCount: number }) {
               borderRadius: 6,
               transition: "all 0.3s ease",
             }}>
-              {/* Checkbox */}
               <div style={{
-                width: 18, height: 18, flexShrink: 0,
-                borderRadius: 4,
+                width: 18, height: 18, flexShrink: 0, borderRadius: 4,
                 border: `2px solid ${done ? COLOR_SUCCESS : BORDER_ELEVATED}`,
                 background: done ? COLOR_SUCCESS : "transparent",
                 display: "flex", alignItems: "center", justifyContent: "center",
@@ -169,12 +167,9 @@ function DemoTaskList({ completedCount }: { completedCount: number }) {
                 {done && <Check size={12} color={BG_DEEPEST} strokeWidth={3}
                   style={{ animation: "taskCheck 0.3s ease" }} />}
               </div>
-
-              {/* Text */}
               <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
                 <span style={{
-                  fontFamily: FONT_BODY,
-                  fontSize: 14,
+                  fontFamily: FONT_BODY, fontSize: 14,
                   color: done ? TEXT_INACTIVE : TEXT_LIGHT,
                   transition: "color 0.3s",
                 }}>
@@ -186,16 +181,12 @@ function DemoTaskList({ completedCount }: { completedCount: number }) {
                   animation: "taskStrike 0.3s ease forwards",
                 }} />}
               </div>
-
-              {/* Difficulty + XP */}
               <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
                 <DiffIcon size={11} color={done ? TEXT_INACTIVE : ds.color} />
                 <span style={{
                   fontFamily: FONT_PIXEL, fontSize: 6,
                   color: done ? TEXT_INACTIVE : ACCENT_GOLD,
-                }}>
-                  +{task.xp}XP
-                </span>
+                }}>+{task.xp}XP</span>
               </div>
             </div>
           );
@@ -211,15 +202,13 @@ function DemoTaskList({ completedCount }: { completedCount: number }) {
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <Zap size={12} color={ACCENT_GOLD} />
-            <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: ACCENT_GOLD }}>
-              DANO TOTAL
-            </span>
+            <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: ACCENT_GOLD }}>DANO TOTAL</span>
           </div>
           <span style={{
-            fontFamily: FONT_PIXEL, fontSize: 9, color: COLOR_DANGER,
+            fontFamily: FONT_PIXEL, fontSize: VT_XS, color: COLOR_DANGER,
             textShadow: "1px 1px 0 #000",
           }}>
-            -{completedCount * 35} HP
+            -{Math.min(completedCount, DEMO_TASKS.length) * 35} HP
           </span>
         </div>
       )}
@@ -227,31 +216,33 @@ function DemoTaskList({ completedCount }: { completedCount: number }) {
   );
 }
 
-// ── Main landing inner ──────────────────────────────────────────────────────
+// ── Main inner ──────────────────────────────────────────────────────────────
 function LandingInner() {
   const navigate = useNavigate();
   const {
-    BG_DEEPEST, BORDER_ELEVATED,
-    ACCENT_GOLD, COLOR_DANGER, COLOR_WARNING,
-    TEXT_MUTED, TEXT_INACTIVE,
+    BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
+    ACCENT_GOLD, COLOR_DANGER, COLOR_WARNING, COLOR_SUCCESS,
+    TEXT_MUTED, TEXT_INACTIVE, TEXT_LIGHT,
     FONT_PIXEL, FONT_BODY, alpha,
+    RADIUS_SM, RADIUS_LG, RADIUS_XL,
+    PX_2XS, PX_SM, PX_MD, VT_SM, VT_XS, SP_SM,
   } = useTheme();
 
-  const [showSlash, setShowSlash] = useState(false);
   const [hitCount, setHitCount] = useState(0);
+  const [showDmg, setShowDmg] = useState(false);
   const [dmgVal, setDmgVal] = useState(0);
 
-  useEffect(() => {
-    const triggerSlash = () => {
-      const dmg = Math.floor(Math.random() * 30 + 25);
-      setDmgVal(dmg);
-      setShowSlash(true);
-      setHitCount(c => c + 1);
-      setTimeout(() => setShowSlash(false), 600);
-    };
-    const first = setTimeout(triggerSlash, 1400);
-    const interval = setInterval(triggerSlash, 3000);
-    return () => { clearTimeout(first); clearInterval(interval); };
+  const hpPercent = Math.max(0, ((MONSTER_MAX_HP - hitCount * 35) / MONSTER_MAX_HP) * 100);
+  const hpColor = hpPercent > 50 ? COLOR_SUCCESS : hpPercent > 25 ? COLOR_WARNING : COLOR_DANGER;
+  const hpLabel = `${Math.max(0, MONSTER_MAX_HP - hitCount * 35)}/${MONSTER_MAX_HP}`;
+  const monsterShake = showDmg;
+
+  const handleAttack = useCallback(() => {
+    const dmg = Math.floor(Math.random() * 15 + 28);
+    setDmgVal(dmg);
+    setShowDmg(true);
+    setHitCount(c => c + 1);
+    setTimeout(() => setShowDmg(false), 600);
   }, []);
 
   return (
@@ -280,102 +271,159 @@ function LandingInner() {
         <div style={{
           position: "relative", zIndex: 1,
           display: "flex", flexDirection: "column", alignItems: "center",
-          maxWidth: 860, width: "100%", gap: 28,
+          maxWidth: 860, width: "100%", gap: 24,
         }}>
           {/* Logo */}
           <div style={{
-            width: "min(320px, 70vw)", aspectRatio: "725 / 378",
+            width: "min(300px, 65vw)", aspectRatio: "725 / 378",
             animation: "logoIn 0.6s ease both",
           }}>
             <TasklandLogotipo />
           </div>
 
-          {/* Arena + Task List side by side */}
-          <div style={{
-            display: "flex", gap: 16, width: "100%",
+          {/* Arena + Task list */}
+          <div className="pp-row" style={{
+            display: "flex", gap: 12, width: "100%",
             alignItems: "stretch",
-            flexDirection: "row",
           }}>
-            {/* Battle scene */}
+            {/* Arena card — replicates the real ArenaCard */}
             <div style={{
               flex: 1, minWidth: 0,
-              aspectRatio: "16 / 10",
-              borderRadius: 12, overflow: "hidden",
-              border: `2px solid ${BORDER_ELEVATED}`,
-              position: "relative",
-              boxShadow: `0 8px 32px rgba(0,0,0,0.5), 0 0 60px ${alpha(ACCENT_GOLD, "15")}`,
+              background: BG_CARD,
+              border: `1px solid ${alpha(BORDER_ELEVATED, "b3")}`,
+              borderRadius: RADIUS_XL,
+              overflow: "hidden",
               animation: "fadeUp 0.5s 0.15s ease both",
+              display: "flex", flexDirection: "column",
             }}>
-              <img src={imgArena} alt="" style={{
-                position: "absolute", inset: 0, width: "100%", height: "100%",
-                objectFit: "cover", imageRendering: "pixelated",
-              }} />
+              {/* Toolbar */}
               <div style={{
-                position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none",
-                background: "radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(5,7,18,0.6) 100%)",
-              }} />
-
-              <BattleWarrior />
-
-              <img src={imgGoblin} alt="Monster" style={{
-                position: "absolute", right: "5%", bottom: "8%",
-                height: "65%", imageRendering: "pixelated", zIndex: 3,
-                animation: `monsterIdle 3s ease-in-out infinite${showSlash ? ", monsterHit 0.4s ease" : ""}`,
-                filter: "drop-shadow(3px 3px 0 rgba(0,0,0,0.6))",
-              }} />
-
-              {showSlash && (
-                <div style={{
-                  position: "absolute", top: "40%", left: "62%", zIndex: 5,
-                  animation: "slashIn 0.5s ease forwards", pointerEvents: "none",
-                }}>
-                  <Swords size={48} color={COLOR_WARNING} strokeWidth={2.5}
-                    style={{ filter: `drop-shadow(0 0 12px ${COLOR_WARNING})` }} />
-                </div>
-              )}
-
-              {showSlash && (
-                <div key={hitCount} style={{
-                  position: "absolute", top: "20%", right: "10%", zIndex: 6,
-                  fontFamily: FONT_PIXEL, fontSize: 20, color: COLOR_DANGER,
-                  textShadow: "2px 2px 0 #000, 0 0 8px rgba(230,57,70,0.5)",
-                  animation: "dmgFloat 0.8s ease forwards", pointerEvents: "none",
-                }}>
-                  -{dmgVal}
-                </div>
-              )}
-
-              <div style={{
-                position: "absolute", top: 10, right: 10, zIndex: 5,
-                display: "flex", alignItems: "center", gap: 6,
-                background: "rgba(10,14,40,0.85)", borderRadius: 6,
-                padding: "4px 10px", backdropFilter: "blur(4px)",
-                border: `1px solid ${alpha(COLOR_DANGER, "55")}`,
+                background: BG_DEEPEST,
+                borderBottom: `1px solid ${BORDER_SUBTLE}`,
+                padding: "6px 14px",
+                display: "flex", alignItems: "center", gap: SP_SM,
               }}>
-                <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: COLOR_DANGER }}>
-                  PROCRASTINAÇÃO
-                </span>
                 <div style={{
-                  width: 60, height: 6, background: BG_DEEPEST,
-                  border: `1px solid ${alpha(COLOR_DANGER, "55")}`,
-                  borderRadius: 3, overflow: "hidden",
+                  flexShrink: 0, minWidth: 24, height: 24,
+                  background: BG_CARD, border: `1px solid ${BORDER_ELEVATED}`,
+                  borderRadius: RADIUS_SM + 1,
+                  display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
-                  <div style={{
-                    width: `${Math.max(10, 75 - hitCount * 10)}%`, height: "100%",
-                    background: COLOR_DANGER, transition: "width 0.5s ease",
+                  <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: PX_2XS, lineHeight: 1 }}>#1</span>
+                </div>
+                <span style={{
+                  fontFamily: FONT_PIXEL, color: TEXT_LIGHT, fontSize: PX_SM,
+                  textShadow: "1px 1px 0 #000", flex: 1,
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                }}>
+                  Goblin da Procrastinação
+                </span>
+              </div>
+
+              {/* Battle area */}
+              <div style={{
+                position: "relative", width: "100%", aspectRatio: "16/9",
+                overflow: "hidden", background: BG_DEEPEST,
+              }}>
+                <img src={imgArena} alt="" style={{
+                  position: "absolute", inset: 0, width: "100%", height: "100%",
+                  objectFit: "cover", imageRendering: "pixelated", zIndex: 1,
+                }} />
+                {/* Vignette */}
+                <div style={{
+                  position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none",
+                  background: `radial-gradient(ellipse at 50% 50%, transparent 55%, ${alpha(BG_DEEPEST, "73")} 100%)`,
+                }} />
+
+                {/* Warrior */}
+                <DemoWarrior onAttack={handleAttack} />
+
+                {/* Power badge */}
+                <div style={{
+                  position: "absolute", left: "4%", top: "6%", zIndex: 6,
+                  display: "flex", alignItems: "center", gap: 6,
+                  background: alpha(BG_DEEPEST, "e0"),
+                  border: `1px solid ${COLOR_WARNING}88`,
+                  borderRadius: RADIUS_LG - 1,
+                  padding: "5px 11px",
+                  backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
+                  boxShadow: `0 0 16px ${COLOR_WARNING}55, inset 0 0 8px ${COLOR_WARNING}18`,
+                  whiteSpace: "nowrap", pointerEvents: "none",
+                }}>
+                  <Zap size={12} color={COLOR_WARNING} strokeWidth={2.5} />
+                  <span style={{
+                    fontFamily: FONT_PIXEL, fontSize: PX_MD, color: COLOR_WARNING,
+                    letterSpacing: 1, textShadow: `0 0 10px ${COLOR_WARNING}cc`,
+                  }}>
+                    1.35
+                  </span>
+                </div>
+
+                {/* Monster */}
+                <div style={{
+                  position: "absolute", right: "8%", bottom: "15%",
+                  height: "48%", zIndex: 2,
+                  transform: monsterShake ? "scaleX(-1) translateX(-8px)" : "scaleX(-1)",
+                  transition: monsterShake ? "transform 0.05s" : "transform 0.3s",
+                  filter: hpPercent < 25 ? "brightness(1.4) saturate(1.2)" : "brightness(0.88) saturate(0.82)",
+                  imageRendering: "pixelated",
+                }}>
+                  <img src={imgGoblin} alt="" style={{
+                    height: "100%", width: "auto", objectFit: "contain",
+                    imageRendering: "pixelated",
                   }} />
+                </div>
+
+                {/* Floating damage */}
+                {showDmg && (
+                  <div key={hitCount} style={{
+                    position: "absolute", top: "25%", right: "15%", zIndex: 10,
+                    fontFamily: FONT_PIXEL, fontSize: 22, color: COLOR_DANGER,
+                    textShadow: "2px 2px 0 #000, 0 0 8px rgba(230,57,70,0.5)",
+                    animation: "dmgFloat 0.8s ease forwards", pointerEvents: "none",
+                  }}>
+                    -{dmgVal}
+                  </div>
+                )}
+              </div>
+
+              {/* Footer — HP bar, same as real ArenaCard */}
+              <div style={{
+                background: BG_DEEPEST,
+                borderTop: `1px solid ${BORDER_SUBTLE}`,
+                padding: "7px 12px",
+                display: "flex", alignItems: "center", gap: SP_SM,
+              }}>
+                <span style={{
+                  fontFamily: FONT_PIXEL, fontSize: PX_2XS,
+                  color: TEXT_INACTIVE, letterSpacing: 0.5,
+                }}>NORMAL</span>
+
+                <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-end" }}>
+                  <div style={{
+                    flex: 1, maxWidth: 140, height: 8,
+                    background: BG_DEEPEST, border: `1px solid ${hpColor}55`,
+                    borderRadius: RADIUS_SM, overflow: "hidden",
+                  }}>
+                    <div style={{
+                      width: `${hpPercent}%`, height: "100%",
+                      background: hpColor, transition: "width 0.6s ease",
+                    }} />
+                  </div>
+                  <span style={{
+                    fontFamily: FONT_BODY, color: hpColor, fontSize: VT_XS,
+                    whiteSpace: "nowrap", minWidth: 48, textAlign: "right",
+                  }}>{hpLabel}</span>
                 </div>
               </div>
             </div>
 
             {/* Task list */}
-            <div style={{ width: 280, flexShrink: 0 }}>
-              <DemoTaskList completedCount={Math.min(hitCount, DEMO_TASKS.length)} />
-            </div>
+            <DemoTaskList completedCount={Math.min(hitCount, DEMO_TASKS.length)} />
           </div>
 
           {/* Copy */}
-          <div style={{ textAlign: "center", animation: "fadeUp 0.5s 0.3s ease both" }}>
+          <div style={{ textAlign: "center", animation: "fadeUp 0.5s 0.35s ease both" }}>
             <h1 style={{
               fontFamily: FONT_PIXEL,
               fontSize: "clamp(10px, 2.8vw, 16px)",
@@ -401,19 +449,14 @@ function LandingInner() {
           <button
             onClick={() => navigate("/")}
             style={{
-              width: "100%", maxWidth: 340,
-              padding: "16px 24px",
-              background: ACCENT_GOLD,
-              border: "none",
-              borderRadius: 8,
+              width: "100%", maxWidth: 340, padding: "16px 24px",
+              background: ACCENT_GOLD, border: "none", borderRadius: 8,
               fontFamily: FONT_PIXEL,
               fontSize: "clamp(9px, 2vw, 12px)",
-              color: BG_DEEPEST,
-              letterSpacing: 2,
-              cursor: "pointer",
+              color: BG_DEEPEST, letterSpacing: 2, cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
               boxShadow: `4px 4px 0 #000, 0 0 20px ${alpha(ACCENT_GOLD, "33")}`,
-              animation: "fadeUp 0.5s 0.45s ease both, ctaPulse 2s 1.5s ease-in-out infinite",
+              animation: "fadeUp 0.5s 0.5s ease both, ctaPulse 2s 1.5s ease-in-out infinite",
               transition: "transform 0.1s, box-shadow 0.1s",
             }}
             onMouseDown={(e) => {
