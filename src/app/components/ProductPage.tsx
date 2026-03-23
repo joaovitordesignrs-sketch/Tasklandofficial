@@ -433,90 +433,79 @@ function LandingInner() {
           }} />
         ))}
 
-        {/* ═══ HERO SECTION ═══ */}
+        {/* ═══ HERO + DEMO — all above the fold ═══ */}
         <section style={{
           position: "relative", zIndex: 1,
           display: "flex", flexDirection: "column", alignItems: "center",
           textAlign: "center",
-          padding: "clamp(48px, 10vh, 100px) 24px 48px",
-          gap: 20,
+          padding: "clamp(20px, 4vh, 40px) 24px 0",
+          gap: 12,
           animation: "heroReveal 0.8s cubic-bezier(0.22,1,0.36,1) both",
+          minHeight: "100dvh",
         }}>
-          {/* Logo */}
-          <div style={{ width: "min(280px, 60vw)", aspectRatio: "725 / 378", animation: "logoIn 0.6s ease both" }}>
-            <TasklandLogotipo />
-          </div>
-
-          {/* Headline */}
-          <h1 style={{
-            fontFamily: FONT_PIXEL,
-            fontSize: "clamp(14px, 3.5vw, 28px)",
-            color: TEXT_LIGHT,
-            margin: 0, lineHeight: 1.8,
-            letterSpacing: 2,
-            textShadow: "2px 2px 0 #000",
-            animation: "fadeUp 0.5s 0.1s ease both",
-          }}>
-            SLAY THE MONSTER<br />
-            <span style={{ color: ACCENT_GOLD }}>OF PROCRASTINATION</span>
-          </h1>
-
-          {/* Subtitle */}
-          <p style={{
-            fontFamily: FONT_BODY,
-            fontSize: "clamp(16px, 2.5vw, 20px)",
-            color: TEXT_MUTED,
-            margin: 0, lineHeight: 1.6,
-            maxWidth: 520,
-            animation: "fadeUp 0.5s 0.2s ease both",
-          }}>
-            Complete tasks. Deal damage. Defeat bosses.
-            Taskland turns your to-do list into an RPG adventure.
-          </p>
-
-          {/* CTA row */}
+          {/* Top row: logo + headline + subtitle + CTA — compact */}
           <div style={{
-            display: "flex", gap: 12, alignItems: "center",
-            flexWrap: "wrap", justifyContent: "center",
-            animation: "fadeUp 0.5s 0.3s ease both",
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
           }}>
-            <RpgButton
-              color={ACCENT_GOLD}
-              onClick={() => navigate("/")}
-              style={{ padding: "14px 28px", fontSize: 9, letterSpacing: 2 }}
-            >
-              <Swords size={14} /> START FOR FREE
-            </RpgButton>
-            <RpgButton
-              variant="ghost"
-              color={TEXT_MUTED}
-              onClick={() => {
-                document.getElementById("pp-demo")?.scrollIntoView({ behavior: "smooth" });
-              }}
-              style={{ padding: "14px 24px", fontSize: 9, letterSpacing: 1 }}
-            >
-              SEE IT IN ACTION ▼
-            </RpgButton>
+            {/* Logo — smaller */}
+            <div style={{ width: "min(180px, 40vw)", aspectRatio: "725 / 378", animation: "logoIn 0.6s ease both" }}>
+              <TasklandLogotipo />
+            </div>
+
+            {/* Headline — tighter */}
+            <h1 style={{
+              fontFamily: FONT_PIXEL,
+              fontSize: "clamp(10px, 2.2vw, 18px)",
+              color: TEXT_LIGHT,
+              margin: 0, lineHeight: 1.8,
+              letterSpacing: 2,
+              textShadow: "2px 2px 0 #000",
+              animation: "fadeUp 0.4s 0.1s ease both",
+            }}>
+              SLAY THE MONSTER <span style={{ color: ACCENT_GOLD }}>OF PROCRASTINATION</span>
+            </h1>
+
+            {/* Subtitle — one line */}
+            <p style={{
+              fontFamily: FONT_BODY,
+              fontSize: "clamp(13px, 1.8vw, 17px)",
+              color: TEXT_MUTED,
+              margin: 0, lineHeight: 1.4,
+              animation: "fadeUp 0.4s 0.15s ease both",
+            }}>
+              Complete tasks. Deal damage. Defeat bosses. Level up.
+            </p>
+
+            {/* CTA row — compact */}
+            <div style={{
+              display: "flex", gap: 10, alignItems: "center",
+              flexWrap: "wrap", justifyContent: "center",
+              animation: "fadeUp 0.4s 0.2s ease both",
+            }}>
+              <RpgButton
+                color={ACCENT_GOLD}
+                onClick={() => navigate("/")}
+                style={{ padding: "10px 22px", fontSize: 8, letterSpacing: 2 }}
+              >
+                <Swords size={12} /> START FOR FREE
+              </RpgButton>
+              <span style={{
+                fontFamily: FONT_PIXEL, fontSize: 6,
+                color: TEXT_INACTIVE, letterSpacing: 1,
+              }}>
+                ▶ FREE TO PLAY
+              </span>
+            </div>
           </div>
 
-          <span style={{
-            fontFamily: FONT_PIXEL, fontSize: 7,
-            color: TEXT_INACTIVE, letterSpacing: 1,
-            animation: "blink 1.4s step-end infinite",
+          {/* ═══ PRODUCT DEMO — directly below, still above fold ═══ */}
+          <div ref={demoRef} id="pp-demo" style={{
+            flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
+            width: "100%", paddingBottom: 40,
+            opacity: demoVisible ? 1 : 0,
+            transform: demoVisible ? "translateY(0) scale(1)" : "translateY(40px) scale(0.97)",
+            transition: "opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)",
           }}>
-            ▶ FREE TO PLAY
-          </span>
-        </section>
-
-        {/* ═══ PRODUCT DEMO SECTION ═══ */}
-        <section ref={demoRef} id="pp-demo" style={{
-          position: "relative", zIndex: 1,
-          display: "flex", flexDirection: "column", alignItems: "center",
-          padding: "0 24px 80px",
-          opacity: demoVisible ? 1 : 0,
-          transform: demoVisible ? "translateY(0) scale(1)" : "translateY(60px) scale(0.95)",
-          transition: "opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1)",
-        }}>
           {/* Demo container with shadow/glow to give depth like the Notion screenshot */}
           <div style={{
             width: "100%", maxWidth: 920,
@@ -707,12 +696,13 @@ function LandingInner() {
               />
             </div>
 
-            {/* Bottom fade-out — demo fades into the page bg */}
+            {/* Bottom fade-out */}
             <div style={{
               position: "absolute", bottom: -1, left: 0, right: 0, height: 80,
               background: `linear-gradient(to bottom, transparent, ${BG_DEEPEST})`,
               pointerEvents: "none", zIndex: 2, borderRadius: "0 0 16px 16px",
             }} />
+          </div>
           </div>
         </section>
 
