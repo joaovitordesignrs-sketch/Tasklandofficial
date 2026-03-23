@@ -269,7 +269,7 @@ function EvolucaoTab() {
     medium: Math.max(1, Math.round(50 * cpData.total)),
     hard:   Math.max(1, Math.round(75 * cpData.total)),
   };
-  const economy    = getEconomy(); void economy;
+  // economy loaded for future use when feature is enabled
   const avatarSrc  = activeSkin === "mage" ? imgAvatarMago : imgAvatarGuerreiro;
   const displayName = nick || player;
 
@@ -597,8 +597,6 @@ export default function ProfileScreen() {
 
   return (
     <>
-      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.75}}`}</style>
-
       <PageShell
         icon={<User size={16} />}
         title="PROFILE"

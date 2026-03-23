@@ -7,8 +7,6 @@ import { useNavigate } from "react-router";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { useCampaign }  from "../hooks/useCampaign";
 import { useAuth }      from "../hooks/useAuth";
-import { ChallengePanel }    from "./ChallengePanel";
-import { FocusPanel }        from "./FocusPanel";
 import { ComingSoonOverlay } from "./ui/ComingSoonOverlay";
 import { TaskList }          from "./TaskList";
 import { PageShell } from "./ui/PageShell";
@@ -162,7 +160,7 @@ function cleanMonsterName(name: string): string {
 
 // ── Mobile: player info strip ─────────────────────────────────────────────────
 function MobilePlayerStrip() {
-  const { lvInfo, xpPct, rank, cpData, playerName, levelUpInfo, activeSkin } = useCampaign();
+  const { lvInfo, xpPct, rank, playerName, levelUpInfo, activeSkin } = useCampaign();
   const { nick } = useAuth();
   const navigate = useNavigate();
   const {
@@ -172,8 +170,6 @@ function MobilePlayerStrip() {
     PX_SM, PX_XS, VT_MD,
     RADIUS_SM, RADIUS_LG,
   } = useTheme();
-
-  void cpData;
 
   const avatarSrc = activeSkin === "mage" ? imgAvatarMago : imgAvatar;
 
@@ -232,8 +228,6 @@ function MobileArenaSection() {
     RADIUS_SM, RADIUS_LG,
     SP_SM,
   } = useTheme();
-
-  void ACCENT_GOLD;
 
   if (!mission || campaignDone) return null;
 
@@ -443,15 +437,13 @@ function MobileAttackModal() {
 export default function HomeScreen() {
   const navigate   = useNavigate();
   const isDesktop  = useIsDesktop();
-  const { nick }   = useAuth();
+  useAuth();
   const {
-    mission, campaignDone, defeated, lvInfo, rank, activeSkin, playerName,
+    mission, campaignDone, defeated, lvInfo,
     needsClassPick, setNeedsClassPick, setActiveSkin,
     handleComplete, handleTasksChange, handleUncompleteTask, handleDeleteTask,
-    handleTemporalStrike, handleFocusStrike, handleChallengeFailed, handleEmptyStateChange,
+    handleEmptyStateChange,
     screenFlash, screenShake, attackBanner, xpPenaltyBanner,
-    setTemporalSelectedCount, temporalAttackCallbackRef,
-    setFocusSelectedCount, focusAttackCallbackRef,
   } = useCampaign();
   const {
     BG_PAGE, BG_CARD,
@@ -469,8 +461,6 @@ export default function HomeScreen() {
   const addTriggerRef = useRef<(() => void) | null>(null);
   const [addFormOpen, setAddFormOpen] = useState(false);
 
-  void nick; void rank; void activeSkin; void playerName;
-
   // ── DESKTOP ────────────────────────────────────────────────────────────────
   if (isDesktop) {
     return (
@@ -478,28 +468,14 @@ export default function HomeScreen() {
         <div style={{ display: "flex", flexDirection: "column", gap: SP_SM, flex: 1 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: SP_SM, flexShrink: 0 }}>
             <div data-onboarding="challenge-panel">
-              <ComingSoonOverlay>
-                <ChallengePanel
-                  playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission && !campaignDone}
-                  onTemporalStrike={handleTemporalStrike} onChallengeFailed={handleChallengeFailed}
-                  onSelectedCountChange={setTemporalSelectedCount}
-                  attackCallbackRef={temporalAttackCallbackRef}
-                />
-              </ComingSoonOverlay>
+              <ComingSoonOverlay minHeight={100} />
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 0" }}>
               <div style={{ flex: 1, height: 1, background: "rgba(90,96,128,0.4)" }} />
               <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: TEXT_MUTED, letterSpacing: 1 }}>OU</span>
               <div style={{ flex: 1, height: 1, background: "rgba(90,96,128,0.4)" }} />
             </div>
-            <ComingSoonOverlay>
-              <FocusPanel
-                playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission && !campaignDone}
-                onFocusStrike={handleFocusStrike}
-                onSelectedCountChange={setFocusSelectedCount}
-                attackCallbackRef={focusAttackCallbackRef}
-              />
-            </ComingSoonOverlay>
+            <ComingSoonOverlay minHeight={100} />
           </div>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
             {mission && !campaignDone ? (
@@ -531,34 +507,6 @@ export default function HomeScreen() {
   // ── MOBILE ─────────────────────────────────────────────────────────────────
   return (
     <>
-      <style>{`
-        @keyframes bannerPop {
-          0%  {transform:translate(-50%,-50%) scale(0.3) rotate(-8deg);opacity:0}
-          25% {transform:translate(-50%,-50%) scale(1.15) rotate(2deg);opacity:1}
-          80% {transform:translate(-50%,-50%) scale(1) rotate(0deg);opacity:1}
-          100%{transform:translate(-50%,-50%) scale(0.85) rotate(0deg);opacity:0}
-        }
-        @keyframes criticalPulse{0%,50%{opacity:1}25%,75%{opacity:0.6}100%{opacity:1}}
-        @keyframes flashIn{0%{opacity:0.45}100%{opacity:0}}
-        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.75}}
-        @keyframes penaltyDrop {
-          0%  {transform:translate(-50%,-50%) scale(0.5);opacity:0}
-          20% {transform:translate(-50%,-50%) scale(1.1);opacity:1}
-          80% {transform:translate(-50%,-50%) scale(1);opacity:1}
-          100%{transform:translate(-50%,-50%) scale(0.8);opacity:0}
-        }
-        @keyframes lvlBannerIn {
-          0%   {opacity:0;transform:scale(0.5)}
-          10%  {opacity:1;transform:scale(1.15)}
-          20%  {transform:scale(1)}
-          85%  {opacity:1;transform:scale(1)}
-          100% {opacity:0;transform:scale(0.9)}
-        }
-        @keyframes lvlGlowPulse{0%{opacity:0.8}50%{opacity:0.3}100%{opacity:0}}
-        @keyframes lvlShine{0%,100%{opacity:0.6}50%{opacity:1}}
-        @keyframes lvlNumberPop{0%{transform:scale(0.3);opacity:0}100%{transform:scale(1);opacity:1}}
-      `}</style>
-
       {/* Fixed overlays */}
       {screenFlash && <div style={{ position: "fixed", inset: 0, background: "rgba(255,255,255,0.3)", zIndex: 9999, pointerEvents: "none", animation: "flashIn 0.18s ease-out forwards" }} />}
       {xpPenaltyBanner && (
@@ -614,20 +562,14 @@ export default function HomeScreen() {
           ) : (
             <>
               <div data-onboarding="challenge-panel">
-                <ComingSoonOverlay>
-                  <ChallengePanel playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission} onTemporalStrike={handleTemporalStrike} onChallengeFailed={handleChallengeFailed}
-                    onSelectedCountChange={setTemporalSelectedCount} attackCallbackRef={temporalAttackCallbackRef} />
-                </ComingSoonOverlay>
+                <ComingSoonOverlay minHeight={100} />
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 14px" }}>
                 <div style={{ flex: 1, height: 1, background: "rgba(90,96,128,0.4)" }} />
                 <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: TEXT_MUTED, letterSpacing: 1 }}>OU</span>
                 <div style={{ flex: 1, height: 1, background: "rgba(90,96,128,0.4)" }} />
               </div>
-              <ComingSoonOverlay>
-                <FocusPanel playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission} onFocusStrike={handleFocusStrike}
-                  onSelectedCountChange={setFocusSelectedCount} attackCallbackRef={focusAttackCallbackRef} />
-              </ComingSoonOverlay>
+              <ComingSoonOverlay minHeight={100} />
               {mission ? (
                 <>
                   <TaskList

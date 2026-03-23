@@ -25,7 +25,7 @@ import {
   applyCloudData, clearGameLocalStorage, stopSync, setAccessToken,
 } from "../data/syncService";
 
-// ── CSS keyframes injected once ───────────────────────────────────────────────
+// ── CSS injected once (shared keyframes live in theme.css) ────────────────────
 const GLOBAL_CSS = `
   html, body {
     background: #15182d !important;
@@ -44,33 +44,6 @@ const GLOBAL_CSS = `
     90% { transform:translate(-1px,1px) rotate(0deg); }
     100%{ transform:translate(0,0) rotate(0deg); }
   }
-  @keyframes bannerPop {
-    0%  {transform:translate(-50%,-50%) scale(0.3) rotate(-8deg);opacity:0}
-    25% {transform:translate(-50%,-50%) scale(1.15) rotate(2deg);opacity:1}
-    55% {transform:translate(-50%,-50%) scale(1) rotate(-1deg);opacity:1}
-    80% {transform:translate(-50%,-50%) scale(1) rotate(0deg);opacity:1}
-    100%{transform:translate(-50%,-50%) scale(0.85) rotate(0deg);opacity:0}
-  }
-  @keyframes criticalPulse{0%,50%{opacity:1}25%,75%{opacity:0.6}100%{opacity:1}}
-  @keyframes flashIn{0%{opacity:0.45}100%{opacity:0}}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.75}}
-  @keyframes penaltyDrop {
-    0%  {transform:translate(-50%,-50%) scale(0.5);opacity:0}
-    20% {transform:translate(-50%,-50%) scale(1.1);opacity:1}
-    40% {transform:translate(-50%,-50%) scale(1);opacity:1}
-    80% {transform:translate(-50%,-50%) scale(1);opacity:1}
-    100%{transform:translate(-50%,-50%) scale(0.8);opacity:0}
-  }
-  @keyframes lvlBannerIn {
-    0%   {opacity:0; transform:scale(0.5)}
-    10%  {opacity:1; transform:scale(1.15)}
-    20%  {transform:scale(1)}
-    85%  {opacity:1; transform:scale(1)}
-    100% {opacity:0; transform:scale(0.9)}
-  }
-  @keyframes lvlGlowPulse { 0%{opacity:0.8} 50%{opacity:0.3} 100%{opacity:0} }
-  @keyframes lvlShine { 0%,100%{opacity:0.6} 50%{opacity:1} }
-  @keyframes lvlNumberPop { 0%{transform:scale(0.3);opacity:0} 100%{transform:scale(1);opacity:1} }
   @keyframes notifPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.28)} }
   @keyframes tooltipIn { 0%{opacity:0;transform:translateX(-50%) translateY(4px)} 100%{opacity:1;transform:translateX(-50%) translateY(0)} }
 `;
@@ -86,7 +59,6 @@ function SyncLoader() {
       <div style={{ fontFamily: FONT_BODY, fontSize: 18, color: TEXT_MUTED }}>
         Carregando progresso do servidor
       </div>
-      <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }`}</style>
     </div>
   );
 }

@@ -46,6 +46,8 @@ export function DesktopSidebar({ playerName, level, rankLabel, rankColor, xpPct,
     BORDER_ELEVATED, TEXT_MUTED, TEXT_LIGHT, TEXT_BODY, ACCENT_GOLD, COLOR_MAGE, COLOR_DANGER,
     TEXT_INACTIVE, FONT_PIXEL, FONT_BODY, VT_XS, alpha,
   } = useTheme();
+  const cp = getPower(level);
+  const econ = getEconomy();
 
   return (
     <aside style={{
@@ -108,57 +110,47 @@ export function DesktopSidebar({ playerName, level, rankLabel, rankColor, xpPct,
         </div>
 
         {/* Power */}
-        {(() => {
-          const cp = getPower(level);
-          return (
-            <div style={{
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              padding: "5px 8px",
-              background: `${cp.rank.color}0C`, border: `1px solid ${cp.rank.color}25`,
-              borderRadius: 6,
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                <Zap size={12} color={cp.rank.color} />
-                <span style={{ fontFamily: FONT_PIXEL, fontSize: 9, color: cp.rank.color, textShadow: "1px 1px 0 #000", letterSpacing: 1 }}>
-                  {formatPower(cp.total)}
-                </span>
-                <span style={{ fontFamily: FONT_PIXEL, fontSize: 6, color: TEXT_MUTED, letterSpacing: 1 }}>POWER</span>
-              </div>
-              <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: cp.rank.color, opacity: 0.85 }}>{cp.rank.tier}</span>
-            </div>
-          );
-        })()}
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "5px 8px",
+          background: `${cp.rank.color}0C`, border: `1px solid ${cp.rank.color}25`,
+          borderRadius: 6,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <Zap size={12} color={cp.rank.color} />
+            <span style={{ fontFamily: FONT_PIXEL, fontSize: 9, color: cp.rank.color, textShadow: "1px 1px 0 #000", letterSpacing: 1 }}>
+              {formatPower(cp.total)}
+            </span>
+            <span style={{ fontFamily: FONT_PIXEL, fontSize: 6, color: TEXT_MUTED, letterSpacing: 1 }}>POWER</span>
+          </div>
+          <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: cp.rank.color, opacity: 0.85 }}>{cp.rank.tier}</span>
+        </div>
 
         {/* Gold + Essence */}
-        {(() => {
-          const econ = getEconomy();
-          return (
-            <div style={{ display: "flex", gap: 5, marginTop: 6 }}>
-              <div style={{
-                flex: 1, display: "flex", alignItems: "center", gap: 5,
-                padding: "4px 7px",
-                background: alpha(COLOR_LEGENDARY, "0f"), border: `1px solid ${alpha(COLOR_LEGENDARY, "2d")}`,
-                borderRadius: 5,
-              }}>
-                <Coins size={11} color={COLOR_LEGENDARY} />
-                <span style={{ fontFamily: FONT_BODY, color: COLOR_LEGENDARY, fontSize: 14 }}>
-                  {econ.coins.toLocaleString("en-US")}
-                </span>
-              </div>
-              <div style={{
-                flex: 1, display: "flex", alignItems: "center", gap: 5,
-                padding: "4px 7px",
-                background: alpha(COLOR_MAGE, "0f"), border: `1px solid ${alpha(COLOR_MAGE, "2d")}`,
-                borderRadius: 5,
-              }}>
-                <Sparkles size={11} color={COLOR_MAGE} />
-                <span style={{ fontFamily: FONT_BODY, color: COLOR_MAGE, fontSize: 14 }}>
-                  {(econ.monsterEssences ?? 0).toLocaleString("en-US")}
-                </span>
-              </div>
-            </div>
-          );
-        })()}
+        <div style={{ display: "flex", gap: 5, marginTop: 6 }}>
+          <div style={{
+            flex: 1, display: "flex", alignItems: "center", gap: 5,
+            padding: "4px 7px",
+            background: alpha(COLOR_LEGENDARY, "0f"), border: `1px solid ${alpha(COLOR_LEGENDARY, "2d")}`,
+            borderRadius: 5,
+          }}>
+            <Coins size={11} color={COLOR_LEGENDARY} />
+            <span style={{ fontFamily: FONT_BODY, color: COLOR_LEGENDARY, fontSize: 14 }}>
+              {econ.coins.toLocaleString("en-US")}
+            </span>
+          </div>
+          <div style={{
+            flex: 1, display: "flex", alignItems: "center", gap: 5,
+            padding: "4px 7px",
+            background: alpha(COLOR_MAGE, "0f"), border: `1px solid ${alpha(COLOR_MAGE, "2d")}`,
+            borderRadius: 5,
+          }}>
+            <Sparkles size={11} color={COLOR_MAGE} />
+            <span style={{ fontFamily: FONT_BODY, color: COLOR_MAGE, fontSize: 14 }}>
+              {(econ.monsterEssences ?? 0).toLocaleString("en-US")}
+            </span>
+          </div>
+        </div>
 
       </div>
 
