@@ -30,7 +30,7 @@ const CSS = `
   @keyframes taskCheck   { 0%{transform:scale(0)} 50%{transform:scale(1.3)} 100%{transform:scale(1)} }
   @keyframes taskStrike  { from{width:0} to{width:100%} }
   @keyframes victoryPop  { 0%{transform:scale(0.5);opacity:0} 50%{transform:scale(1.1);opacity:1} 100%{transform:scale(1);opacity:1} }
-  @keyframes monsterIn   { 0%{opacity:0;transform:scaleX(-1) translateY(20px)} 100%{opacity:1;transform:scaleX(-1) translateY(0)} }
+  @keyframes monsterIn   { 0%{opacity:0;transform:translateY(20px)} 100%{opacity:1;transform:translateY(0)} }
   @keyframes particleDrift {
     0%   { transform: translateY(0) rotate(45deg); opacity: 0; }
     10%  { opacity: 1; }
@@ -491,71 +491,7 @@ function FeaturesSection() {
         </p>
       </div>
 
-      {/* ── ROW 1: TASKS (full width) ── */}
-      <div style={{ width: "100%", maxWidth: 920 }}>
-        <FeatureCard
-          label="CAMPAIGN TASKS"
-          labelColor={ACCENT_GOLD}
-          icon={<Swords size={12} color={ACCENT_GOLD} />}
-          delay={0}
-        >
-          <div style={{ padding: "8px 10px", display: "flex", flexDirection: "column", gap: 5 }}>
-            {[
-              { text: "Ship landing page v2",        diff: "hard",   xp: 75, done: true },
-              { text: "Fix mobile responsive bugs",  diff: "medium", xp: 50, done: true },
-              { text: "Write API documentation",     diff: "hard",   xp: 75, done: false },
-              { text: "Update onboarding flow",      diff: "medium", xp: 50, done: false },
-              { text: "Clean up unused imports",     diff: "easy",   xp: 30, done: false },
-            ].map((task, i) => {
-              const ds = DIFF_STYLES[task.diff];
-              const DiffIcon = ds.icon;
-              return (
-                <div key={i} style={{
-                  display: "flex", alignItems: "center", gap: 8,
-                  padding: "8px 10px",
-                  background: task.done ? `${COLOR_SUCCESS}0c` : "transparent",
-                  border: `1px solid ${task.done ? `${COLOR_SUCCESS}33` : BORDER_SUBTLE}`,
-                  borderRadius: 6,
-                }}>
-                  <div style={{
-                    width: 18, height: 18, flexShrink: 0, borderRadius: 4,
-                    border: `2px solid ${task.done ? COLOR_SUCCESS : BORDER_ELEVATED}`,
-                    background: task.done ? COLOR_SUCCESS : "transparent",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>
-                    {task.done && <Check size={12} color={BG_DEEPEST} strokeWidth={3} />}
-                  </div>
-                  <span style={{
-                    flex: 1, fontFamily: FONT_BODY, fontSize: 14,
-                    color: task.done ? TEXT_INACTIVE : TEXT_LIGHT,
-                    textDecoration: task.done ? "line-through" : "none",
-                  }}>
-                    {task.text}
-                  </span>
-                  <DiffIcon size={11} color={task.done ? TEXT_INACTIVE : ds.color} />
-                  <span style={{ fontFamily: FONT_PIXEL, fontSize: 6, color: task.done ? TEXT_INACTIVE : ACCENT_GOLD }}>
-                    +{task.xp}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-          <div style={{
-            marginTop: "auto",
-            borderTop: `1px solid ${BORDER_SUBTLE}`, padding: "8px 14px",
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-          }}>
-            <span style={{ fontFamily: FONT_BODY, fontSize: VT_SM, color: TEXT_MUTED }}>
-              2 completed — monster takes damage!
-            </span>
-            <span style={{ fontFamily: FONT_PIXEL, fontSize: VT_XS, color: COLOR_DANGER, textShadow: "1px 1px 0 #000" }}>
-              -70 HP
-            </span>
-          </div>
-        </FeatureCard>
-      </div>
-
-      {/* ── ROW 2: HABITS + CHART (side by side) ── */}
+      {/* ── HABITS + CHART (side by side) ── */}
       <div className="pp-row" style={{
         display: "flex", gap: 16, width: "100%", maxWidth: 920,
         alignItems: "stretch",
@@ -1099,7 +1035,7 @@ function LandingInner() {
                   <div key={monsterIdx} style={{
                     position: "absolute", right: "8%", bottom: monster.bottom,
                     height: monster.height, zIndex: 2,
-                    transform: showDmg ? "scaleX(-1) translateX(-8px)" : "scaleX(-1)",
+                    transform: showDmg ? "translateX(-8px)" : "none",
                     transition: showDmg ? "transform 0.05s" : "transform 0.3s",
                     filter: defeated ? "brightness(0.3) grayscale(1)" : hpPercent < 25 ? "brightness(1.4) saturate(1.2)" : "brightness(0.88) saturate(0.82)",
                     imageRendering: "pixelated",
