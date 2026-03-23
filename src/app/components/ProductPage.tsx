@@ -7,6 +7,7 @@ import { useNavigate } from "react-router";
 import { PreferencesProvider, useTheme } from "../contexts/PreferencesContext";
 import { useRive, Layout, Fit, Alignment } from "@rive-app/react-canvas";
 import { Swords, Check, Shield, Flame, Zap, Skull, Trophy } from "lucide-react";
+import { RpgButton } from "./ui/RpgButton";
 
 import imgSlime    from "../../assets/monsters/monster_slime.png";
 import imgGoblin   from "../../assets/monsters/monster_goblin.png";
@@ -538,30 +539,16 @@ function LandingInner() {
           </div>
 
           {/* CTA */}
-          <button
-            onClick={() => navigate("/")}
-            style={{
-              width: "100%", maxWidth: 340, padding: "16px 24px",
-              background: ACCENT_GOLD, border: "none", borderRadius: 8,
-              fontFamily: FONT_PIXEL, fontSize: "clamp(9px, 2vw, 12px)",
-              color: BG_DEEPEST, letterSpacing: 2, cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-              boxShadow: `4px 4px 0 #000, 0 0 20px ${alpha(ACCENT_GOLD, "33")}`,
-              animation: "fadeUp 0.5s 0.5s ease both, ctaPulse 2s 1.5s ease-in-out infinite",
-              transition: "transform 0.1s, box-shadow 0.1s",
-            }}
-            onMouseDown={(e) => {
-              e.currentTarget.style.transform = "translate(2px,2px)";
-              e.currentTarget.style.boxShadow = `2px 2px 0 #000, 0 0 20px ${alpha(ACCENT_GOLD, "33")}`;
-            }}
-            onMouseUp={(e) => {
-              e.currentTarget.style.transform = "";
-              e.currentTarget.style.boxShadow = `4px 4px 0 #000, 0 0 20px ${alpha(ACCENT_GOLD, "33")}`;
-            }}
-          >
-            <Swords size={16} />
-            START YOUR ADVENTURE
-          </button>
+          <div style={{ width: "100%", maxWidth: 340, animation: "fadeUp 0.5s 0.5s ease both" }}>
+            <RpgButton
+              fullWidth
+              color={ACCENT_GOLD}
+              onClick={() => navigate("/")}
+              style={{ padding: "14px 24px", fontSize: 9, letterSpacing: 2 }}
+            >
+              <Swords size={14} /> START YOUR ADVENTURE
+            </RpgButton>
+          </div>
 
           <span style={{
             fontFamily: FONT_PIXEL, fontSize: 7,
