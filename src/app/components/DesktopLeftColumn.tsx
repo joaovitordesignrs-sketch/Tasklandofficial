@@ -24,15 +24,15 @@ import { RpgButton }           from "./ui/RpgButton";
 import { useTheme } from "../contexts/PreferencesContext";
 import { RpgTooltip } from "./ui/RpgTooltip";
 
-import imgAvatar  from "../../assets/profile_pic/profile_pic_warrior.png";
-import imgAvatarMago from "../../assets/profile_pic/profile_pic_mage.png";
-import imgArenaBackground from "../../assets/arena_background/arena_background_default.png";
-import imgSlime    from "../../assets/monsters/monster_slime.png";
-import imgGoblin   from "../../assets/monsters/monster_goblin.png";
-import imgCogu     from "../../assets/monsters/monster_cogu.png";
-import imgSkeleton from "../../assets/monsters/monster_skeleton.png";
+import imgAvatar  from "../../assets/profile_pic/profile_pic_warrior.webp";
+import imgAvatarMago from "../../assets/profile_pic/profile_pic_mage.webp";
+import imgArenaBackground from "../../assets/arena_background/arena_background_default.webp";
+import imgSlime    from "../../assets/monsters/monster_slime.webp";
+import imgGoblin   from "../../assets/monsters/monster_goblin.webp";
+import imgCogu     from "../../assets/monsters/monster_cogu.webp";
+import imgSkeleton from "../../assets/monsters/monster_skeleton.webp";
 import imgGolem    from "figma:asset/843a5f024b278e6710a508a853f1ebd9c4fed362.png";
-import imgDarkLord from "../../assets/monsters/monster_darklord.png";
+import imgDarkLord from "../../assets/monsters/monster_darklord.webp";
 
 // ── Monster sprite picker ─────────────────────────────────────────────────────
 function getMonsterSprite(monsterType?: string, campaignOrder?: number): string {
@@ -350,9 +350,7 @@ function CharacterCard() {
   const { lvInfo, xpPct, rank, cpData, activeSkin, levelUpInfo, playerName } = useCampaign();
   const { nick } = useAuth();
 
-  const avatarSrc  = activeSkin === "mage" ? imgAvatarMago : imgAvatar;
-  const classLabel = activeSkin === "mage" ? "MAGE" : activeSkin ? "WARRIOR" : null;
-  const classColor = activeSkin === "mage" ? COLOR_WARRIOR : COLOR_DANGER;
+  const avatarSrc = activeSkin === "mage" ? imgAvatarMago : imgAvatar;
 
   return (
     <div style={{ background: BG_CARD, border: `1px solid ${alpha(BORDER_ELEVATED, "b3")}`, borderRadius: RADIUS_XL, padding: "14px 16px", flexShrink: 0 }}>
@@ -370,15 +368,7 @@ function CharacterCard() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: SP_SM }}>
             <span style={{ fontFamily: FONT_PIXEL, color: COLOR_LEGENDARY, fontSize: PX_SM, whiteSpace: "nowrap" }}>LVL {lvInfo.level}</span>
-            <span style={{ fontFamily: FONT_BODY, color: rank.color, fontSize: 18 }}>{rank.label}</span>
-            {classLabel && (
-              <span style={{ fontFamily: FONT_PIXEL, fontSize: 6, color: classColor, background: `${classColor}18`, border: `1px solid ${classColor}44`, padding: "2px 5px", whiteSpace: "nowrap" }}>
-                {classLabel}
-              </span>
-            )}
-          </div>
-          <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: TEXT_MUTED, marginTop: 2 }}>
-            Class: {activeSkin === "mage" ? "Mage" : "Warrior"} · Skin: {SKIN_INFO[activeSkin ?? "warrior_base"].label}
+            <span style={{ fontFamily: FONT_PIXEL, color: rank.color, fontSize: PX_SM }}>{rank.label}</span>
           </div>
         </div>
       </div>

@@ -32,8 +32,8 @@ import { ItemsTab } from "./ItemsTab";
 import { PixelIcon } from "./ui/PixelIcon";
 import { PixelTabs, PixelTabDef } from "./ui/PixelTabs";
 import { RpgButton } from "./ui/RpgButton";
-import imgAvatarGuerreiro from "../../assets/profile_pic/profile_pic_warrior.png";
-import imgAvatarMago from "../../assets/profile_pic/profile_pic_mage.png";
+import imgAvatarGuerreiro from "../../assets/profile_pic/profile_pic_warrior.webp";
+import imgAvatarMago from "../../assets/profile_pic/profile_pic_mage.webp";
 import { useTheme } from "../contexts/PreferencesContext";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -273,9 +273,6 @@ function EvolucaoTab() {
   const avatarSrc  = activeSkin === "mage" ? imgAvatarMago : imgAvatarGuerreiro;
   const displayName = nick || player;
 
-  const skinInfo   = SKIN_INFO[activeSkin ?? "warrior_base"];
-  const activeClass       = { label: skinInfo.label, desc: "" };
-  const activeClassColors = { color: skinInfo.color, glow: `${skinInfo.color}59` };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -297,7 +294,7 @@ function EvolucaoTab() {
             <div style={{ fontFamily: FONT_PIXEL, color: "#fff", fontSize: 12, textShadow: "1px 1px 0 #000" }}>{displayName}</div>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <Star size={13} color={rank.color} />
-              <span style={{ fontFamily: FONT_BODY, color: rank.color, fontSize: 20 }}>{rank.label}</span>
+              <span style={{ fontFamily: FONT_PIXEL, color: rank.color, fontSize: 9 }}>{rank.label}</span>
             </div>
           </div>
         </div>
@@ -315,39 +312,6 @@ function EvolucaoTab() {
           <div style={{ color: TEXT_INACTIVE, fontSize: 14, marginTop: 4, fontFamily: FONT_BODY }}>{lvInfo.neededXP - lvInfo.currentXP} XP to Level {nextLevel}</div>
         </div>
 
-        {/* ── Botão para página de seleção de classe (desabilitado no MVP) ── */}
-        <div style={{ borderTop: `1px solid ${BORDER_SUBTLE}`, padding: "10px 14px" }}>
-          <button
-            disabled
-            style={{
-              width: "100%",
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              padding: "12px 16px",
-              background: BG_DEEPEST,
-              border: `1px solid ${BORDER_SUBTLE}`,
-              borderRadius: 8, cursor: "not-allowed", transition: "all 0.18s",
-              opacity: 0.45,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 36, height: 36, background: BORDER_SUBTLE, border: `1px solid ${BORDER_ELEVATED}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Swords size={16} color={TEXT_MUTED} />
-              </div>
-              <div style={{ textAlign: "left" }}>
-                <div style={{ fontFamily: FONT_PIXEL, fontSize: 8, color: TEXT_MUTED, letterSpacing: 0.5 }}>
-                  {activeClass ? activeClass.label.toUpperCase() : "NO CLASS"}
-                </div>
-                <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: TEXT_INACTIVE, marginTop: 2 }}>
-                  Skins are cosmetic and don't affect gameplay
-                </div>
-              </div>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: TEXT_INACTIVE }}>COMING SOON</span>
-              <Lock size={12} color={TEXT_INACTIVE} />
-            </div>
-          </button>
-        </div>
       </CardIn>
 
       {/* POWER panel */}

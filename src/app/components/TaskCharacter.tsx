@@ -3,8 +3,8 @@
 import { useRive, Layout, Fit, Alignment, EventType } from '@rive-app/react-canvas';
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { SKIN_INFO, type SkinId } from '../data/economy';
-import imgAvatarWarrior from '../../assets/profile_pic/profile_pic_warrior.png';
-import imgAvatarMage    from '../../assets/profile_pic/profile_pic_mage.png';
+import imgAvatarWarrior from '../../assets/profile_pic/profile_pic_warrior.webp';
+import imgAvatarMage    from '../../assets/profile_pic/profile_pic_mage.webp';
 
 const SKIN_SCALE: Record<SkinId, number> = {
   warrior_base:       1.0,

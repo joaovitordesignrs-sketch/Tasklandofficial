@@ -4,8 +4,8 @@ import {
 } from "lucide-react";
 import { audioManager } from "../hooks/audioManager";
 import { getPower, formatPower } from "../data/combatPower";
-import imgAvatar from "../../assets/profile_pic/profile_pic_warrior.png";
-import imgAvatarMago from "../../assets/profile_pic/profile_pic_mage.png";
+import imgAvatar from "../../assets/profile_pic/profile_pic_warrior.webp";
+import imgAvatarMago from "../../assets/profile_pic/profile_pic_mage.webp";
 import { useAuth } from "../hooks/useAuth";
 import { forcePush } from "../data/syncService";
 import { getEconomy } from "../data/economy";

@@ -9,7 +9,7 @@ export const SKIN_INFO: Record<SkinId, {
 }> = {
   warrior_base: {
     label: "Warrior", cost: 0, color: "#E63946", locked: false,
-    rivUrl: "https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/taskland_animations_warrior_base.riv",
+    rivUrl: "/taskland_animations_warrior_base.riv",
     fallbackImg: "warrior",
   },
   warrior_aventureiro: {
@@ -19,7 +19,7 @@ export const SKIN_INFO: Record<SkinId, {
   },
   mage: {
     label: "Mage", cost: 0, color: "#60a5fa", locked: true,
-    rivUrl: "https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/taskland_animations_mage_base.riv",
+    rivUrl: "/taskland_animations_mage_base.riv",
     fallbackImg: "mage",
   },
 };

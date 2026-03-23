@@ -6,8 +6,8 @@ import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
 import { buySkin, selectSkin, getEconomy, SKIN_INFO, type SkinId } from '../data/economy';
 import { audioManager } from '../hooks/audioManager';
 import { Lock } from 'lucide-react';
-import imgAvatarWarrior from '../../assets/profile_pic/profile_pic_warrior.png';
-import imgAvatarMage    from '../../assets/profile_pic/profile_pic_mage.png';
+import imgAvatarWarrior from '../../assets/profile_pic/profile_pic_warrior.webp';
+import imgAvatarMage    from '../../assets/profile_pic/profile_pic_mage.webp';
 import { useTheme } from '../contexts/PreferencesContext';
 
 const SKIN_ORDER: SkinId[] = ['warrior_base', 'warrior_aventureiro', 'mage'];

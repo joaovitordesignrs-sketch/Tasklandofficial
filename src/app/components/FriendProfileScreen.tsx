@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { ArrowLeft, Zap, Shield, Swords, Star, Users } from "lucide-react";
-import imgAvatarWarrior from "../../assets/profile_pic/profile_pic_warrior.png";
-import imgAvatarMage    from "../../assets/profile_pic/profile_pic_mage.png";
+import imgAvatarWarrior from "../../assets/profile_pic/profile_pic_warrior.webp";
+import imgAvatarMage    from "../../assets/profile_pic/profile_pic_mage.webp";
 import { getPowerRankFromCP, getNextPowerRankFromCP, formatCP } from "../data/combatPower";
 import { getRank } from "../data/gameEngine";
 import { useAuth } from "../hooks/useAuth";

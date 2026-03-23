@@ -22,15 +22,15 @@ import { FloatingDamage } from "./ui/FloatingDamage";
 import { useTheme } from "../contexts/PreferencesContext";
 import type { ThemeTokens } from "../data/tokens";
 
-import imgArenaBackground from "../../assets/arena_background/arena_background_default.png";
-import imgAvatar  from "../../assets/profile_pic/profile_pic_warrior.png";
-import imgAvatarMago from "../../assets/profile_pic/profile_pic_mage.png";
-import imgSlime    from "../../assets/monsters/monster_slime.png";
-import imgGoblin   from "../../assets/monsters/monster_goblin.png";
-import imgCogu     from "../../assets/monsters/monster_cogu.png";
-import imgSkeleton from "../../assets/monsters/monster_skeleton.png";
+import imgArenaBackground from "../../assets/arena_background/arena_background_default.webp";
+import imgAvatar  from "../../assets/profile_pic/profile_pic_warrior.webp";
+import imgAvatarMago from "../../assets/profile_pic/profile_pic_mage.webp";
+import imgSlime    from "../../assets/monsters/monster_slime.webp";
+import imgGoblin   from "../../assets/monsters/monster_goblin.webp";
+import imgCogu     from "../../assets/monsters/monster_cogu.webp";
+import imgSkeleton from "../../assets/monsters/monster_skeleton.webp";
 import imgGolem    from "figma:asset/843a5f024b278e6710a508a853f1ebd9c4fed362.png";
-import imgDarkLord from "../../assets/monsters/monster_darklord.png";
+import imgDarkLord from "../../assets/monsters/monster_darklord.webp";
 
 // ── Monster sprite picker ─────────────────────────────────────────────────────
 function getMonsterSprite(monsterType?: string, campaignOrder?: number): string {

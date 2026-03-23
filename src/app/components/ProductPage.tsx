@@ -11,14 +11,14 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { RpgButton } from "./ui/RpgButton";
 import { track } from "../hooks/analytics";
 
-import imgSlime    from "../../assets/monsters/monster_slime.png";
-import imgGoblin   from "../../assets/monsters/monster_goblin.png";
-import imgCogu     from "../../assets/monsters/monster_cogu.png";
-import imgSkeleton from "../../assets/monsters/monster_skeleton.png";
-import imgArena    from "../../assets/arena_background/arena_background_default.png";
+import imgSlime    from "../../assets/monsters/monster_slime.webp";
+import imgGoblin   from "../../assets/monsters/monster_goblin.webp";
+import imgCogu     from "../../assets/monsters/monster_cogu.webp";
+import imgSkeleton from "../../assets/monsters/monster_skeleton.webp";
+import imgArena    from "../../assets/arena_background/arena_background_default.webp";
 import TasklandLogotipo from "../../imports/TasklandLogotipo";
 
-const WARRIOR_RIV = "https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/taskland_animations_warrior_base.riv";
+const WARRIOR_RIV = "/taskland_animations_warrior_base.riv";
 const RIVE_LAYOUT = new Layout({ fit: Fit.Contain, alignment: Alignment.BottomCenter });
 
 const CSS = `

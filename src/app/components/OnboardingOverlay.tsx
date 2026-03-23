@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, type CSSProperties } from "react";
 import { useRive, Layout, Fit, Alignment } from '@rive-app/react-canvas';
-import imgAvatarWarrior from '../../assets/profile_pic/profile_pic_warrior.png';
-import imgAvatarMage    from '../../assets/profile_pic/profile_pic_mage.png';
+import imgAvatarWarrior from '../../assets/profile_pic/profile_pic_warrior.webp';
+import imgAvatarMage    from '../../assets/profile_pic/profile_pic_mage.webp';
 import { useTheme } from "../contexts/PreferencesContext";
 import { COLOR_WARNING as CSS_COLOR_WARNING } from "../data/tokens";
 
@@ -9,8 +9,8 @@ const ONBOARDING_KEY = "rpg_onboarding_v1";
 
 // ─── Rive URLs (same as TaskCharacter / ClassPickerOverlay) ────────────────────
 const RIV_URLS = {
-  guerreiro: 'https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/taskland_animations_warrior_base.riv',
-  mago:      'https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/taskland_animations_mage_base.riv',
+  guerreiro: '/taskland_animations_warrior_base.riv',
+  mago:      '/taskland_animations_mage_base.riv',
 } as const;
 
 const CLASS_SCALE = { guerreiro: 1.0, mago: 1.22 } as const;
