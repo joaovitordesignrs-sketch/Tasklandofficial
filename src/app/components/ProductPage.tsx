@@ -1,14 +1,19 @@
 /**
  * ProductPage — Landing page replicating the real in-game arena + demo task list.
+ * Monsters cycle automatically when defeated. All text in English.
  */
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router";
 import { PreferencesProvider, useTheme } from "../contexts/PreferencesContext";
 import { useRive, Layout, Fit, Alignment } from "@rive-app/react-canvas";
-import { Swords, Check, Shield, Flame, Zap } from "lucide-react";
+import { Swords, Check, Shield, Flame, Zap, Skull, Trophy } from "lucide-react";
 
-import imgGoblin from "../../assets/monsters/monster_goblin.png";
-import imgArena  from "../../assets/arena_background/arena_background_default.png";
+import imgSlime    from "../../assets/monsters/monster_slime.png";
+import imgGoblin   from "../../assets/monsters/monster_goblin.png";
+import imgCogu     from "../../assets/monsters/monster_cogu.png";
+import imgSkeleton from "../../assets/monsters/monster_skeleton.png";
+import imgDarkLord from "../../assets/monsters/monster_darklord.png";
+import imgArena    from "../../assets/arena_background/arena_background_default.png";
 import TasklandLogotipo from "../../imports/TasklandLogotipo";
 
 const WARRIOR_RIV = "https://raw.githubusercontent.com/joaovitordesignrs-sketch/taskland/main/taskland_animations_warrior_base.riv";
@@ -22,18 +27,76 @@ const CSS = `
   @keyframes logoIn      { 0%{opacity:0;transform:scale(0.9)} 100%{opacity:1;transform:scale(1)} }
   @keyframes taskCheck   { 0%{transform:scale(0)} 50%{transform:scale(1.3)} 100%{transform:scale(1)} }
   @keyframes taskStrike  { from{width:0} to{width:100%} }
+  @keyframes victoryPop  { 0%{transform:scale(0.5);opacity:0} 50%{transform:scale(1.1);opacity:1} 100%{transform:scale(1);opacity:1} }
+  @keyframes monsterIn   { 0%{opacity:0;transform:scaleX(-1) translateY(20px)} 100%{opacity:1;transform:scaleX(-1) translateY(0)} }
   @media(max-width:700px) {
     .pp-row { flex-direction: column !important; }
     .pp-tasklist { width: 100% !important; }
   }
 `;
 
-const DEMO_TASKS = [
-  { text: "Estudar React por 30 min",   diff: "medium", xp: 50 },
-  { text: "Responder emails pendentes",  diff: "easy",   xp: 30 },
-  { text: "Revisar pull request",        diff: "hard",   xp: 75 },
-  { text: "Planejar sprint da semana",   diff: "medium", xp: 50 },
-  { text: "Organizar notas do projeto",  diff: "easy",   xp: 30 },
+// ── Monster roster ──────────────────────────────────────────────────────────
+interface MonsterDef {
+  name: string;
+  sprite: string;
+  type: string;
+  typeLabel: string;
+  hp: number;
+  height: string;
+  bottom: string;
+}
+
+const MONSTERS: MonsterDef[] = [
+  { name: "Slime of Laziness",       sprite: imgSlime,    type: "weak",     typeLabel: "WEAK",     hp: 110, height: "30%", bottom: "18%" },
+  { name: "Procrastination Goblin",  sprite: imgGoblin,   type: "normal",   typeLabel: "NORMAL",   hp: 180, height: "48%", bottom: "15%" },
+  { name: "Shroom of Distraction",   sprite: imgCogu,     type: "xp_bonus", typeLabel: "XP BONUS", hp: 140, height: "38%", bottom: "16%" },
+  { name: "Skeleton of Burnout",     sprite: imgSkeleton, type: "strong",   typeLabel: "STRONG",   hp: 220, height: "58%", bottom: "12%" },
+  { name: "Dark Lord of Chaos",      sprite: imgDarkLord, type: "boss",     typeLabel: "BOSS",     hp: 300, height: "88%", bottom: "5%"  },
+];
+
+const TYPE_COLORS: Record<string, string> = {
+  weak: "#06ffa5", normal: "", xp_bonus: "#f59e0b", strong: "#e63946", boss: "#a855f7",
+};
+
+// ── Task sets per monster ───────────────────────────────────────────────────
+const TASK_SETS = [
+  [
+    { text: "Reply to pending emails",     diff: "easy",   xp: 30 },
+    { text: "Organize project notes",      diff: "easy",   xp: 30 },
+    { text: "Update task board",           diff: "easy",   xp: 30 },
+    { text: "Review daily goals",          diff: "easy",   xp: 30 },
+  ],
+  [
+    { text: "Study React for 30 min",      diff: "medium", xp: 50 },
+    { text: "Review pull request",         diff: "hard",   xp: 75 },
+    { text: "Plan the week's sprint",      diff: "medium", xp: 50 },
+    { text: "Write unit tests",            diff: "medium", xp: 50 },
+    { text: "Fix navigation bug",          diff: "hard",   xp: 75 },
+  ],
+  [
+    { text: "Read 20 pages of a book",     diff: "easy",   xp: 30 },
+    { text: "Practice typing for 15 min",  diff: "easy",   xp: 30 },
+    { text: "Complete online lesson",      diff: "medium", xp: 50 },
+    { text: "Summarize key takeaways",     diff: "medium", xp: 50 },
+  ],
+  [
+    { text: "Refactor auth module",        diff: "hard",   xp: 75 },
+    { text: "Deploy staging build",        diff: "medium", xp: 50 },
+    { text: "Write API documentation",     diff: "hard",   xp: 75 },
+    { text: "Optimize database queries",   diff: "hard",   xp: 75 },
+    { text: "Set up monitoring alerts",    diff: "medium", xp: 50 },
+    { text: "Code review teammate's PR",   diff: "medium", xp: 50 },
+  ],
+  [
+    { text: "Design system architecture",  diff: "hard",   xp: 75 },
+    { text: "Implement CI/CD pipeline",    diff: "hard",   xp: 75 },
+    { text: "Write integration tests",     diff: "hard",   xp: 75 },
+    { text: "Performance audit",           diff: "hard",   xp: 75 },
+    { text: "Launch production deploy",    diff: "hard",   xp: 75 },
+    { text: "Create post-mortem doc",      diff: "medium", xp: 50 },
+    { text: "Team retrospective notes",    diff: "medium", xp: 50 },
+    { text: "Celebrate the victory!",      diff: "easy",   xp: 30 },
+  ],
 ];
 
 const DIFF_STYLES: Record<string, { color: string; icon: typeof Shield }> = {
@@ -42,10 +105,8 @@ const DIFF_STYLES: Record<string, { color: string; icon: typeof Shield }> = {
   hard:   { color: "#e63946", icon: Flame },
 };
 
-const MONSTER_MAX_HP = 180;
-
 // ── Rive warrior ────────────────────────────────────────────────────────────
-function DemoWarrior({ onAttack }: { onAttack: () => void }) {
+function DemoWarrior({ onAttack, paused }: { onAttack: () => void; paused: boolean }) {
   const [riveReady, setRiveReady] = useState(false);
   const attackInputRef = useRef<any>(null);
   const onLoad = useCallback(() => setRiveReady(true), []);
@@ -71,7 +132,7 @@ function DemoWarrior({ onAttack }: { onAttack: () => void }) {
   }, [rive, riveReady]);
 
   useEffect(() => {
-    if (!riveReady) return;
+    if (!riveReady || paused) return;
     const fire = () => {
       const input = attackInputRef.current;
       if (!input) return;
@@ -82,7 +143,7 @@ function DemoWarrior({ onAttack }: { onAttack: () => void }) {
     const first = setTimeout(fire, 1400);
     const interval = setInterval(fire, 3000);
     return () => { clearTimeout(first); clearInterval(interval); };
-  }, [riveReady, onAttack]);
+  }, [riveReady, onAttack, paused]);
 
   return (
     <div style={{
@@ -95,7 +156,9 @@ function DemoWarrior({ onAttack }: { onAttack: () => void }) {
 }
 
 // ── Demo task list ──────────────────────────────────────────────────────────
-function DemoTaskList({ completedCount }: { completedCount: number }) {
+function DemoTaskList({ tasks, completedCount, monsterIndex }: {
+  tasks: typeof TASK_SETS[0]; completedCount: number; monsterIndex: number;
+}) {
   const {
     BG_CARD, BG_DEEPEST, BORDER_SUBTLE, BORDER_ELEVATED,
     ACCENT_GOLD, COLOR_SUCCESS, COLOR_DANGER,
@@ -112,16 +175,12 @@ function DemoTaskList({ completedCount }: { completedCount: number }) {
       border: `1px solid ${alpha(BORDER_ELEVATED, "b3")}`,
       borderRadius: RADIUS_XL,
       overflow: "hidden",
-      animation: "fadeUp 0.5s 0.25s ease both",
       alignSelf: "stretch",
       display: "flex", flexDirection: "column",
     }}>
-      {/* Header — matches real toolbar */}
       <div style={{
-        background: BG_DEEPEST,
-        borderBottom: `1px solid ${BORDER_SUBTLE}`,
-        padding: "6px 14px",
-        display: "flex", alignItems: "center", gap: SP_SM,
+        background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`,
+        padding: "6px 14px", display: "flex", alignItems: "center", gap: SP_SM,
       }}>
         <div style={{
           flexShrink: 0, minWidth: 24, height: 24,
@@ -129,33 +188,30 @@ function DemoTaskList({ completedCount }: { completedCount: number }) {
           borderRadius: RADIUS_SM + 1,
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
-          <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: PX_2XS, lineHeight: 1 }}>#1</span>
+          <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: PX_2XS, lineHeight: 1 }}>
+            #{monsterIndex + 1}
+          </span>
         </div>
-        <span style={{
-          fontFamily: FONT_PIXEL, color: TEXT_LIGHT, fontSize: PX_SM,
-          textShadow: "1px 1px 0 #000", flex: 1,
-        }}>
-          TAREFAS
+        <span style={{ fontFamily: FONT_PIXEL, color: TEXT_LIGHT, fontSize: PX_SM, textShadow: "1px 1px 0 #000", flex: 1 }}>
+          TASKS
         </span>
         <span style={{ fontFamily: FONT_BODY, color: TEXT_MUTED, fontSize: VT_SM }}>
-          {Math.min(completedCount, DEMO_TASKS.length)}/{DEMO_TASKS.length}
+          {Math.min(completedCount, tasks.length)}/{tasks.length}
         </span>
       </div>
 
-      {/* Tasks */}
-      <div style={{ padding: "6px 8px", display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
-        {DEMO_TASKS.map((task, i) => {
+      <div style={{ padding: "6px 8px", display: "flex", flexDirection: "column", gap: 4, flex: 1, overflowY: "auto" }}>
+        {tasks.map((task, i) => {
           const done = i < completedCount;
           const ds = DIFF_STYLES[task.diff];
           const DiffIcon = ds.icon;
           return (
-            <div key={i} style={{
+            <div key={`${monsterIndex}-${i}`} style={{
               display: "flex", alignItems: "center", gap: 8,
               padding: "7px 10px",
               background: done ? `${COLOR_SUCCESS}0c` : "transparent",
               border: `1px solid ${done ? `${COLOR_SUCCESS}33` : BORDER_SUBTLE}`,
-              borderRadius: 6,
-              transition: "all 0.3s ease",
+              borderRadius: 6, transition: "all 0.3s ease",
             }}>
               <div style={{
                 width: 18, height: 18, flexShrink: 0, borderRadius: 4,
@@ -168,11 +224,7 @@ function DemoTaskList({ completedCount }: { completedCount: number }) {
                   style={{ animation: "taskCheck 0.3s ease" }} />}
               </div>
               <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
-                <span style={{
-                  fontFamily: FONT_BODY, fontSize: 14,
-                  color: done ? TEXT_INACTIVE : TEXT_LIGHT,
-                  transition: "color 0.3s",
-                }}>
+                <span style={{ fontFamily: FONT_BODY, fontSize: 14, color: done ? TEXT_INACTIVE : TEXT_LIGHT, transition: "color 0.3s" }}>
                   {task.text}
                 </span>
                 {done && <div style={{
@@ -183,32 +235,24 @@ function DemoTaskList({ completedCount }: { completedCount: number }) {
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
                 <DiffIcon size={11} color={done ? TEXT_INACTIVE : ds.color} />
-                <span style={{
-                  fontFamily: FONT_PIXEL, fontSize: 6,
-                  color: done ? TEXT_INACTIVE : ACCENT_GOLD,
-                }}>+{task.xp}XP</span>
+                <span style={{ fontFamily: FONT_PIXEL, fontSize: 6, color: done ? TEXT_INACTIVE : ACCENT_GOLD }}>+{task.xp}XP</span>
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Damage footer */}
       {completedCount > 0 && (
         <div style={{
-          borderTop: `1px solid ${BORDER_SUBTLE}`,
-          padding: "6px 12px",
+          borderTop: `1px solid ${BORDER_SUBTLE}`, padding: "6px 12px",
           display: "flex", alignItems: "center", justifyContent: "space-between",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <Zap size={12} color={ACCENT_GOLD} />
-            <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: ACCENT_GOLD }}>DANO TOTAL</span>
+            <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: ACCENT_GOLD }}>TOTAL DAMAGE</span>
           </div>
-          <span style={{
-            fontFamily: FONT_PIXEL, fontSize: VT_XS, color: COLOR_DANGER,
-            textShadow: "1px 1px 0 #000",
-          }}>
-            -{Math.min(completedCount, DEMO_TASKS.length) * 35} HP
+          <span style={{ fontFamily: FONT_PIXEL, fontSize: VT_XS, color: COLOR_DANGER, textShadow: "1px 1px 0 #000" }}>
+            -{Math.min(completedCount, tasks.length) * 35} HP
           </span>
         </div>
       )}
@@ -221,45 +265,68 @@ function LandingInner() {
   const navigate = useNavigate();
   const {
     BG_DEEPEST, BG_CARD, BORDER_SUBTLE, BORDER_ELEVATED,
-    ACCENT_GOLD, COLOR_DANGER, COLOR_WARNING, COLOR_SUCCESS,
+    ACCENT_GOLD, COLOR_DANGER, COLOR_WARNING, COLOR_SUCCESS, COLOR_LEGENDARY,
     TEXT_MUTED, TEXT_INACTIVE, TEXT_LIGHT,
     FONT_PIXEL, FONT_BODY, alpha,
     RADIUS_SM, RADIUS_LG, RADIUS_XL,
-    PX_2XS, PX_SM, PX_MD, VT_SM, VT_XS, SP_SM,
+    PX_2XS, PX_SM, PX_MD, VT_SM, VT_XS, VT_LG, SP_SM,
   } = useTheme();
 
+  const [monsterIdx, setMonsterIdx] = useState(0);
   const [hitCount, setHitCount] = useState(0);
   const [showDmg, setShowDmg] = useState(false);
   const [dmgVal, setDmgVal] = useState(0);
+  const [defeated, setDefeated] = useState(false);
+  const [showVictory, setShowVictory] = useState(false);
+  const [totalDefeated, setTotalDefeated] = useState(0);
 
-  const hpPercent = Math.max(0, ((MONSTER_MAX_HP - hitCount * 35) / MONSTER_MAX_HP) * 100);
+  const monster = MONSTERS[monsterIdx % MONSTERS.length];
+  const tasks = TASK_SETS[monsterIdx % TASK_SETS.length];
+  const currentHp = Math.max(0, monster.hp - hitCount * 35);
+  const hpPercent = (currentHp / monster.hp) * 100;
   const hpColor = hpPercent > 50 ? COLOR_SUCCESS : hpPercent > 25 ? COLOR_WARNING : COLOR_DANGER;
-  const hpLabel = `${Math.max(0, MONSTER_MAX_HP - hitCount * 35)}/${MONSTER_MAX_HP}`;
-  const monsterShake = showDmg;
+  const hpLabel = `${currentHp}/${monster.hp}`;
+  const typeColor = TYPE_COLORS[monster.type] || "";
+
+  // Detect defeat
+  useEffect(() => {
+    if (currentHp <= 0 && !defeated) {
+      setDefeated(true);
+      setShowVictory(true);
+      setTotalDefeated(c => c + 1);
+    }
+  }, [currentHp, defeated]);
+
+  // Auto-advance to next monster after victory
+  useEffect(() => {
+    if (!showVictory) return;
+    const t = setTimeout(() => {
+      setShowVictory(false);
+      setDefeated(false);
+      setHitCount(0);
+      setMonsterIdx(i => i + 1);
+    }, 2500);
+    return () => clearTimeout(t);
+  }, [showVictory]);
 
   const handleAttack = useCallback(() => {
+    if (defeated) return;
     const dmg = Math.floor(Math.random() * 15 + 28);
     setDmgVal(dmg);
     setShowDmg(true);
     setHitCount(c => c + 1);
     setTimeout(() => setShowDmg(false), 600);
-  }, []);
+  }, [defeated]);
 
   return (
     <>
       <style>{CSS}</style>
       <div style={{
-        minHeight: "100dvh",
-        background: BG_DEEPEST,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "24px 16px",
-        position: "relative",
-        overflow: "hidden",
+        minHeight: "100dvh", background: BG_DEEPEST,
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        padding: "24px 16px", position: "relative", overflow: "hidden",
       }}>
-        {/* Pixel grid bg */}
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
           backgroundImage: `
@@ -274,34 +341,23 @@ function LandingInner() {
           maxWidth: 860, width: "100%", gap: 24,
         }}>
           {/* Logo */}
-          <div style={{
-            width: "min(300px, 65vw)", aspectRatio: "725 / 378",
-            animation: "logoIn 0.6s ease both",
-          }}>
+          <div style={{ width: "min(300px, 65vw)", aspectRatio: "725 / 378", animation: "logoIn 0.6s ease both" }}>
             <TasklandLogotipo />
           </div>
 
           {/* Arena + Task list */}
-          <div className="pp-row" style={{
-            display: "flex", gap: 12, width: "100%",
-            alignItems: "stretch",
-          }}>
-            {/* Arena card — replicates the real ArenaCard */}
+          <div className="pp-row" style={{ display: "flex", gap: 12, width: "100%", alignItems: "stretch" }}>
+            {/* Arena card */}
             <div style={{
-              flex: 1, minWidth: 0,
-              background: BG_CARD,
+              flex: 1, minWidth: 0, background: BG_CARD,
               border: `1px solid ${alpha(BORDER_ELEVATED, "b3")}`,
-              borderRadius: RADIUS_XL,
-              overflow: "hidden",
-              animation: "fadeUp 0.5s 0.15s ease both",
+              borderRadius: RADIUS_XL, overflow: "hidden",
               display: "flex", flexDirection: "column",
             }}>
               {/* Toolbar */}
               <div style={{
-                background: BG_DEEPEST,
-                borderBottom: `1px solid ${BORDER_SUBTLE}`,
-                padding: "6px 14px",
-                display: "flex", alignItems: "center", gap: SP_SM,
+                background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`,
+                padding: "6px 14px", display: "flex", alignItems: "center", gap: SP_SM,
               }}>
                 <div style={{
                   flexShrink: 0, minWidth: 24, height: 24,
@@ -309,15 +365,23 @@ function LandingInner() {
                   borderRadius: RADIUS_SM + 1,
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
-                  <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: PX_2XS, lineHeight: 1 }}>#1</span>
+                  <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: PX_2XS, lineHeight: 1 }}>
+                    #{(monsterIdx % MONSTERS.length) + 1}
+                  </span>
                 </div>
                 <span style={{
                   fontFamily: FONT_PIXEL, color: TEXT_LIGHT, fontSize: PX_SM,
                   textShadow: "1px 1px 0 #000", flex: 1,
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                 }}>
-                  Goblin da Procrastinação
+                  {monster.name}
                 </span>
+                {totalDefeated > 0 && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                    <Skull size={11} color={COLOR_DANGER} />
+                    <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: COLOR_DANGER }}>{totalDefeated}</span>
+                  </div>
+                )}
               </div>
 
               {/* Battle area */}
@@ -329,14 +393,12 @@ function LandingInner() {
                   position: "absolute", inset: 0, width: "100%", height: "100%",
                   objectFit: "cover", imageRendering: "pixelated", zIndex: 1,
                 }} />
-                {/* Vignette */}
                 <div style={{
                   position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none",
                   background: `radial-gradient(ellipse at 50% 50%, transparent 55%, ${alpha(BG_DEEPEST, "73")} 100%)`,
                 }} />
 
-                {/* Warrior */}
-                <DemoWarrior onAttack={handleAttack} />
+                <DemoWarrior onAttack={handleAttack} paused={defeated} />
 
                 {/* Power badge */}
                 <div style={{
@@ -344,39 +406,42 @@ function LandingInner() {
                   display: "flex", alignItems: "center", gap: 6,
                   background: alpha(BG_DEEPEST, "e0"),
                   border: `1px solid ${COLOR_WARNING}88`,
-                  borderRadius: RADIUS_LG - 1,
-                  padding: "5px 11px",
+                  borderRadius: RADIUS_LG - 1, padding: "5px 11px",
                   backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
                   boxShadow: `0 0 16px ${COLOR_WARNING}55, inset 0 0 8px ${COLOR_WARNING}18`,
                   whiteSpace: "nowrap", pointerEvents: "none",
                 }}>
                   <Zap size={12} color={COLOR_WARNING} strokeWidth={2.5} />
-                  <span style={{
-                    fontFamily: FONT_PIXEL, fontSize: PX_MD, color: COLOR_WARNING,
-                    letterSpacing: 1, textShadow: `0 0 10px ${COLOR_WARNING}cc`,
-                  }}>
+                  <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_MD, color: COLOR_WARNING, letterSpacing: 1, textShadow: `0 0 10px ${COLOR_WARNING}cc` }}>
                     1.35
                   </span>
                 </div>
 
                 {/* Monster */}
-                <div style={{
-                  position: "absolute", right: "8%", bottom: "15%",
-                  height: "48%", zIndex: 2,
-                  transform: monsterShake ? "scaleX(-1) translateX(-8px)" : "scaleX(-1)",
-                  transition: monsterShake ? "transform 0.05s" : "transform 0.3s",
-                  filter: hpPercent < 25 ? "brightness(1.4) saturate(1.2)" : "brightness(0.88) saturate(0.82)",
+                <div key={monsterIdx} style={{
+                  position: "absolute", right: "8%", bottom: monster.bottom,
+                  height: monster.height, zIndex: 2,
+                  transform: showDmg ? "scaleX(-1) translateX(-8px)" : "scaleX(-1)",
+                  transition: showDmg ? "transform 0.05s" : "transform 0.3s",
+                  filter: defeated ? "brightness(0.3) grayscale(1)" : hpPercent < 25 ? "brightness(1.4) saturate(1.2)" : "brightness(0.88) saturate(0.82)",
                   imageRendering: "pixelated",
+                  animation: defeated ? "none" : "monsterIn 0.4s ease both",
                 }}>
-                  <img src={imgGoblin} alt="" style={{
+                  <img src={monster.sprite} alt="" style={{
                     height: "100%", width: "auto", objectFit: "contain",
                     imageRendering: "pixelated",
+                    opacity: defeated ? 0.2 : 1, transition: "opacity 0.5s",
                   }} />
+                  {defeated && (
+                    <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", color: COLOR_DANGER }}>
+                      <Skull size={44} />
+                    </div>
+                  )}
                 </div>
 
                 {/* Floating damage */}
                 {showDmg && (
-                  <div key={hitCount} style={{
+                  <div key={`dmg-${hitCount}`} style={{
                     position: "absolute", top: "25%", right: "15%", zIndex: 10,
                     fontFamily: FONT_PIXEL, fontSize: 22, color: COLOR_DANGER,
                     textShadow: "2px 2px 0 #000, 0 0 8px rgba(230,57,70,0.5)",
@@ -385,19 +450,50 @@ function LandingInner() {
                     -{dmgVal}
                   </div>
                 )}
+
+                {/* Victory overlay */}
+                {showVictory && (
+                  <div style={{
+                    position: "absolute", inset: 0, zIndex: 15,
+                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                    background: "rgba(5,7,18,0.6)",
+                    animation: "victoryPop 0.4s ease both",
+                  }}>
+                    <Trophy size={36} color={COLOR_WARNING} />
+                    <span style={{
+                      fontFamily: FONT_PIXEL, fontSize: PX_SM, color: COLOR_WARNING,
+                      textShadow: "2px 2px 0 #000", marginTop: 8,
+                    }}>VICTORY!</span>
+                    <span style={{
+                      fontFamily: FONT_PIXEL, fontSize: 14, color: COLOR_LEGENDARY,
+                      textShadow: "1px 1px 0 #000", marginTop: 4,
+                    }}>+{tasks.reduce((a, t) => a + t.xp, 0)} XP</span>
+                    <span style={{
+                      fontFamily: FONT_BODY, fontSize: VT_SM, color: TEXT_MUTED, marginTop: 8,
+                    }}>Next monster incoming...</span>
+                  </div>
+                )}
               </div>
 
-              {/* Footer — HP bar, same as real ArenaCard */}
+              {/* Footer — type tag + HP bar */}
               <div style={{
-                background: BG_DEEPEST,
-                borderTop: `1px solid ${BORDER_SUBTLE}`,
-                padding: "7px 12px",
-                display: "flex", alignItems: "center", gap: SP_SM,
+                background: BG_DEEPEST, borderTop: `1px solid ${BORDER_SUBTLE}`,
+                padding: "7px 12px", display: "flex", alignItems: "center", gap: SP_SM,
               }}>
-                <span style={{
-                  fontFamily: FONT_PIXEL, fontSize: PX_2XS,
-                  color: TEXT_INACTIVE, letterSpacing: 0.5,
-                }}>NORMAL</span>
+                {typeColor ? (
+                  <span style={{
+                    background: typeColor + "22", border: `1px solid ${typeColor}66`,
+                    color: typeColor, fontFamily: FONT_PIXEL, fontSize: PX_2XS,
+                    padding: "2px 6px", borderRadius: RADIUS_SM - 1,
+                    whiteSpace: "nowrap", letterSpacing: 0.5,
+                  }}>
+                    {monster.typeLabel}
+                  </span>
+                ) : (
+                  <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: TEXT_INACTIVE, letterSpacing: 0.5 }}>
+                    {monster.typeLabel}
+                  </span>
+                )}
 
                 <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-end" }}>
                   <div style={{
@@ -405,10 +501,7 @@ function LandingInner() {
                     background: BG_DEEPEST, border: `1px solid ${hpColor}55`,
                     borderRadius: RADIUS_SM, overflow: "hidden",
                   }}>
-                    <div style={{
-                      width: `${hpPercent}%`, height: "100%",
-                      background: hpColor, transition: "width 0.6s ease",
-                    }} />
+                    <div style={{ width: `${hpPercent}%`, height: "100%", background: hpColor, transition: "width 0.6s ease" }} />
                   </div>
                   <span style={{
                     fontFamily: FONT_BODY, color: hpColor, fontSize: VT_XS,
@@ -419,29 +512,28 @@ function LandingInner() {
             </div>
 
             {/* Task list */}
-            <DemoTaskList completedCount={Math.min(hitCount, DEMO_TASKS.length)} />
+            <DemoTaskList
+              tasks={tasks}
+              completedCount={Math.min(hitCount, tasks.length)}
+              monsterIndex={monsterIdx % MONSTERS.length}
+            />
           </div>
 
           {/* Copy */}
           <div style={{ textAlign: "center", animation: "fadeUp 0.5s 0.35s ease both" }}>
             <h1 style={{
-              fontFamily: FONT_PIXEL,
-              fontSize: "clamp(10px, 2.8vw, 16px)",
-              color: ACCENT_GOLD,
-              letterSpacing: 2,
-              textShadow: "2px 2px 0 #000",
+              fontFamily: FONT_PIXEL, fontSize: "clamp(10px, 2.8vw, 16px)",
+              color: ACCENT_GOLD, letterSpacing: 2, textShadow: "2px 2px 0 #000",
               margin: 0, lineHeight: 1.6,
             }}>
-              DESTRUA O MONSTRO<br />DA PROCRASTINAÇÃO
+              SLAY THE MONSTER<br />OF PROCRASTINATION
             </h1>
             <p style={{
-              fontFamily: FONT_BODY,
-              fontSize: "clamp(14px, 3.5vw, 18px)",
-              color: TEXT_MUTED,
-              marginTop: 10, lineHeight: 1.5,
+              fontFamily: FONT_BODY, fontSize: "clamp(14px, 3.5vw, 18px)",
+              color: TEXT_MUTED, marginTop: 10, lineHeight: 1.5,
             }}>
-              Transforme tarefas em batalhas.<br />
-              Evolua seu personagem. Conquiste seus objetivos.
+              Turn tasks into battles.<br />
+              Level up your character. Conquer your goals.
             </p>
           </div>
 
@@ -451,8 +543,7 @@ function LandingInner() {
             style={{
               width: "100%", maxWidth: 340, padding: "16px 24px",
               background: ACCENT_GOLD, border: "none", borderRadius: 8,
-              fontFamily: FONT_PIXEL,
-              fontSize: "clamp(9px, 2vw, 12px)",
+              fontFamily: FONT_PIXEL, fontSize: "clamp(9px, 2vw, 12px)",
               color: BG_DEEPEST, letterSpacing: 2, cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
               boxShadow: `4px 4px 0 #000, 0 0 20px ${alpha(ACCENT_GOLD, "33")}`,
@@ -469,7 +560,7 @@ function LandingInner() {
             }}
           >
             <Swords size={16} />
-            COMEÇAR AVENTURA
+            START YOUR ADVENTURE
           </button>
 
           <span style={{
