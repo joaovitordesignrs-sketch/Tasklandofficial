@@ -2,7 +2,7 @@
  * ProductPage — Landing page replicating the real in-game arena + demo task list.
  * Monsters cycle automatically when defeated. All text in English.
  */
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { PreferencesProvider, useTheme } from "../contexts/PreferencesContext";
 import { useRive, Layout, Fit, Alignment } from "@rive-app/react-canvas";
@@ -30,11 +30,39 @@ const CSS = `
   @keyframes taskStrike  { from{width:0} to{width:100%} }
   @keyframes victoryPop  { 0%{transform:scale(0.5);opacity:0} 50%{transform:scale(1.1);opacity:1} 100%{transform:scale(1);opacity:1} }
   @keyframes monsterIn   { 0%{opacity:0;transform:scaleX(-1) translateY(20px)} 100%{opacity:1;transform:scaleX(-1) translateY(0)} }
+  @keyframes particleDrift {
+    0%   { transform: translateY(0) rotate(45deg); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { transform: translateY(-100vh) rotate(45deg); opacity: 0; }
+  }
+  @keyframes orbFloat1 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(30px,-20px)} 66%{transform:translate(-20px,15px)} }
+  @keyframes orbFloat2 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(-25px,30px)} 66%{transform:translate(20px,-25px)} }
+  @keyframes orbFloat3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(15px,25px)} }
+  @keyframes heroReveal { 0%{opacity:0;transform:translateY(30px) scale(0.97)} 100%{opacity:1;transform:translateY(0) scale(1)} }
+  @keyframes demoReveal { 0%{opacity:0;transform:translateY(60px) scale(0.95)} 100%{opacity:1;transform:translateY(0) scale(1)} }
   @media(max-width:700px) {
     .pp-row { flex-direction: column !important; }
     .pp-tasklist { width: 100% !important; }
   }
 `;
+
+// ── Floating pixel particles ────────────────────────────────────────────────
+const PARTICLES = Array.from({ length: 20 }, (_, i) => ({
+  left: `${(i * 137.5 + 7) % 100}%`,
+  size: i % 3 === 0 ? 4 : i % 2 === 0 ? 3 : 2,
+  duration: 8 + (i % 7) * 2,
+  delay: (i % 11) * 0.9,
+  opacity: 0.15 + (i % 5) * 0.06,
+}));
+
+// ── Ambient orbs ────────────────────────────────────────────────────────────
+const ORBS = [
+  { x: "15%", y: "20%", size: 300, color: "rgba(235,176,55,0.06)", anim: "orbFloat1 12s ease-in-out infinite" },
+  { x: "75%", y: "15%", size: 250, color: "rgba(96,165,250,0.05)", anim: "orbFloat2 15s ease-in-out infinite" },
+  { x: "50%", y: "70%", size: 350, color: "rgba(168,85,247,0.04)", anim: "orbFloat3 18s ease-in-out infinite" },
+  { x: "85%", y: "60%", size: 200, color: "rgba(230,57,70,0.04)", anim: "orbFloat1 14s ease-in-out infinite 3s" },
+];
 
 // ── Monster roster ──────────────────────────────────────────────────────────
 interface MonsterDef {
@@ -319,15 +347,52 @@ function LandingInner() {
     setTimeout(() => setShowDmg(false), 600);
   }, [defeated]);
 
+  // ── Mouse-tracking glow ──────────────────────────────────────────────────
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [mouse, setMouse] = useState({ x: 50, y: 30 });
+  const mouseRef = useRef(mouse);
+
+  useEffect(() => {
+    let raf: number;
+    const handleMove = (e: MouseEvent) => {
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      mouseRef.current = { x, y };
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setMouse({ x, y }));
+    };
+    window.addEventListener("mousemove", handleMove);
+    return () => { window.removeEventListener("mousemove", handleMove); cancelAnimationFrame(raf); };
+  }, []);
+
+  // ── Scroll-triggered demo reveal ────────────────────────────────────────
+  const demoRef = useRef<HTMLElement>(null);
+  const [demoVisible, setDemoVisible] = useState(false);
+
+  useEffect(() => {
+    const el = demoRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setDemoVisible(true); obs.disconnect(); } },
+      { threshold: 0.15 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   return (
     <>
       <style>{CSS}</style>
-      <div style={{
+      <div ref={containerRef} style={{
         minHeight: "100dvh", background: BG_DEEPEST,
         display: "flex", flexDirection: "column",
         position: "relative", overflow: "hidden",
       }}>
-        {/* Pixel grid bg */}
+        {/* ── Interactive background layers ── */}
+
+        {/* Pixel grid */}
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
           backgroundImage: `
@@ -336,6 +401,38 @@ function LandingInner() {
           `,
         }} />
 
+        {/* Mouse-following radial glow */}
+        <div style={{
+          position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0,
+          background: `radial-gradient(600px circle at ${mouse.x}% ${mouse.y}%, ${alpha(ACCENT_GOLD, "0a")}, transparent 60%)`,
+          transition: "background 0.3s ease-out",
+        }} />
+
+        {/* Ambient floating orbs */}
+        {ORBS.map((orb, i) => (
+          <div key={i} style={{
+            position: "absolute", left: orb.x, top: orb.y,
+            width: orb.size, height: orb.size,
+            borderRadius: "50%",
+            background: `radial-gradient(circle, ${orb.color}, transparent 70%)`,
+            pointerEvents: "none", zIndex: 0,
+            animation: orb.anim,
+            filter: "blur(40px)",
+          }} />
+        ))}
+
+        {/* Rising pixel particles */}
+        {PARTICLES.map((p, i) => (
+          <div key={i} style={{
+            position: "absolute", bottom: -10, left: p.left,
+            width: p.size, height: p.size,
+            background: ACCENT_GOLD,
+            opacity: p.opacity,
+            pointerEvents: "none", zIndex: 0,
+            animation: `particleDrift ${p.duration}s linear ${p.delay}s infinite`,
+          }} />
+        ))}
+
         {/* ═══ HERO SECTION ═══ */}
         <section style={{
           position: "relative", zIndex: 1,
@@ -343,6 +440,7 @@ function LandingInner() {
           textAlign: "center",
           padding: "clamp(48px, 10vh, 100px) 24px 48px",
           gap: 20,
+          animation: "heroReveal 0.8s cubic-bezier(0.22,1,0.36,1) both",
         }}>
           {/* Logo */}
           <div style={{ width: "min(280px, 60vw)", aspectRatio: "725 / 378", animation: "logoIn 0.6s ease both" }}>
@@ -411,10 +509,13 @@ function LandingInner() {
         </section>
 
         {/* ═══ PRODUCT DEMO SECTION ═══ */}
-        <section id="pp-demo" style={{
+        <section ref={demoRef} id="pp-demo" style={{
           position: "relative", zIndex: 1,
           display: "flex", flexDirection: "column", alignItems: "center",
           padding: "0 24px 80px",
+          opacity: demoVisible ? 1 : 0,
+          transform: demoVisible ? "translateY(0) scale(1)" : "translateY(60px) scale(0.95)",
+          transition: "opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1)",
         }}>
           {/* Demo container with shadow/glow to give depth like the Notion screenshot */}
           <div style={{
