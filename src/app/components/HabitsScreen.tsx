@@ -11,6 +11,7 @@ import { HabitIcon, HABIT_ICON_CATEGORIES, PixelIcon } from "./ui/PixelIcon";
 import { CardIn } from "./ui/CardIn";
 import { RpgButton } from "./ui/RpgButton";
 import { useTheme } from "../contexts/PreferencesContext";
+import { track } from "../hooks/analytics";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 const DEFAULT_ICON = HABIT_ICON_CATEGORIES[0].icons[0]; // "heart"
@@ -58,6 +59,8 @@ export default function HabitsScreen() {
   const handleCheckin = (id: string) => {
     audioManager.playClick("tap");
     const { newMedals } = checkinHabit(id);
+    const habit = getHabits().find(h => h.id === id);
+    track("habit_checkin", { name: habit?.name ?? "", streak: habit?.currentStreak ?? 0 });
     refresh();
     if (newMedals.length > 0) {
       const habit = getHabits().find(h => h.id === id);

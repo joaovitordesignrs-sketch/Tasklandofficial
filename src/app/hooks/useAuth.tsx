@@ -3,6 +3,7 @@
 // to the entire app via React Context.
 
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react";
+import { track, identify } from "./analytics";
 import { supabase } from "../data/supabaseClient";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
 import type { User, Session } from "@supabase/supabase-js";
@@ -84,6 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }));
       if (session?.user) {
         loadNick(session.user.id);
+        identify(session.user.id, session.user.email ?? undefined);
       }
     });
 
@@ -131,6 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: loginError.message };
       }
 
+      track("sign_up", { method: "email" });
       return { error: null };
     } catch (e: any) {
       console.log("Signup network error:", e);
@@ -145,6 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log("SignIn error:", error);
       return { error: error.message };
     }
+    track("sign_in", { method: "email" });
     return { error: null };
   }, []);
 
@@ -160,6 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log("Google OAuth error:", error);
       return { error: error.message };
     }
+    track("sign_in", { method: "google" });
     return { error: null };
   }, []);
 

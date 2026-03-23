@@ -9,6 +9,7 @@ import { useRive, Layout, Fit, Alignment } from "@rive-app/react-canvas";
 import { Swords, Check, Shield, Flame, Zap, Skull, Trophy, Heart, Dumbbell, BookOpen, Brain, Droplets } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { RpgButton } from "./ui/RpgButton";
+import { track } from "../hooks/analytics";
 
 import imgSlime    from "../../assets/monsters/monster_slime.png";
 import imgGoblin   from "../../assets/monsters/monster_goblin.png";
@@ -853,7 +854,7 @@ function LandingInner() {
           {/* CTA */}
           <RpgButton
             color={ACCENT_GOLD}
-            onClick={() => navigate("/")}
+            onClick={() => { track("cta_click", { location: "landing" }); navigate("/"); }}
             small
             style={{ fontSize: 7, letterSpacing: 1, padding: "7px 16px" }}
           >
@@ -908,7 +909,7 @@ function LandingInner() {
             }}>
               <RpgButton
                 color={ACCENT_GOLD}
-                onClick={() => navigate("/")}
+                onClick={() => { track("cta_click", { location: "landing" }); navigate("/"); }}
                 style={{ padding: "10px 22px", fontSize: 8, letterSpacing: 2 }}
               >
                 <Swords size={12} /> START FOR FREE
@@ -1154,7 +1155,7 @@ function LandingInner() {
           </p>
           <RpgButton
             color={ACCENT_GOLD}
-            onClick={() => navigate("/")}
+            onClick={() => { track("cta_click", { location: "landing" }); navigate("/"); }}
             style={{ padding: "12px 28px", fontSize: 9, letterSpacing: 2, marginTop: 8 }}
           >
             <Swords size={14} /> START YOUR ADVENTURE

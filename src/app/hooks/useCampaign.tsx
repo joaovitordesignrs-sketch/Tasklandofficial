@@ -8,6 +8,7 @@ import {
   useState, useCallback, useEffect, useRef, useMemo,
   ReactNode,
 } from "react";
+import { track } from "./analytics";
 import { useSound }               from "./useSound";
 import { audioManager }           from "./audioManager";
 import { useInteractionFeedback } from "./useInteractionFeedback";
@@ -150,6 +151,7 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
     const next = unlockNext(updatedMission);
     setNextMission(next);
     setCampaignDone(!next && isCampaignComplete());
+    track("monster_defeated", { type: monType, xp: xpGained, gold: goldEarned });
     setTimeout(() => { feedback.victory(); audioManager.playVictory(); setShowVictory(true); }, 800);
   }, [feedback]);
 
@@ -185,6 +187,7 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
     if (lvInfo.level > prevLevelRef.current && prevLevelRef.current > 0) {
       const r = getRank(lvInfo.level);
       setLevelUpInfo({ level: lvInfo.level, rank: r.label, rankColor: r.color });
+      track("level_up", { level: lvInfo.level, rank: r.label });
     }
     prevLevelRef.current = lvInfo.level;
   }, []);
@@ -281,6 +284,7 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
     updateMission(updated);
 
     updatedTasks.filter(t => completedIds.includes(t.id)).forEach(t => addTaskToHistory(t, mission));
+    track("task_completed", { count, damage, monster: mission.monsterType ?? "normal" });
     setTaskCompleted(true);
     setTimeout(() => setTaskCompleted(false), 0);
     scheduleFeedback(() => {
