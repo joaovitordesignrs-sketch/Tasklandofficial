@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { PreferencesProvider, useTheme } from "../contexts/PreferencesContext";
 import { useRive, Layout, Fit, Alignment } from "@rive-app/react-canvas";
-import { Swords, Check, Shield, Flame, Zap, Skull, Trophy } from "lucide-react";
+import { Swords, Check, Shield, Flame, Zap, Skull, Trophy, Heart, Dumbbell, BookOpen, Brain, Droplets } from "lucide-react";
 import { RpgButton } from "./ui/RpgButton";
 
 import imgSlime    from "../../assets/monsters/monster_slime.png";
@@ -290,6 +290,360 @@ function DemoTaskList({ tasks, completedCount, monsterIndex }: {
 }
 
 // ── Main inner ──────────────────────────────────────────────────────────────
+// ── Demo habits data ────────────────────────────────────────────────────────
+const DEMO_HABITS = [
+  { name: "Drink water",        icon: Droplets,  streak: 12, checked: true,  medal: "Beginner" },
+  { name: "Exercise 30 min",    icon: Dumbbell,  streak: 24, checked: true,  medal: "Habit Builder" },
+  { name: "Read 20 pages",      icon: BookOpen,  streak: 67, checked: false, medal: "Habit Master" },
+  { name: "Meditate",           icon: Brain,     streak: 5,  checked: true,  medal: "Beginner" },
+  { name: "Healthy meal",       icon: Heart,     streak: 3,  checked: false, medal: null },
+];
+
+const STREAK_COLOR = (s: number) => s >= 66 ? "#FF6B35" : s >= 21 ? "#FFD700" : s >= 5 ? "#06ffa5" : "#5a6080";
+
+// ── Demo friends data ───────────────────────────────────────────────────────
+const DEMO_FRIENDS = [
+  { name: "DragonSlayer42",  level: 18, rank: "Veteran",   rankColor: "#06ffa5",  streak: 15, status: "online"  },
+  { name: "QuestMasterX",   level: 24, rank: "Elite",     rankColor: "#FFD700",  streak: 32, status: "online"  },
+  { name: "PixelKnight",    level: 11, rank: "Apprentice", rankColor: "#60a5fa",  streak: 7,  status: "offline" },
+  { name: "RuneCaster99",   level: 31, rank: "Legend",     rankColor: "#a855f7",  streak: 45, status: "online"  },
+  { name: "TaskNinja",      level: 8,  rank: "Novice",    rankColor: "#5a6080",  streak: 2,  status: "offline" },
+];
+
+// ── Feature card with scroll reveal ─────────────────────────────────────────
+function FeatureCard({ children, label, labelColor, icon, delay = 0 }: {
+  children: React.ReactNode; label: string; labelColor: string;
+  icon: React.ReactNode; delay?: number;
+}) {
+  const {
+    BG_CARD, BG_DEEPEST, BORDER_SUBTLE, BORDER_ELEVATED,
+    TEXT_LIGHT, FONT_PIXEL, SP_SM, RADIUS_SM, RADIUS_XL, PX_2XS, PX_SM, alpha,
+  } = useTheme();
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold: 0.1 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} style={{
+      flex: 1, minWidth: 280,
+      background: BG_CARD,
+      border: `1px solid ${alpha(BORDER_ELEVATED, "b3")}`,
+      borderRadius: RADIUS_XL,
+      overflow: "hidden",
+      boxShadow: `0 16px 48px rgba(0,0,0,0.4), 0 0 60px ${alpha(labelColor, "08")}`,
+      display: "flex", flexDirection: "column",
+      opacity: visible ? 1 : 0,
+      transform: visible ? "translateY(0)" : "translateY(50px)",
+      transition: `opacity 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}s, transform 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}s`,
+    }}>
+      <div style={{
+        background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`,
+        padding: "8px 14px", display: "flex", alignItems: "center", gap: SP_SM,
+      }}>
+        <div style={{
+          width: 24, height: 24, background: `${labelColor}22`, border: `1px solid ${labelColor}55`,
+          borderRadius: RADIUS_SM + 1, display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          {icon}
+        </div>
+        <span style={{
+          fontFamily: FONT_PIXEL, color: TEXT_LIGHT, fontSize: PX_SM,
+          textShadow: "1px 1px 0 #000", flex: 1,
+        }}>
+          {label}
+        </span>
+      </div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ── Features section ────────────────────────────────────────────────────────
+function FeaturesSection() {
+  const {
+    BG_CARD, BG_DEEPEST, BORDER_SUBTLE, BORDER_ELEVATED,
+    ACCENT_GOLD, COLOR_SUCCESS, COLOR_DANGER, COLOR_WARNING, COLOR_LEGENDARY,
+    TEXT_MUTED, TEXT_INACTIVE, TEXT_LIGHT,
+    FONT_PIXEL, FONT_BODY, alpha,
+    RADIUS_SM, RADIUS_LG, RADIUS_XL,
+    PX_2XS, PX_SM, VT_SM, VT_XS, SP_SM,
+  } = useTheme();
+
+  const [habitTick, setHabitTick] = useState(0);
+
+  // Auto-toggle habits for demo
+  useEffect(() => {
+    const t = setInterval(() => setHabitTick(c => c + 1), 2000);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <section style={{
+      position: "relative", zIndex: 1,
+      padding: "60px 24px",
+      display: "flex", flexDirection: "column", alignItems: "center", gap: 40,
+    }}>
+      {/* Section title */}
+      <div style={{ textAlign: "center" }}>
+        <h2 style={{
+          fontFamily: FONT_PIXEL, fontSize: "clamp(9px, 2vw, 14px)",
+          color: TEXT_LIGHT, margin: 0, letterSpacing: 2,
+          textShadow: "2px 2px 0 #000",
+        }}>
+          EVERYTHING YOU NEED TO <span style={{ color: ACCENT_GOLD }}>WIN THE DAY</span>
+        </h2>
+        <p style={{
+          fontFamily: FONT_BODY, fontSize: "clamp(14px, 2vw, 18px)",
+          color: TEXT_MUTED, marginTop: 8,
+        }}>
+          Tasks, habits, and friends — all gamified.
+        </p>
+      </div>
+
+      {/* Feature cards */}
+      <div className="pp-row" style={{
+        display: "flex", gap: 16, width: "100%", maxWidth: 920,
+        alignItems: "stretch",
+      }}>
+
+        {/* ── TASKS CARD ── */}
+        <FeatureCard
+          label="CAMPAIGN TASKS"
+          labelColor={ACCENT_GOLD}
+          icon={<Swords size={12} color={ACCENT_GOLD} />}
+          delay={0}
+        >
+          <div style={{ padding: "8px 10px", display: "flex", flexDirection: "column", gap: 5 }}>
+            {[
+              { text: "Ship landing page v2",        diff: "hard",   xp: 75, done: true },
+              { text: "Fix mobile responsive bugs",  diff: "medium", xp: 50, done: true },
+              { text: "Write API documentation",     diff: "hard",   xp: 75, done: false },
+              { text: "Update onboarding flow",      diff: "medium", xp: 50, done: false },
+              { text: "Clean up unused imports",     diff: "easy",   xp: 30, done: false },
+            ].map((task, i) => {
+              const ds = DIFF_STYLES[task.diff];
+              const DiffIcon = ds.icon;
+              return (
+                <div key={i} style={{
+                  display: "flex", alignItems: "center", gap: 8,
+                  padding: "8px 10px",
+                  background: task.done ? `${COLOR_SUCCESS}0c` : "transparent",
+                  border: `1px solid ${task.done ? `${COLOR_SUCCESS}33` : BORDER_SUBTLE}`,
+                  borderRadius: 6,
+                }}>
+                  <div style={{
+                    width: 18, height: 18, flexShrink: 0, borderRadius: 4,
+                    border: `2px solid ${task.done ? COLOR_SUCCESS : BORDER_ELEVATED}`,
+                    background: task.done ? COLOR_SUCCESS : "transparent",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    {task.done && <Check size={12} color={BG_DEEPEST} strokeWidth={3} />}
+                  </div>
+                  <span style={{
+                    flex: 1, fontFamily: FONT_BODY, fontSize: 14,
+                    color: task.done ? TEXT_INACTIVE : TEXT_LIGHT,
+                    textDecoration: task.done ? "line-through" : "none",
+                  }}>
+                    {task.text}
+                  </span>
+                  <DiffIcon size={11} color={task.done ? TEXT_INACTIVE : ds.color} />
+                  <span style={{ fontFamily: FONT_PIXEL, fontSize: 6, color: task.done ? TEXT_INACTIVE : ACCENT_GOLD }}>
+                    +{task.xp}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          {/* Damage summary */}
+          <div style={{
+            marginTop: "auto",
+            borderTop: `1px solid ${BORDER_SUBTLE}`, padding: "8px 14px",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+          }}>
+            <span style={{ fontFamily: FONT_BODY, fontSize: VT_SM, color: TEXT_MUTED }}>
+              2 completed — monster takes damage!
+            </span>
+            <span style={{ fontFamily: FONT_PIXEL, fontSize: VT_XS, color: COLOR_DANGER, textShadow: "1px 1px 0 #000" }}>
+              -70 HP
+            </span>
+          </div>
+        </FeatureCard>
+
+        {/* ── HABITS CARD ── */}
+        <FeatureCard
+          label="DAILY HABITS"
+          labelColor={COLOR_SUCCESS}
+          icon={<Flame size={12} color={COLOR_SUCCESS} />}
+          delay={0.15}
+        >
+          <div style={{ padding: "8px 10px", display: "flex", flexDirection: "column", gap: 5 }}>
+            {DEMO_HABITS.map((habit, i) => {
+              const isChecked = habit.checked || (habitTick % DEMO_HABITS.length === i && !habit.checked);
+              const HIcon = habit.icon;
+              const streakColor = STREAK_COLOR(habit.streak);
+              return (
+                <div key={i} style={{
+                  display: "flex", alignItems: "center", gap: 10,
+                  padding: "8px 10px",
+                  background: isChecked ? `${COLOR_SUCCESS}08` : "transparent",
+                  borderLeft: `3px solid ${isChecked ? COLOR_SUCCESS : BORDER_ELEVATED}`,
+                  borderRadius: 6,
+                  transition: "all 0.3s ease",
+                }}>
+                  {/* Check button */}
+                  <div style={{
+                    width: 32, height: 32, flexShrink: 0, borderRadius: 6,
+                    background: isChecked ? COLOR_SUCCESS : BG_DEEPEST,
+                    border: `2px solid ${isChecked ? COLOR_SUCCESS : BORDER_ELEVATED}`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    transition: "all 0.2s",
+                  }}>
+                    {isChecked
+                      ? <Check size={16} color={BG_DEEPEST} strokeWidth={3} />
+                      : <HIcon size={14} color={TEXT_INACTIVE} />
+                    }
+                  </div>
+                  {/* Info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontFamily: FONT_BODY, fontSize: 15,
+                      color: isChecked ? COLOR_SUCCESS : TEXT_LIGHT,
+                      transition: "color 0.2s",
+                    }}>
+                      {habit.name}
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                      <Flame size={10} color={streakColor} />
+                      <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: streakColor }}>
+                        {habit.streak} days
+                      </span>
+                      {habit.medal && (
+                        <span style={{
+                          fontFamily: FONT_PIXEL, fontSize: 5,
+                          color: streakColor, background: `${streakColor}18`,
+                          border: `1px solid ${streakColor}44`,
+                          padding: "1px 5px", borderRadius: 3,
+                        }}>
+                          {habit.medal.toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {/* Power bonus footer */}
+          <div style={{
+            marginTop: "auto",
+            borderTop: `1px solid ${BORDER_SUBTLE}`, padding: "8px 14px",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+          }}>
+            <span style={{ fontFamily: FONT_BODY, fontSize: VT_SM, color: TEXT_MUTED }}>
+              Active habits boost your power
+            </span>
+            <span style={{ fontFamily: FONT_PIXEL, fontSize: VT_XS, color: COLOR_SUCCESS, textShadow: "1px 1px 0 #000" }}>
+              +10% DMG
+            </span>
+          </div>
+        </FeatureCard>
+      </div>
+
+      {/* ── FRIENDS CARD — full width ── */}
+      <div style={{ width: "100%", maxWidth: 920 }}>
+        <FeatureCard
+          label="FRIENDS & LEADERBOARD"
+          labelColor={COLOR_LEGENDARY}
+          icon={<Trophy size={12} color={COLOR_LEGENDARY} />}
+          delay={0.1}
+        >
+          <div style={{ padding: "8px 10px", display: "flex", flexDirection: "column", gap: 4 }}>
+            {DEMO_FRIENDS.map((f, i) => (
+              <div key={i} style={{
+                display: "flex", alignItems: "center", gap: 10,
+                padding: "8px 12px",
+                background: i === 0 ? `${ACCENT_GOLD}08` : "transparent",
+                border: `1px solid ${i === 0 ? `${ACCENT_GOLD}33` : BORDER_SUBTLE}`,
+                borderRadius: 6,
+              }}>
+                {/* Rank position */}
+                <span style={{
+                  fontFamily: FONT_PIXEL, fontSize: 9, color: i < 3 ? ACCENT_GOLD : TEXT_INACTIVE,
+                  width: 20, textAlign: "center", flexShrink: 0,
+                }}>
+                  {i + 1}
+                </span>
+                {/* Avatar placeholder */}
+                <div style={{
+                  width: 32, height: 32, flexShrink: 0, borderRadius: 8,
+                  background: BG_DEEPEST, border: `1px solid ${BORDER_ELEVATED}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <span style={{ fontFamily: FONT_PIXEL, fontSize: 8, color: f.rankColor }}>
+                    {f.name.charAt(0)}
+                  </span>
+                </div>
+                {/* Name + rank */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontFamily: FONT_BODY, fontSize: 15, color: TEXT_LIGHT }}>
+                      {f.name}
+                    </span>
+                    {/* Online indicator */}
+                    <div style={{
+                      width: 6, height: 6, borderRadius: "50%",
+                      background: f.status === "online" ? COLOR_SUCCESS : TEXT_INACTIVE,
+                    }} />
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
+                    <span style={{ fontFamily: FONT_PIXEL, fontSize: 6, color: COLOR_LEGENDARY }}>
+                      LVL {f.level}
+                    </span>
+                    <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: f.rankColor }}>
+                      {f.rank}
+                    </span>
+                  </div>
+                </div>
+                {/* Streak */}
+                <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
+                  <Flame size={10} color={STREAK_COLOR(f.streak)} />
+                  <span style={{ fontFamily: FONT_BODY, fontSize: 13, color: STREAK_COLOR(f.streak) }}>
+                    {f.streak}d
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{
+            marginTop: "auto",
+            borderTop: `1px solid ${BORDER_SUBTLE}`, padding: "8px 14px",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+          }}>
+            <span style={{ fontFamily: FONT_BODY, fontSize: VT_SM, color: TEXT_MUTED }}>
+              Compete with friends and climb the ranks
+            </span>
+            <span style={{ fontFamily: FONT_PIXEL, fontSize: VT_XS, color: COLOR_LEGENDARY, textShadow: "1px 1px 0 #000" }}>
+              5 ONLINE
+            </span>
+          </div>
+        </FeatureCard>
+      </div>
+    </section>
+  );
+}
+
 function LandingInner() {
   const navigate = useNavigate();
   const {
@@ -706,9 +1060,41 @@ function LandingInner() {
           </div>
         </section>
 
+        {/* ═══ FEATURES SECTION ═══ */}
+        <FeaturesSection />
+
+        {/* ═══ FINAL CTA ═══ */}
+        <section style={{
+          position: "relative", zIndex: 1,
+          display: "flex", flexDirection: "column", alignItems: "center",
+          textAlign: "center", padding: "60px 24px 80px", gap: 16,
+        }}>
+          <h2 style={{
+            fontFamily: FONT_PIXEL, fontSize: "clamp(9px, 2vw, 14px)",
+            color: TEXT_LIGHT, margin: 0, letterSpacing: 2,
+            textShadow: "2px 2px 0 #000",
+          }}>
+            READY TO <span style={{ color: ACCENT_GOLD }}>LEVEL UP</span>?
+          </h2>
+          <p style={{
+            fontFamily: FONT_BODY, fontSize: "clamp(14px, 2vw, 18px)",
+            color: TEXT_MUTED, margin: 0,
+          }}>
+            Join thousands of players conquering their goals.
+          </p>
+          <RpgButton
+            color={ACCENT_GOLD}
+            onClick={() => navigate("/")}
+            style={{ padding: "12px 28px", fontSize: 9, letterSpacing: 2, marginTop: 8 }}
+          >
+            <Swords size={14} /> START YOUR ADVENTURE
+          </RpgButton>
+        </section>
+
         {/* Version */}
         <div style={{
-          position: "absolute", bottom: 12, right: 16,
+          position: "relative", zIndex: 1, textAlign: "center",
+          padding: "0 0 20px",
           fontFamily: FONT_BODY, color: alpha(TEXT_INACTIVE, "44"), fontSize: 12,
         }}>
           v1.0
