@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router";
 import {
-  Swords, Brain, Flame, Award, Settings, Zap, Users, LogOut, User, Palette, ShoppingBag, Coins, Sparkles,
+  Swords, Brain, Flame, Award, Settings, Zap, Users, LogOut, User, Palette, ShoppingBag, Coins, Sparkles, Lock,
 } from "lucide-react";
 import { audioManager } from "../hooks/audioManager";
 import { getPower, formatPower } from "../data/combatPower";
@@ -24,15 +24,15 @@ interface Props {
 }
 
 const MENU_ITEMS = [
-  { path: "/",              label: "CAMPAIGN",    Icon: Swords       },
-  { path: "/desafios",      label: "FOCUS",       Icon: Brain        },
-  { path: "/habitos",       label: "HABITS",      Icon: Flame        },
-  { path: "/conquistas",    label: "ACHIEVEMENTS", Icon: Award       },
-  { path: "/perfil",        label: "PROFILE",     Icon: User         },
-  { path: "/loja",          label: "SHOP",        Icon: ShoppingBag  },
-  { path: "/amigos",        label: "FRIENDS",     Icon: Users        },
-  { path: "/configuracoes", label: "SETTINGS",    Icon: Settings     },
-  { path: "/design_system", label: "DESIGN KIT",  Icon: Palette      },
+  { path: "/",              label: "CAMPAIGN",    Icon: Swords,      locked: false },
+  { path: "/desafios",      label: "FOCUS",       Icon: Brain,       locked: true  },
+  { path: "/habitos",       label: "HABITS",      Icon: Flame,       locked: false },
+  { path: "/conquistas",    label: "ACHIEVEMENTS", Icon: Award,      locked: false },
+  { path: "/perfil",        label: "PROFILE",     Icon: User,        locked: false },
+  { path: "/loja",          label: "SHOP",        Icon: ShoppingBag, locked: true  },
+  { path: "/amigos",        label: "FRIENDS",     Icon: Users,       locked: false },
+  { path: "/configuracoes", label: "SETTINGS",    Icon: Settings,    locked: false },
+  { path: "/design_system", label: "DESIGN KIT",  Icon: Palette,     locked: false },
 ];
 
 export function DesktopSidebar({ playerName, level, rankLabel, rankColor, xpPct, currentXP, neededXP }: Props) {
@@ -165,18 +165,23 @@ export function DesktopSidebar({ playerName, level, rankLabel, rankColor, xpPct,
       {/* ── Navigation Menu ── */}
       <div style={{ flex: 1, padding: "10px 10px", overflowY: "auto" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {MENU_ITEMS.map(({ path, label, Icon }) => {
+          {MENU_ITEMS.map(({ path, label, Icon, locked }) => {
             const active = pathname === path || (path !== "/" && pathname.startsWith(path));
             return (
               <button
                 key={path}
-                onClick={() => { audioManager.playClick("navigate"); navigate(path); }}
+                onClick={() => {
+                  if (locked) return;
+                  audioManager.playClick("navigate");
+                  navigate(path);
+                }}
+                title={locked ? "Coming Soon" : undefined}
                 style={{
-                  background: active ? alpha(ACCENT_GOLD, "24") : alpha(TEXT_LIGHT, "05"),
-                  border: `2px solid ${active ? ACCENT_GOLD : BORDER_SUBTLE}`,
-                  color: active ? ACCENT_GOLD : TEXT_MUTED,
+                  background: locked ? alpha(TEXT_LIGHT, "03") : active ? alpha(ACCENT_GOLD, "24") : alpha(TEXT_LIGHT, "05"),
+                  border: `2px solid ${locked ? BORDER_SUBTLE : active ? ACCENT_GOLD : BORDER_SUBTLE}`,
+                  color: locked ? TEXT_INACTIVE : active ? ACCENT_GOLD : TEXT_MUTED,
                   padding: "13px 14px",
-                  cursor: "pointer",
+                  cursor: locked ? "not-allowed" : "pointer",
                   display: "flex",
                   alignItems: "center",
                   gap: 12,
@@ -192,9 +197,10 @@ export function DesktopSidebar({ playerName, level, rankLabel, rankColor, xpPct,
                     : "2px 2px 0 rgba(0,0,0,0.4)",
                   transform: "none",
                   imageRendering: "pixelated",
+                  opacity: locked ? 0.5 : 1,
                 }}
                 onMouseEnter={(e) => {
-                  if (!active) {
+                  if (!active && !locked) {
                     e.currentTarget.style.borderColor = BORDER_ELEVATED;
                     e.currentTarget.style.color = TEXT_BODY;
                     e.currentTarget.style.background = alpha(TEXT_LIGHT, "0d");
@@ -202,7 +208,7 @@ export function DesktopSidebar({ playerName, level, rankLabel, rankColor, xpPct,
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (!active) {
+                  if (!active && !locked) {
                     e.currentTarget.style.borderColor = BORDER_SUBTLE;
                     e.currentTarget.style.color = TEXT_MUTED;
                     e.currentTarget.style.background = alpha(TEXT_LIGHT, "05");
@@ -210,17 +216,20 @@ export function DesktopSidebar({ playerName, level, rankLabel, rankColor, xpPct,
                   }
                 }}
                 onMouseDown={(e) => {
-                  e.currentTarget.style.transform = "translate(1px,1px)";
-                  e.currentTarget.style.boxShadow = active
-                    ? "inset 0 1px 0 rgba(255,255,255,0.06), 1px 1px 0 rgba(0,0,0,0.5)"
-                    : "1px 1px 0 rgba(0,0,0,0.4)";
+                  if (!locked) {
+                    e.currentTarget.style.transform = "translate(1px,1px)";
+                    e.currentTarget.style.boxShadow = active
+                      ? "inset 0 1px 0 rgba(255,255,255,0.06), 1px 1px 0 rgba(0,0,0,0.5)"
+                      : "1px 1px 0 rgba(0,0,0,0.4)";
+                  }
                 }}
                 onMouseUp={(e) => {
-                  e.currentTarget.style.transform = "none";
+                  if (!locked) e.currentTarget.style.transform = "none";
                 }}
               >
                 <Icon size={18} />
-                {label}
+                <span style={{ flex: 1 }}>{label}</span>
+                {locked && <Lock size={11} style={{ flexShrink: 0, opacity: 0.6 }} />}
               </button>
             );
           })}

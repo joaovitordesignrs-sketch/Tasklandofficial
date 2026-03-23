@@ -9,6 +9,7 @@ import { useCampaign }  from "../hooks/useCampaign";
 import { useAuth }      from "../hooks/useAuth";
 import { ChallengePanel }    from "./ChallengePanel";
 import { FocusPanel }        from "./FocusPanel";
+import { ComingSoonOverlay } from "./ui/ComingSoonOverlay";
 import { TaskList }          from "./TaskList";
 import { PageShell } from "./ui/PageShell";
 import { ClassPickerOverlay } from "./ClassPickerOverlay";
@@ -477,24 +478,28 @@ export default function HomeScreen() {
         <div style={{ display: "flex", flexDirection: "column", gap: SP_SM, flex: 1 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: SP_SM, flexShrink: 0 }}>
             <div data-onboarding="challenge-panel">
-              <ChallengePanel
-                playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission && !campaignDone}
-                onTemporalStrike={handleTemporalStrike} onChallengeFailed={handleChallengeFailed}
-                onSelectedCountChange={setTemporalSelectedCount}
-                attackCallbackRef={temporalAttackCallbackRef}
-              />
+              <ComingSoonOverlay>
+                <ChallengePanel
+                  playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission && !campaignDone}
+                  onTemporalStrike={handleTemporalStrike} onChallengeFailed={handleChallengeFailed}
+                  onSelectedCountChange={setTemporalSelectedCount}
+                  attackCallbackRef={temporalAttackCallbackRef}
+                />
+              </ComingSoonOverlay>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 0" }}>
               <div style={{ flex: 1, height: 1, background: "rgba(90,96,128,0.4)" }} />
               <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: TEXT_MUTED, letterSpacing: 1 }}>OU</span>
               <div style={{ flex: 1, height: 1, background: "rgba(90,96,128,0.4)" }} />
             </div>
-            <FocusPanel
-              playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission && !campaignDone}
-              onFocusStrike={handleFocusStrike}
-              onSelectedCountChange={setFocusSelectedCount}
-              attackCallbackRef={focusAttackCallbackRef}
-            />
+            <ComingSoonOverlay>
+              <FocusPanel
+                playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission && !campaignDone}
+                onFocusStrike={handleFocusStrike}
+                onSelectedCountChange={setFocusSelectedCount}
+                attackCallbackRef={focusAttackCallbackRef}
+              />
+            </ComingSoonOverlay>
           </div>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
             {mission && !campaignDone ? (
@@ -609,16 +614,20 @@ export default function HomeScreen() {
           ) : (
             <>
               <div data-onboarding="challenge-panel">
-                <ChallengePanel playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission} onTemporalStrike={handleTemporalStrike} onChallengeFailed={handleChallengeFailed}
-                  onSelectedCountChange={setTemporalSelectedCount} attackCallbackRef={temporalAttackCallbackRef} />
+                <ComingSoonOverlay>
+                  <ChallengePanel playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission} onTemporalStrike={handleTemporalStrike} onChallengeFailed={handleChallengeFailed}
+                    onSelectedCountChange={setTemporalSelectedCount} attackCallbackRef={temporalAttackCallbackRef} />
+                </ComingSoonOverlay>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 14px" }}>
                 <div style={{ flex: 1, height: 1, background: "rgba(90,96,128,0.4)" }} />
                 <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: TEXT_MUTED, letterSpacing: 1 }}>OU</span>
                 <div style={{ flex: 1, height: 1, background: "rgba(90,96,128,0.4)" }} />
               </div>
-              <FocusPanel playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission} onFocusStrike={handleFocusStrike}
-                onSelectedCountChange={setFocusSelectedCount} attackCallbackRef={focusAttackCallbackRef} />
+              <ComingSoonOverlay>
+                <FocusPanel playerLevel={lvInfo.level} monsterAlive={!defeated && !!mission} onFocusStrike={handleFocusStrike}
+                  onSelectedCountChange={setFocusSelectedCount} attackCallbackRef={focusAttackCallbackRef} />
+              </ComingSoonOverlay>
               {mission ? (
                 <>
                   <TaskList

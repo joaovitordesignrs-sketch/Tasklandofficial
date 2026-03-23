@@ -13,7 +13,7 @@ import { calcTotalXP, getLevelInfo, getRank, DIFFICULTY_INFO } from "../data/gam
 import { getEconomy, CLASS_INFO } from "../data/economy";
 import { useAuth } from "../hooks/useAuth";
 import { useCampaign } from "../hooks/useCampaign";
-import { BarChart3, Star, Zap, Shield, Flame, Award, Swords, TrendingUp, Castle, Trophy, ChevronRight } from "lucide-react";
+import { BarChart3, Star, Zap, Shield, Flame, Award, Swords, TrendingUp, Castle, Trophy, ChevronRight, Lock } from "lucide-react";
 import { PowerSpiderChart } from "./ui/PowerSpiderChart";
 import { PageShell } from "./ui/PageShell";
 import { CardIn } from "./ui/CardIn";
@@ -263,18 +263,19 @@ export default function ProgressScreen() {
               <Trophy size={12} /> CONQUISTAS
             </button>
             <button
-              onClick={() => { audioManager.playClick("navigate"); navigate("/classe"); }}
+              disabled
               style={{
                 flex: 1, padding: "14px 0", ...CARD,
-                border: `1px solid ${activeClass ? activeClass.color + "55" : alpha(ACCENT_GOLD, "55")}`,
-                color: activeClass ? activeClass.color : ACCENT_GOLD,
-                fontFamily: FONT_PIXEL, fontSize: PX_SM, cursor: "pointer",
+                border: `1px solid rgba(90,96,128,0.3)`,
+                color: "rgba(120,126,160,0.5)",
+                fontFamily: FONT_PIXEL, fontSize: PX_SM, cursor: "not-allowed",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                opacity: 0.45,
               }}
             >
               <Swords size={12} />
               {activeClass ? activeClass.label.toUpperCase() : "CLASSE"}
-              <ChevronRight size={10} />
+              <Lock size={9} />
             </button>
           </div>
 

@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { ShoppingBag, Coins, Sparkles, Check } from "lucide-react";
 import { PageShell } from "./ui/PageShell";
+import { ComingSoonOverlay } from "./ui/ComingSoonOverlay";
 import { CardIn } from "./ui/CardIn";
 import { RpgButton } from "./ui/RpgButton";
 import { PixelIcon } from "./ui/PixelIcon";
@@ -66,6 +67,7 @@ export default function ShopScreen() {
   }
 
   return (
+    <ComingSoonOverlay>
     <PageShell
       icon={<ShoppingBag size={18} />}
       title="SHOP"
@@ -192,5 +194,6 @@ export default function ShopScreen() {
         </span>
       </div>
     </PageShell>
+    </ComingSoonOverlay>
   );
 }

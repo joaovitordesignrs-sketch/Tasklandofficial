@@ -9,7 +9,7 @@ import { useNavigate } from "react-router";
 import {
   Scroll, BarChart3, User,
   Calendar, ChevronDown, ChevronUp, Timer, Brain, Shield, Swords, Flame,
-  Star, Zap, Castle, Trophy, Backpack,
+  Star, Zap, Castle, Trophy, Backpack, Lock,
 } from "lucide-react";
 
 // ── Data / hooks ───────────────────────────────────────────────────────────────
@@ -315,25 +315,26 @@ function EvolucaoTab() {
           <div style={{ color: TEXT_INACTIVE, fontSize: 14, marginTop: 4, fontFamily: FONT_BODY }}>{lvInfo.neededXP - lvInfo.currentXP} XP to Level {nextLevel}</div>
         </div>
 
-        {/* ── Botão para página de seleção de classe ── */}
+        {/* ── Botão para página de seleção de classe (desabilitado no MVP) ── */}
         <div style={{ borderTop: `1px solid ${BORDER_SUBTLE}`, padding: "10px 14px" }}>
           <button
-            onClick={() => { audioManager.playClick("navigate"); navigate("/classe"); }}
+            disabled
             style={{
               width: "100%",
               display: "flex", alignItems: "center", justifyContent: "space-between",
               padding: "12px 16px",
-              background: activeClassColors ? `${activeClassColors.color}0d` : BG_DEEPEST,
-              border: `1px solid ${activeClassColors ? activeClassColors.color + "44" : BORDER_ELEVATED}`,
-              borderRadius: 8, cursor: "pointer", transition: "all 0.18s",
+              background: BG_DEEPEST,
+              border: `1px solid ${BORDER_SUBTLE}`,
+              borderRadius: 8, cursor: "not-allowed", transition: "all 0.18s",
+              opacity: 0.45,
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 36, height: 36, background: activeClassColors ? `${activeClassColors.color}18` : BORDER_SUBTLE, border: `1px solid ${activeClassColors ? activeClassColors.color + "55" : BORDER_ELEVATED}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Swords size={16} color={activeClassColors?.color ?? TEXT_MUTED} />
+              <div style={{ width: 36, height: 36, background: BORDER_SUBTLE, border: `1px solid ${BORDER_ELEVATED}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Swords size={16} color={TEXT_MUTED} />
               </div>
               <div style={{ textAlign: "left" }}>
-                <div style={{ fontFamily: FONT_PIXEL, fontSize: 8, color: activeClassColors?.color ?? TEXT_MUTED, letterSpacing: 0.5 }}>
+                <div style={{ fontFamily: FONT_PIXEL, fontSize: 8, color: TEXT_MUTED, letterSpacing: 0.5 }}>
                   {activeClass ? activeClass.label.toUpperCase() : "NO CLASS"}
                 </div>
                 <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: TEXT_INACTIVE, marginTop: 2 }}>
@@ -342,8 +343,8 @@ function EvolucaoTab() {
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: activeClassColors?.color ?? TEXT_INACTIVE }}>CHANGE SKIN</span>
-              <span style={{ color: activeClassColors?.color ?? TEXT_INACTIVE, fontSize: 20, fontFamily: FONT_BODY }}>▶</span>
+              <span style={{ fontFamily: FONT_PIXEL, fontSize: 7, color: TEXT_INACTIVE }}>COMING SOON</span>
+              <Lock size={12} color={TEXT_INACTIVE} />
             </div>
           </button>
         </div>

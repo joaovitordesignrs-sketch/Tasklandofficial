@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { ArrowLeft, CheckCircle2, Lock } from "lucide-react";
+import { ComingSoonOverlay } from "./ui/ComingSoonOverlay";
 import { useRive, Layout, Fit, Alignment } from "@rive-app/react-canvas";
 import { audioManager } from "../hooks/audioManager";
 import { getEconomy, buySkin, selectSkin, SKIN_INFO, type SkinId } from "../data/economy";
@@ -91,6 +92,7 @@ export default function ClassSelectionScreen() {
   const selColor  = selInfo.locked ? TEXT_INACTIVE : selInfo.color;
 
   return (
+    <ComingSoonOverlay>
     <div style={{
       minHeight: "100vh",
       background: BG_PAGE,
@@ -292,5 +294,6 @@ export default function ClassSelectionScreen() {
         </p>
       </div>
     </div>
+    </ComingSoonOverlay>
   );
 }
