@@ -78,7 +78,7 @@ interface MonsterDef {
 
 const MONSTERS: MonsterDef[] = [
   { name: "Slime of Laziness",       sprite: imgSlime,    type: "weak",     typeLabel: "WEAK",     hp: 110, height: "30%", bottom: "18%" },
-  { name: "Procrastination Goblin",  sprite: imgGoblin,   type: "normal",   typeLabel: "NORMAL",   hp: 180, height: "48%", bottom: "15%" },
+  { name: "Procrastination Goblin",  sprite: imgGoblin,   type: "normal",   typeLabel: "NORMAL",   hp: 180, height: "35%", bottom: "15%" },
   { name: "Shroom of Distraction",   sprite: imgCogu,     type: "xp_bonus", typeLabel: "XP BONUS", hp: 140, height: "38%", bottom: "16%" },
 ];
 
