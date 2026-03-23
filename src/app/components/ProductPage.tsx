@@ -81,7 +81,7 @@ const MONSTERS: MonsterDef[] = [
   { name: "Slime of Laziness",       sprite: imgSlime,    type: "weak",     typeLabel: "WEAK",     hp: 110, height: "30%", bottom: "18%" },
   { name: "Procrastination Goblin",  sprite: imgGoblin,   type: "normal",   typeLabel: "NORMAL",   hp: 180, height: "48%", bottom: "15%" },
   { name: "Shroom of Distraction",   sprite: imgCogu,     type: "xp_bonus", typeLabel: "XP BONUS", hp: 140, height: "38%", bottom: "16%" },
-  { name: "Skeleton of Burnout",     sprite: imgSkeleton, type: "strong",   typeLabel: "STRONG",   hp: 220, height: "58%", bottom: "12%" },
+  { name: "Skeleton of Burnout",     sprite: imgSkeleton, type: "strong",   typeLabel: "STRONG",   hp: 220, height: "45%", bottom: "14%" },
 ];
 
 const TYPE_COLORS: Record<string, string> = {
