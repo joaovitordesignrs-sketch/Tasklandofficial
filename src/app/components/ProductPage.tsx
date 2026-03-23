@@ -7,6 +7,7 @@ import { useNavigate } from "react-router";
 import { PreferencesProvider, useTheme } from "../contexts/PreferencesContext";
 import { useRive, Layout, Fit, Alignment } from "@rive-app/react-canvas";
 import { Swords, Check, Shield, Flame, Zap, Skull, Trophy, Heart, Dumbbell, BookOpen, Brain, Droplets } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { RpgButton } from "./ui/RpgButton";
 
 import imgSlime    from "../../assets/monsters/monster_slime.png";
@@ -372,66 +373,73 @@ function FeatureCard({ children, label, labelColor, icon, delay = 0 }: {
 }
 
 // ── Features section ────────────────────────────────────────────────────────
-// ── SVG area chart for habits (no Recharts dependency) ──────────────────────
+// ── Recharts area chart for habits (same as HabitsScreen) ───────────────────
 const CHART_BASELINE = [2, 3, 1, 4, 3, 5, 4, 3, 5, 4, 2, 3, 4, 5];
 
-function HabitChart({ checkedCount, color }: { checkedCount: number; color: string }) {
-  const { BG_DEEPEST, BORDER_SUBTLE, TEXT_INACTIVE, FONT_BODY } = useTheme();
-  const max = 5;
-  const data = useMemo(() => {
+function HabitChart({ checkedCount }: { checkedCount: number }) {
+  const { BG_DEEPEST, BORDER_SUBTLE, BORDER_ELEVATED, TEXT_INACTIVE, COLOR_SUCCESS, FONT_BODY } = useTheme();
+
+  const chartData = useMemo(() => {
     const d = [...CHART_BASELINE];
-    // Last few values react to current check-in count
-    d[d.length - 1] = Math.min(max, checkedCount);
-    d[d.length - 2] = Math.min(max, Math.max(checkedCount - 1, d[d.length - 2]));
-    return d;
+    d[d.length - 1] = Math.min(5, checkedCount);
+    d[d.length - 2] = Math.min(5, Math.max(checkedCount - 1, d[d.length - 2]));
+    return d.map((count, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (13 - i));
+      return { date: date.toLocaleDateString("en", { month: "numeric", day: "numeric" }), count };
+    });
   }, [checkedCount]);
 
-  const w = 280, h = 100, px = 8, py = 8;
-  const innerW = w - px * 2, innerH = h - py * 2;
-  const points = data.map((v, i) => {
-    const x = px + (i / (data.length - 1)) * innerW;
-    const y = py + innerH - (v / max) * innerH;
-    return `${x},${y}`;
-  });
-  const line = points.join(" ");
-  const area = `${px},${py + innerH} ${line} ${px + innerW},${py + innerH}`;
-
-  const labels = Array.from({ length: 14 }, (_, i) => {
-    const d = new Date(); d.setDate(d.getDate() - (13 - i));
-    return `${d.getMonth() + 1}/${d.getDate()}`;
-  });
-
   return (
-    <div style={{ padding: "12px 12px 6px", background: BG_DEEPEST, borderRadius: 8, margin: "0 10px 10px" }}>
-      <svg viewBox={`0 0 ${w} ${h}`} width="100%" style={{ display: "block" }}>
+    <ResponsiveContainer width="100%" height={130}>
+      <AreaChart data={chartData} margin={{ top: 6, right: 4, left: -28, bottom: 0 }}>
         <defs>
-          <linearGradient id="hcGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity={0.35} />
-            <stop offset="100%" stopColor={color} stopOpacity={0} />
+          <linearGradient id="ppHabitGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={COLOR_SUCCESS} stopOpacity={0.35} />
+            <stop offset="100%" stopColor={COLOR_SUCCESS} stopOpacity={0} />
           </linearGradient>
         </defs>
-        {/* Grid lines */}
-        {[0, 1, 2, 3, 4, 5].map(v => {
-          const y = py + innerH - (v / max) * innerH;
-          return <line key={v} x1={px} x2={px + innerW} y1={y} y2={y} stroke={BORDER_SUBTLE} strokeWidth={0.5} strokeDasharray="3 3" />;
-        })}
-        {/* Area fill */}
-        <polygon points={area} fill="url(#hcGrad)" style={{ transition: "all 0.6s ease" }} />
-        {/* Line */}
-        <polyline points={line} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ transition: "all 0.6s ease" }} />
-        {/* Dots */}
-        {data.map((v, i) => {
-          const x = px + (i / (data.length - 1)) * innerW;
-          const y = py + innerH - (v / max) * innerH;
-          return <circle key={i} cx={x} cy={y} r={i === data.length - 1 ? 4 : 2.5} fill={color} style={{ transition: "all 0.6s ease" }} />;
-        })}
-      </svg>
-      <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 4px 0" }}>
-        <span style={{ fontFamily: FONT_BODY, fontSize: 10, color: TEXT_INACTIVE }}>{labels[0]}</span>
-        <span style={{ fontFamily: FONT_BODY, fontSize: 10, color: TEXT_INACTIVE }}>{labels[6]}</span>
-        <span style={{ fontFamily: FONT_BODY, fontSize: 10, color: TEXT_INACTIVE }}>{labels[13]}</span>
-      </div>
-    </div>
+        <CartesianGrid strokeDasharray="3 3" stroke={BORDER_SUBTLE} vertical={false} />
+        <XAxis
+          dataKey="date"
+          tick={{ fontSize: 10, fill: TEXT_INACTIVE, fontFamily: FONT_BODY }}
+          tickLine={false}
+          axisLine={false}
+          interval={6}
+        />
+        <YAxis
+          allowDecimals={false}
+          domain={[0, 5]}
+          tick={{ fontSize: 10, fill: TEXT_INACTIVE, fontFamily: FONT_BODY }}
+          tickLine={false}
+          axisLine={false}
+          width={36}
+        />
+        <Tooltip
+          contentStyle={{
+            background: BG_DEEPEST,
+            border: `1px solid ${BORDER_ELEVATED}`,
+            borderRadius: 6,
+            fontFamily: FONT_BODY,
+            fontSize: 14,
+          }}
+          itemStyle={{ color: COLOR_SUCCESS }}
+          labelStyle={{ color: TEXT_INACTIVE, fontSize: 12 }}
+          formatter={(v: number) => [v, "habits"]}
+        />
+        <Area
+          type="monotone"
+          dataKey="count"
+          stroke={COLOR_SUCCESS}
+          strokeWidth={2}
+          fill="url(#ppHabitGrad)"
+          dot={{ r: 3, fill: COLOR_SUCCESS, strokeWidth: 0 }}
+          activeDot={{ r: 5, fill: COLOR_SUCCESS, strokeWidth: 0 }}
+          isAnimationActive={true}
+          animationDuration={600}
+        />
+      </AreaChart>
+    </ResponsiveContainer>
   );
 }
 
@@ -640,7 +648,7 @@ function FeaturesSection() {
               HABITS COMPLETED · LAST 14 DAYS
             </div>
             <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
-              <HabitChart checkedCount={checkedIndices.length} color={COLOR_SUCCESS} />
+              <HabitChart checkedCount={checkedIndices.length} />
             </div>
             {/* Stats row */}
             <div style={{
