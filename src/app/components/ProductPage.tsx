@@ -325,9 +325,9 @@ function LandingInner() {
       <div style={{
         minHeight: "100dvh", background: BG_DEEPEST,
         display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        padding: "24px 16px", position: "relative", overflow: "hidden",
+        position: "relative", overflow: "hidden",
       }}>
+        {/* Pixel grid bg */}
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
           backgroundImage: `
@@ -336,217 +336,68 @@ function LandingInner() {
           `,
         }} />
 
-        <div style={{
+        {/* ═══ HERO SECTION ═══ */}
+        <section style={{
           position: "relative", zIndex: 1,
           display: "flex", flexDirection: "column", alignItems: "center",
-          maxWidth: 860, width: "100%", gap: 24,
+          textAlign: "center",
+          padding: "clamp(48px, 10vh, 100px) 24px 48px",
+          gap: 20,
         }}>
           {/* Logo */}
-          <div style={{ width: "min(300px, 65vw)", aspectRatio: "725 / 378", animation: "logoIn 0.6s ease both" }}>
+          <div style={{ width: "min(280px, 60vw)", aspectRatio: "725 / 378", animation: "logoIn 0.6s ease both" }}>
             <TasklandLogotipo />
           </div>
 
-          {/* Arena + Task list */}
-          <div className="pp-row" style={{ display: "flex", gap: 12, width: "100%", alignItems: "stretch" }}>
-            {/* Arena card */}
-            <div style={{
-              flex: 1, minWidth: 0, background: BG_CARD,
-              border: `1px solid ${alpha(BORDER_ELEVATED, "b3")}`,
-              borderRadius: RADIUS_XL, overflow: "hidden",
-              display: "flex", flexDirection: "column",
-            }}>
-              {/* Toolbar */}
-              <div style={{
-                background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`,
-                padding: "6px 14px", display: "flex", alignItems: "center", gap: SP_SM,
-              }}>
-                <div style={{
-                  flexShrink: 0, minWidth: 24, height: 24,
-                  background: BG_CARD, border: `1px solid ${BORDER_ELEVATED}`,
-                  borderRadius: RADIUS_SM + 1,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: PX_2XS, lineHeight: 1 }}>
-                    #{(monsterIdx % MONSTERS.length) + 1}
-                  </span>
-                </div>
-                <span style={{
-                  fontFamily: FONT_PIXEL, color: TEXT_LIGHT, fontSize: PX_SM,
-                  textShadow: "1px 1px 0 #000", flex: 1,
-                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                }}>
-                  {monster.name}
-                </span>
-                {totalDefeated > 0 && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                    <Skull size={11} color={COLOR_DANGER} />
-                    <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: COLOR_DANGER }}>{totalDefeated}</span>
-                  </div>
-                )}
-              </div>
+          {/* Headline */}
+          <h1 style={{
+            fontFamily: FONT_BODY,
+            fontSize: "clamp(28px, 6vw, 56px)",
+            fontWeight: 700,
+            color: TEXT_LIGHT,
+            margin: 0, lineHeight: 1.15,
+            letterSpacing: -0.5,
+            animation: "fadeUp 0.5s 0.1s ease both",
+          }}>
+            Slay the monster<br />
+            <span style={{ color: ACCENT_GOLD }}>of procrastination.</span>
+          </h1>
 
-              {/* Battle area */}
-              <div style={{
-                position: "relative", width: "100%", aspectRatio: "16/9",
-                overflow: "hidden", background: BG_DEEPEST,
-              }}>
-                <img src={imgArena} alt="" style={{
-                  position: "absolute", inset: 0, width: "100%", height: "100%",
-                  objectFit: "cover", imageRendering: "pixelated", zIndex: 1,
-                }} />
-                <div style={{
-                  position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none",
-                  background: `radial-gradient(ellipse at 50% 50%, transparent 55%, ${alpha(BG_DEEPEST, "73")} 100%)`,
-                }} />
+          {/* Subtitle */}
+          <p style={{
+            fontFamily: FONT_BODY,
+            fontSize: "clamp(16px, 2.5vw, 20px)",
+            color: TEXT_MUTED,
+            margin: 0, lineHeight: 1.6,
+            maxWidth: 520,
+            animation: "fadeUp 0.5s 0.2s ease both",
+          }}>
+            Complete tasks. Deal damage. Defeat bosses.
+            Taskland turns your to-do list into an RPG adventure.
+          </p>
 
-                <DemoWarrior onAttack={handleAttack} paused={defeated} />
-
-                {/* Power badge */}
-                <div style={{
-                  position: "absolute", left: "4%", top: "6%", zIndex: 6,
-                  display: "flex", alignItems: "center", gap: 6,
-                  background: alpha(BG_DEEPEST, "e0"),
-                  border: `1px solid ${COLOR_WARNING}88`,
-                  borderRadius: RADIUS_LG - 1, padding: "5px 11px",
-                  backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
-                  boxShadow: `0 0 16px ${COLOR_WARNING}55, inset 0 0 8px ${COLOR_WARNING}18`,
-                  whiteSpace: "nowrap", pointerEvents: "none",
-                }}>
-                  <Zap size={12} color={COLOR_WARNING} strokeWidth={2.5} />
-                  <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_MD, color: COLOR_WARNING, letterSpacing: 1, textShadow: `0 0 10px ${COLOR_WARNING}cc` }}>
-                    1.35
-                  </span>
-                </div>
-
-                {/* Monster */}
-                <div key={monsterIdx} style={{
-                  position: "absolute", right: "8%", bottom: monster.bottom,
-                  height: monster.height, zIndex: 2,
-                  transform: showDmg ? "scaleX(-1) translateX(-8px)" : "scaleX(-1)",
-                  transition: showDmg ? "transform 0.05s" : "transform 0.3s",
-                  filter: defeated ? "brightness(0.3) grayscale(1)" : hpPercent < 25 ? "brightness(1.4) saturate(1.2)" : "brightness(0.88) saturate(0.82)",
-                  imageRendering: "pixelated",
-                  animation: defeated ? "none" : "monsterIn 0.4s ease both",
-                }}>
-                  <img src={monster.sprite} alt="" style={{
-                    height: "100%", width: "auto", objectFit: "contain",
-                    imageRendering: "pixelated",
-                    opacity: defeated ? 0.2 : 1, transition: "opacity 0.5s",
-                  }} />
-                  {defeated && (
-                    <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", color: COLOR_DANGER }}>
-                      <Skull size={44} />
-                    </div>
-                  )}
-                </div>
-
-                {/* Floating damage */}
-                {showDmg && (
-                  <div key={`dmg-${hitCount}`} style={{
-                    position: "absolute", top: "25%", right: "15%", zIndex: 10,
-                    fontFamily: FONT_PIXEL, fontSize: 22, color: COLOR_DANGER,
-                    textShadow: "2px 2px 0 #000, 0 0 8px rgba(230,57,70,0.5)",
-                    animation: "dmgFloat 0.8s ease forwards", pointerEvents: "none",
-                  }}>
-                    -{dmgVal}
-                  </div>
-                )}
-
-                {/* Victory overlay */}
-                {showVictory && (
-                  <div style={{
-                    position: "absolute", inset: 0, zIndex: 15,
-                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                    background: "rgba(5,7,18,0.6)",
-                    animation: "victoryPop 0.4s ease both",
-                  }}>
-                    <Trophy size={36} color={COLOR_WARNING} />
-                    <span style={{
-                      fontFamily: FONT_PIXEL, fontSize: PX_SM, color: COLOR_WARNING,
-                      textShadow: "2px 2px 0 #000", marginTop: 8,
-                    }}>VICTORY!</span>
-                    <span style={{
-                      fontFamily: FONT_PIXEL, fontSize: 14, color: COLOR_LEGENDARY,
-                      textShadow: "1px 1px 0 #000", marginTop: 4,
-                    }}>+{tasks.reduce((a, t) => a + t.xp, 0)} XP</span>
-                    <span style={{
-                      fontFamily: FONT_BODY, fontSize: VT_SM, color: TEXT_MUTED, marginTop: 8,
-                    }}>Next monster incoming...</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Footer — type tag + HP bar */}
-              <div style={{
-                background: BG_DEEPEST, borderTop: `1px solid ${BORDER_SUBTLE}`,
-                padding: "7px 12px", display: "flex", alignItems: "center", gap: SP_SM,
-              }}>
-                {typeColor ? (
-                  <span style={{
-                    background: typeColor + "22", border: `1px solid ${typeColor}66`,
-                    color: typeColor, fontFamily: FONT_PIXEL, fontSize: PX_2XS,
-                    padding: "2px 6px", borderRadius: RADIUS_SM - 1,
-                    whiteSpace: "nowrap", letterSpacing: 0.5,
-                  }}>
-                    {monster.typeLabel}
-                  </span>
-                ) : (
-                  <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: TEXT_INACTIVE, letterSpacing: 0.5 }}>
-                    {monster.typeLabel}
-                  </span>
-                )}
-
-                <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-end" }}>
-                  <div style={{
-                    flex: 1, maxWidth: 140, height: 8,
-                    background: BG_DEEPEST, border: `1px solid ${hpColor}55`,
-                    borderRadius: RADIUS_SM, overflow: "hidden",
-                  }}>
-                    <div style={{ width: `${hpPercent}%`, height: "100%", background: hpColor, transition: "width 0.6s ease" }} />
-                  </div>
-                  <span style={{
-                    fontFamily: FONT_BODY, color: hpColor, fontSize: VT_XS,
-                    whiteSpace: "nowrap", minWidth: 48, textAlign: "right",
-                  }}>{hpLabel}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Task list */}
-            <DemoTaskList
-              tasks={tasks}
-              completedCount={Math.min(hitCount, tasks.length)}
-              monsterIndex={monsterIdx % MONSTERS.length}
-            />
-          </div>
-
-          {/* Copy */}
-          <div style={{ textAlign: "center", animation: "fadeUp 0.5s 0.35s ease both" }}>
-            <h1 style={{
-              fontFamily: FONT_PIXEL, fontSize: "clamp(10px, 2.8vw, 16px)",
-              color: ACCENT_GOLD, letterSpacing: 2, textShadow: "2px 2px 0 #000",
-              margin: 0, lineHeight: 1.6,
-            }}>
-              SLAY THE MONSTER<br />OF PROCRASTINATION
-            </h1>
-            <p style={{
-              fontFamily: FONT_BODY, fontSize: "clamp(14px, 3.5vw, 18px)",
-              color: TEXT_MUTED, marginTop: 10, lineHeight: 1.5,
-            }}>
-              Turn tasks into battles.<br />
-              Level up your character. Conquer your goals.
-            </p>
-          </div>
-
-          {/* CTA */}
-          <div style={{ width: "100%", maxWidth: 340, animation: "fadeUp 0.5s 0.5s ease both" }}>
+          {/* CTA row */}
+          <div style={{
+            display: "flex", gap: 12, alignItems: "center",
+            flexWrap: "wrap", justifyContent: "center",
+            animation: "fadeUp 0.5s 0.3s ease both",
+          }}>
             <RpgButton
-              fullWidth
               color={ACCENT_GOLD}
               onClick={() => navigate("/")}
-              style={{ padding: "14px 24px", fontSize: 9, letterSpacing: 2 }}
+              style={{ padding: "14px 28px", fontSize: 9, letterSpacing: 2 }}
             >
-              <Swords size={14} /> START YOUR ADVENTURE
+              <Swords size={14} /> START FOR FREE
+            </RpgButton>
+            <RpgButton
+              variant="ghost"
+              color={TEXT_MUTED}
+              onClick={() => {
+                document.getElementById("pp-demo")?.scrollIntoView({ behavior: "smooth" });
+              }}
+              style={{ padding: "14px 24px", fontSize: 9, letterSpacing: 1 }}
+            >
+              SEE IT IN ACTION ▼
             </RpgButton>
           </div>
 
@@ -557,8 +408,214 @@ function LandingInner() {
           }}>
             ▶ FREE TO PLAY
           </span>
-        </div>
+        </section>
 
+        {/* ═══ PRODUCT DEMO SECTION ═══ */}
+        <section id="pp-demo" style={{
+          position: "relative", zIndex: 1,
+          display: "flex", flexDirection: "column", alignItems: "center",
+          padding: "0 24px 80px",
+        }}>
+          {/* Demo container with shadow/glow to give depth like the Notion screenshot */}
+          <div style={{
+            width: "100%", maxWidth: 920,
+            borderRadius: 16,
+            overflow: "visible",
+            position: "relative",
+          }}>
+            {/* Glow behind the demo */}
+            <div style={{
+              position: "absolute", top: -40, left: "10%", right: "10%", height: 80,
+              background: `radial-gradient(ellipse at 50% 100%, ${alpha(ACCENT_GOLD, "18")} 0%, transparent 70%)`,
+              pointerEvents: "none", zIndex: 0,
+            }} />
+
+            <div className="pp-row" style={{
+              display: "flex", gap: 12, width: "100%",
+              alignItems: "stretch", position: "relative", zIndex: 1,
+            }}>
+              {/* ── Arena card ── */}
+              <div style={{
+                flex: 1, minWidth: 0, background: BG_CARD,
+                border: `1px solid ${alpha(BORDER_ELEVATED, "b3")}`,
+                borderRadius: RADIUS_XL, overflow: "hidden",
+                display: "flex", flexDirection: "column",
+                boxShadow: `0 20px 60px rgba(0,0,0,0.5), 0 0 80px ${alpha(ACCENT_GOLD, "08")}`,
+              }}>
+                {/* Toolbar */}
+                <div style={{
+                  background: BG_DEEPEST, borderBottom: `1px solid ${BORDER_SUBTLE}`,
+                  padding: "6px 14px", display: "flex", alignItems: "center", gap: SP_SM,
+                }}>
+                  <div style={{
+                    flexShrink: 0, minWidth: 24, height: 24,
+                    background: BG_CARD, border: `1px solid ${BORDER_ELEVATED}`,
+                    borderRadius: RADIUS_SM + 1,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <span style={{ fontFamily: FONT_PIXEL, color: ACCENT_GOLD, fontSize: PX_2XS, lineHeight: 1 }}>
+                      #{(monsterIdx % MONSTERS.length) + 1}
+                    </span>
+                  </div>
+                  <span style={{
+                    fontFamily: FONT_PIXEL, color: TEXT_LIGHT, fontSize: PX_SM,
+                    textShadow: "1px 1px 0 #000", flex: 1,
+                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                  }}>
+                    {monster.name}
+                  </span>
+                  {totalDefeated > 0 && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <Skull size={11} color={COLOR_DANGER} />
+                      <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: COLOR_DANGER }}>{totalDefeated}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Battle area */}
+                <div style={{
+                  position: "relative", width: "100%", aspectRatio: "16/9",
+                  overflow: "hidden", background: BG_DEEPEST,
+                }}>
+                  <img src={imgArena} alt="" style={{
+                    position: "absolute", inset: 0, width: "100%", height: "100%",
+                    objectFit: "cover", imageRendering: "pixelated", zIndex: 1,
+                  }} />
+                  <div style={{
+                    position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none",
+                    background: `radial-gradient(ellipse at 50% 50%, transparent 55%, ${alpha(BG_DEEPEST, "73")} 100%)`,
+                  }} />
+
+                  <DemoWarrior onAttack={handleAttack} paused={defeated} />
+
+                  {/* Power badge */}
+                  <div style={{
+                    position: "absolute", left: "4%", top: "6%", zIndex: 6,
+                    display: "flex", alignItems: "center", gap: 6,
+                    background: alpha(BG_DEEPEST, "e0"),
+                    border: `1px solid ${COLOR_WARNING}88`,
+                    borderRadius: RADIUS_LG - 1, padding: "5px 11px",
+                    backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
+                    boxShadow: `0 0 16px ${COLOR_WARNING}55, inset 0 0 8px ${COLOR_WARNING}18`,
+                    whiteSpace: "nowrap", pointerEvents: "none",
+                  }}>
+                    <Zap size={12} color={COLOR_WARNING} strokeWidth={2.5} />
+                    <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_MD, color: COLOR_WARNING, letterSpacing: 1, textShadow: `0 0 10px ${COLOR_WARNING}cc` }}>
+                      1.35
+                    </span>
+                  </div>
+
+                  {/* Monster */}
+                  <div key={monsterIdx} style={{
+                    position: "absolute", right: "8%", bottom: monster.bottom,
+                    height: monster.height, zIndex: 2,
+                    transform: showDmg ? "scaleX(-1) translateX(-8px)" : "scaleX(-1)",
+                    transition: showDmg ? "transform 0.05s" : "transform 0.3s",
+                    filter: defeated ? "brightness(0.3) grayscale(1)" : hpPercent < 25 ? "brightness(1.4) saturate(1.2)" : "brightness(0.88) saturate(0.82)",
+                    imageRendering: "pixelated",
+                    animation: defeated ? "none" : "monsterIn 0.4s ease both",
+                  }}>
+                    <img src={monster.sprite} alt="" style={{
+                      height: "100%", width: "auto", objectFit: "contain",
+                      imageRendering: "pixelated",
+                      opacity: defeated ? 0.2 : 1, transition: "opacity 0.5s",
+                    }} />
+                    {defeated && (
+                      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", color: COLOR_DANGER }}>
+                        <Skull size={44} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Floating damage */}
+                  {showDmg && (
+                    <div key={`dmg-${hitCount}`} style={{
+                      position: "absolute", top: "25%", right: "15%", zIndex: 10,
+                      fontFamily: FONT_PIXEL, fontSize: 22, color: COLOR_DANGER,
+                      textShadow: "2px 2px 0 #000, 0 0 8px rgba(230,57,70,0.5)",
+                      animation: "dmgFloat 0.8s ease forwards", pointerEvents: "none",
+                    }}>
+                      -{dmgVal}
+                    </div>
+                  )}
+
+                  {/* Victory overlay */}
+                  {showVictory && (
+                    <div style={{
+                      position: "absolute", inset: 0, zIndex: 15,
+                      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                      background: "rgba(5,7,18,0.6)",
+                      animation: "victoryPop 0.4s ease both",
+                    }}>
+                      <Trophy size={36} color={COLOR_WARNING} />
+                      <span style={{
+                        fontFamily: FONT_PIXEL, fontSize: PX_SM, color: COLOR_WARNING,
+                        textShadow: "2px 2px 0 #000", marginTop: 8,
+                      }}>VICTORY!</span>
+                      <span style={{
+                        fontFamily: FONT_PIXEL, fontSize: 14, color: COLOR_LEGENDARY,
+                        textShadow: "1px 1px 0 #000", marginTop: 4,
+                      }}>+{tasks.reduce((a, t) => a + t.xp, 0)} XP</span>
+                      <span style={{
+                        fontFamily: FONT_BODY, fontSize: VT_SM, color: TEXT_MUTED, marginTop: 8,
+                      }}>Next monster incoming...</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer — type tag + HP bar */}
+                <div style={{
+                  background: BG_DEEPEST, borderTop: `1px solid ${BORDER_SUBTLE}`,
+                  padding: "7px 12px", display: "flex", alignItems: "center", gap: SP_SM,
+                }}>
+                  {typeColor ? (
+                    <span style={{
+                      background: typeColor + "22", border: `1px solid ${typeColor}66`,
+                      color: typeColor, fontFamily: FONT_PIXEL, fontSize: PX_2XS,
+                      padding: "2px 6px", borderRadius: RADIUS_SM - 1,
+                      whiteSpace: "nowrap", letterSpacing: 0.5,
+                    }}>
+                      {monster.typeLabel}
+                    </span>
+                  ) : (
+                    <span style={{ fontFamily: FONT_PIXEL, fontSize: PX_2XS, color: TEXT_INACTIVE, letterSpacing: 0.5 }}>
+                      {monster.typeLabel}
+                    </span>
+                  )}
+                  <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-end" }}>
+                    <div style={{
+                      flex: 1, maxWidth: 140, height: 8,
+                      background: BG_DEEPEST, border: `1px solid ${hpColor}55`,
+                      borderRadius: RADIUS_SM, overflow: "hidden",
+                    }}>
+                      <div style={{ width: `${hpPercent}%`, height: "100%", background: hpColor, transition: "width 0.6s ease" }} />
+                    </div>
+                    <span style={{
+                      fontFamily: FONT_BODY, color: hpColor, fontSize: VT_XS,
+                      whiteSpace: "nowrap", minWidth: 48, textAlign: "right",
+                    }}>{hpLabel}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Task list ── */}
+              <DemoTaskList
+                tasks={tasks}
+                completedCount={Math.min(hitCount, tasks.length)}
+                monsterIndex={monsterIdx % MONSTERS.length}
+              />
+            </div>
+
+            {/* Bottom fade-out — demo fades into the page bg */}
+            <div style={{
+              position: "absolute", bottom: -1, left: 0, right: 0, height: 80,
+              background: `linear-gradient(to bottom, transparent, ${BG_DEEPEST})`,
+              pointerEvents: "none", zIndex: 2, borderRadius: "0 0 16px 16px",
+            }} />
+          </div>
+        </section>
+
+        {/* Version */}
         <div style={{
           position: "absolute", bottom: 12, right: 16,
           fontFamily: FONT_BODY, color: alpha(TEXT_INACTIVE, "44"), fontSize: 12,
